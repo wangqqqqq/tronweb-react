@@ -10,9 +10,9 @@ const util = require('util');
 
 async function mainBefore(){
     const tronWeb = tronWebBuilder.createInstance();
-    await tronWeb.trx.freezeBalance(1e6, 3, 'BANDWIDTH', {}, ADDRESS_BASE58)
     const accountBalanceBefore1 = await tronWeb.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceBefore1: ' + accountBalanceBefore1);
+    await tronWeb.trx.freezeBalance(1e6, 3, 'BANDWIDTH', {}, ADDRESS_BASE58)
     await wait(60);
     while (true) {
         let accountBalanceBefore2 = await tronWeb.trx.getBalance(ADDRESS_BASE58);
@@ -29,9 +29,9 @@ async function mainBefore(){
 
 async function sideBefore(){
     const tronWeb = tronWebBuilder.createInstanceSide();
-    await tronWeb.sidechain.sidechain.trx.freezeBalance(1e6, 3, 'BANDWIDTH', {}, ADDRESS_BASE58);
     let accountBalanceBefore1 = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceBefore1: ' + accountBalanceBefore1);
+    await tronWeb.sidechain.sidechain.trx.freezeBalance(1e6, 3, 'BANDWIDTH', {}, ADDRESS_BASE58);
     await wait(60);
     while (true) {
         let accountBalanceBefore2 = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
@@ -81,10 +81,14 @@ async function mainDefaultFeelimitWithCreate() {
     // after create
     assert.equal(createInfo.result, "FAILED");
     assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-    assert.equal(createTxFee, 4e7);
+    if (createTxFee == 0) {
+        assert.equal(createInfo.receipt.energy_usage_total, 15e5);
+    } else {
+        assert.equal(createTxFee, 15e7);
+    }
     const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceAfter: ' + accountBalanceAfter);
-    assert.equal(accountBalanceBefore-4e7, accountBalanceAfter);
+    assert.equal(accountBalanceBefore-createTxFee, accountBalanceAfter);
 }
 
 async function mainDefaultFeelimitWithTrigger() {
@@ -143,10 +147,14 @@ async function mainDefaultFeelimitWithTrigger() {
     // after create
     assert.equal(triggerInfo.result, "FAILED");
     assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-    assert.equal(triggerTxFee, 4e7);
+    if (triggerTxFee == 0) {
+        assert.equal(triggerInfo.receipt.energy_usage_total, 15e5);
+    } else {
+        assert.equal(triggerTxFee, 15e7);
+    }
     const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceAfter: ' + accountBalanceAfter);
-    assert.equal(accountBalanceBefore-4e7, accountBalanceAfter);
+    assert.equal(accountBalanceBefore-triggerTxFee, accountBalanceAfter);
 }
 
 async function mainCustomizedFeelimitWithCreate() {
@@ -184,10 +192,15 @@ async function mainCustomizedFeelimitWithCreate() {
     // after create
     assert.equal(createInfo.result, "FAILED");
     assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-    assert.equal(createTxFee, FEE_LIMIT);
     const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceAfter: ' + accountBalanceAfter);
-    assert.equal(accountBalanceBefore-FEE_LIMIT, accountBalanceAfter);
+    if (createTxFee == 0) {
+        assert.equal(createInfo.receipt.energy_usage_total, 1e7);
+        assert.equal(accountBalanceBefore, accountBalanceAfter);
+    } else {
+        assert.equal(createTxFee, FEE_LIMIT);
+        assert.equal(accountBalanceBefore-FEE_LIMIT, accountBalanceAfter);
+    }
 }
 
 async function mainCustomizedFeelimitWithTrigger() {
@@ -249,10 +262,15 @@ async function mainCustomizedFeelimitWithTrigger() {
     // after create
     assert.equal(triggerInfo.result, "FAILED");
     assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-    assert.equal(triggerTxFee, FEE_LIMIT);
     const accountBalanceAfter = await tronWeb.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceAfter: ' + accountBalanceAfter);
-    assert.equal(accountBalanceBefore-FEE_LIMIT, accountBalanceAfter);
+    if (triggerTxFee == 0) {
+        assert.equal(triggerInfo.receipt.energy_usage_total, 1e7);
+        assert.equal(accountBalanceBefore, accountBalanceAfter);
+    } else {
+        assert.equal(triggerTxFee, FEE_LIMIT);
+        assert.equal(accountBalanceBefore-FEE_LIMIT, accountBalanceAfter);
+    }
 }
 
 async function sideDefaultFeelimitWithCreate() {
@@ -290,10 +308,14 @@ async function sideDefaultFeelimitWithCreate() {
     // after create
     assert.equal(createInfo.result, "FAILED");
     assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-    assert.equal(createTxFee, 4e7);
+    if (createTxFee == 0) {
+        assert.equal(createInfo.receipt.energy_usage_total, 15e5);
+    } else {
+        assert.equal(createTxFee, 15e7);
+    }
     const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceAfter: ' + accountBalanceAfter);
-    assert.equal(parseInt(accountBalanceBefore)-4e7, accountBalanceAfter);
+    assert.equal(parseInt(accountBalanceBefore)-createTxFee, accountBalanceAfter);
     console.log("execute sideDefaultFeelimitWithCreate success")
 }
 
@@ -354,10 +376,14 @@ async function sideDefaultFeelimitWithTrigger() {
     // after create
     assert.equal(triggerInfo.result, "FAILED");
     assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-    assert.equal(triggerTxFee, 4e7);
+    if (triggerTxFee == 0) {
+        assert.equal(triggerInfo.receipt.energy_usage_total, 15e5);
+    } else {
+        assert.equal(triggerTxFee, 15e7);
+    }
     const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceAfter: ' + accountBalanceAfter);
-    assert.equal(parseInt(accountBalanceBefore)-4e7, accountBalanceAfter);
+    assert.equal(parseInt(accountBalanceBefore)-triggerTxFee, accountBalanceAfter);
     console.log("execute sideDefaultFeelimitWithTrigger success")
 }
 
@@ -397,10 +423,15 @@ async function sideCustomizedFeelimitWithCreate() {
     // after create
     assert.equal(createInfo.result, "FAILED");
     assert.equal(createInfo.receipt.result, "OUT_OF_ENERGY");
-    assert.equal(createTxFee, FEE_LIMIT);
     const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceAfter: ' + accountBalanceAfter);
-    assert.equal(parseInt(accountBalanceBefore)-FEE_LIMIT, accountBalanceAfter);
+    if (createTxFee == 0) {
+        assert.equal(createInfo.receipt.energy_usage_total, 1e7);
+        assert.equal(parseInt(accountBalanceBefore), accountBalanceAfter);
+    } else {
+        assert.equal(createTxFee, FEE_LIMIT);
+        assert.equal(parseInt(accountBalanceBefore)-FEE_LIMIT, accountBalanceAfter);
+    }
     console.log("execute sideCustomizedFeelimitWithCreate success")
 }
 
@@ -464,10 +495,16 @@ async function sideCustomizedFeelimitWithTrigger() {
     // after create
     assert.equal(triggerInfo.result, "FAILED");
     assert.equal(triggerInfo.receipt.result, "BAD_JUMP_DESTINATION");
-    assert.equal(triggerTxFee, FEE_LIMIT);
     const accountBalanceAfter = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceAfter: ' + accountBalanceAfter);
     assert.equal(parseInt(accountBalanceBefore)-FEE_LIMIT, accountBalanceAfter);
+    if (triggerTxFee == 0) {
+        assert.equal(triggerInfo.receipt.energy_usage_total, 1e7);
+        assert.equal(parseInt(accountBalanceBefore), accountBalanceAfter);
+    } else {
+        assert.equal(triggerTxFee, FEE_LIMIT);
+        assert.equal(parseInt(accountBalanceBefore)-FEE_LIMIT, accountBalanceAfter);
+    }
     console.log("execute sideCustomizedFeelimitWithTrigger success")
 }
 

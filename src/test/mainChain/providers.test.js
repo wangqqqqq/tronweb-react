@@ -54,7 +54,7 @@ async function request() {
   assert.equal(result.blockID.length, 64);
 
   provider = new TronWeb.providers.HttpProvider(FULL_NODE_API);
-  await assertThrow(provider.request('/wallet/some-fun'),
+  await assertThrow(provider.request('/wallet/getnowblock'),
       'Request failed with status code 404');
 }
 

@@ -1,16 +1,17 @@
 const tronWebBuilder = require('./tronWebBuilder');
 const tronWeb = tronWebBuilder.createInstance();
 const wait = require('./wait');
+const util = require('util');
 const chalk = require('chalk');
 const jlog = require('./jlog');
 
 function log(x) {
-    process.stdout.write(chalk.yellow(x))
+    console.log(x)
 }
 
 module.exports = async function (type, ...params) {
     let startTimestamp = Date.now();
-    let timeLimit = 5000;
+    let timeLimit = 45000;
     do {
         let data;
         let isFound = false;
@@ -38,11 +39,13 @@ module.exports = async function (type, ...params) {
                 }
                 case 'tokenById': {
                     data = await tronWeb.trx.getTokenFromID(params[0]);
+                    console.log("tokenById-data"+util.inspect(data,true,null,true))
                     isFound = !!data.name;
                     break;
                 }
                 case 'sendToken': {
                     data = await tronWeb.trx.getUnconfirmedAccount(params[0]);
+                    console.log("sendToken-data"+util.inspect(data,true,null,true))
                     isFound = data && data.assetV2 && data.assetV2.length && data.assetV2[0].value !== params[1];
                     break;
                 }

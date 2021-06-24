@@ -3,7 +3,8 @@ const trc721Contract = require('./contracts').trc721Contract;
 const trc20Contract = require('./contracts').trc20Contract;
 const tronWebBuilder = require('./tronWebBuilder');
 const broadcaster = require('./broadcaster');
-const wait = require('../util/wait');
+const jlog = require('./jlog')
+const wait = require('./wait');
 const HashMap = require('hashmap') ;
 const chalk = require('chalk')
 const util = require('util');
@@ -382,7 +383,7 @@ const deployTrc721ContractAndMappingAndMint = async () =>{
     contractAddress = deployMap.get("contractAddress");
     let mappingMap = await mappingTrc721Contract(contractAddress, createTxId);
     sideChainContractAddress = mappingMap.get("sideChainContractAddress");
-    let mintMap = await mintTrc721(contractAddress);
+    let mintMap = await mintTrc721(contractAddress,1001);
     trc721Id = mintMap.get("trc721Id");
 
     map.set("trc721Id", trc721Id);
@@ -466,13 +467,11 @@ const mappingTrc721Contract = async (contractAddress, createTxId) =>{
     return map;
 }
 
-const mintTrc721 = async (contractAddress) =>{
+const mintTrc721 = async (contractAddress,trc721Id) =>{
     const tronWeb = tronWebBuilder.createInstanceSide();
     let map = new HashMap();
-    let trc721Id;
     // mint(address,uint256)
     const functionSelector = 'mint(address,uint256)';
-    trc721Id = 1001;
     const mintTransaction = await tronWeb.sidechain.mainchain.transactionBuilder.triggerSmartContract(
         contractAddress,
         functionSelector,
@@ -534,6 +533,17 @@ const deployContract = async (contract, parametersArray = []) =>{
     return contractAddress;
 }
 
+const to64String = async (str) =>{
+    str = str.replace('0x', '')
+    const l = str.length;
+    let sres = "";
+    for (var i =0 ; i < 64 -l;i++ ){
+        sres +="0";
+    }
+    sres += str;
+    return sres;;
+}
+
 module.exports = {
     reduce,
     sumBigNumber,
@@ -555,5 +565,6 @@ module.exports = {
     deployTrc721Contract,
     mappingTrc721Contract,
     mintTrc721,
-    deployContract
+    deployContract,
+    to64String
 }

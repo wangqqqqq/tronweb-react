@@ -9,6 +9,7 @@ const broadcaster = require('../util/broadcaster');
 const wait = require('../util/wait');
 const TronWeb = tronWebBuilder.TronWeb;
 const chai = require('chai');
+const util = require('util');
 const assert = chai.assert;
 let tronWeb = tronWebBuilder.createInstance();
 let contractAddress1;

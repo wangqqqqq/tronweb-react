@@ -1,8 +1,11 @@
 const chalk = require('chalk')
-const TronWeb = require('../../tronweb/dist/TronWeb.node');
+// const TronWeb = require('../../tronweb/dist/TronWeb.node');
+const TronWeb = require('tronweb')
 const jlog = require('./jlog')
+const util = require('util');
 
-const {FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SUN_NETWORK, SIDE_CHAIN} = require('./config')
+
+const {FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SUN_NETWORK, SIDE_CHAIN, TEST_TRON_GRID_API} = require('./config')
 
 
 const createInstanceSide = (extraOptions = {}, sideExtraOptions = {}) => {
@@ -27,12 +30,13 @@ const createInstanceSide = (extraOptions = {}, sideExtraOptions = {}) => {
 
 const createInstance = (extraOptions = {}) => {
     let options = Object.assign({
-        // fullNode: FULL_NODE_API,
-        // solidityNode: FULL_NODE_API,
-        // eventServer: FULL_NODE_API,
-        fullHost: SIDE_CHAIN.fullNode,
+       // fullNode: FULL_NODE_API,
+       // solidityNode: SOLIDITY_NODE_API,
+       // // eventServer: EVENT_API,
+        fullNode: SIDE_CHAIN.fullNode,
         solidityNode: SIDE_CHAIN.solidityNode,
         eventServer: SIDE_CHAIN.eventServer,
+       //  fullHost: TEST_TRON_GRID_API,
         privateKey: PRIVATE_KEY,
     }, extraOptions)
     return new TronWeb(options);
@@ -78,12 +82,33 @@ const getTestAccounts = async (block) => {
     return Promise.resolve(accounts);
 }
 
+const getTestAccountsInMain = async (amount) => {
+    let accounts = {
+        b58: [],
+        hex: [],
+        pks: []
+    }
+    const tronWeb = createInstance();
+    for (let i = 0; i < amount; i++) {
+        const emptyAccount = await TronWeb.createAccount();
+        await tronWeb.trx.sendTrx(emptyAccount.address.hex,5000000000,{privateKey: PRIVATE_KEY})
+
+        accounts.pks.push(emptyAccount.privateKey);
+        accounts.b58.push(emptyAccount.address.base58);
+        accounts.hex.push(emptyAccount.address.hex.toLocaleString().toLowerCase());
+    }
+    console.log("accounts:"+util.inspect(accounts,true,null,true));
+
+   return Promise.resolve(accounts);
+}
+
 module.exports = {
     createInstance,
     getInstance,
     createInstanceSide,
     newTestAccounts,
     getTestAccounts,
+    getTestAccountsInMain,
     TronWeb
 }
 

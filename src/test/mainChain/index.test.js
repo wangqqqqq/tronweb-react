@@ -741,6 +741,7 @@ async function isConnected(){
 
   const tronWeb = tronWebBuilder.createInstance();
   const isConnected = await tronWeb.isConnected();
+  console.log("isConnected:"+util.inspect(isConnected,true,null,true))
   assert.isTrue(isConnected.fullNode);
   assert.isTrue(isConnected.solidityNode);
   if (!SUN_NETWORK) {  // As https://testhttpapi.tronex.io/healthcheck is 404
@@ -870,25 +871,25 @@ async function utils(){
 async function indexTestAll(){
   console.log("indexTestAll start")
   await constructor();
-  await rejectCreateAnInstance();
-  await createAnInstance();
-  await createAnInstance2();
-  await version();
-  await setDefaultBlock();
-  await setPrivateKey();
-  await setAddress();
-  await isValidProvider();
-  await setFullNode();
-  await setSolidityNode();
-  await setEventServer();
-  await currentProviders();
-  await sha3AndToHex();
-  await utf8();
-  await ascii();
-  await toBigNumber();
-  await decimal();
-  await sun();
-  await isAddress();
+  // await rejectCreateAnInstance();
+  // await createAnInstance();
+  // await createAnInstance2();
+  // await version();
+  // await setDefaultBlock();
+  // await setPrivateKey();
+  // await setAddress();
+  // await isValidProvider();
+  // await setFullNode();
+  // await setSolidityNode();
+  // await setEventServer();
+  // await currentProviders();
+  // await sha3AndToHex();
+  // await utf8();
+  // await ascii();
+  // await toBigNumber();
+  // await decimal();
+  // await sun();
+  // await isAddress();
   await isConnected();
   await utils();
   console.log("indexTestAll end")
