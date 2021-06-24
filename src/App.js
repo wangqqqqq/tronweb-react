@@ -38,7 +38,9 @@ class App extends React.Component {
   }
 
   test = async () => {
-    // need SIDE_CHAIN environment
+    /** need SIDE_CHAIN environment
+     *  Use react default domain name in the browser
+     */
     await multiSignTestMain.multiSignTestAll();
     // await multiSignTestSide.multiSignTestAll();
     // await trxTestSide.trxTestAll();
@@ -58,11 +60,15 @@ class App extends React.Component {
    //  await trxTestMain.trxTestAll();
    //  await fallbackTest.fallbackTestAll();
 
-    // need nile environment
+    /** need nile environment
+     *  Use react default domain name in the browser
+     */
     // await eventTest.eventTestAll();
     await indexTest.indexTestAll();
 
-    // need fullHost: TEST_TRON_GRID_API environment
+    /** need fullHost: TEST_TRON_GRID_API environment
+     *  Use http://trongrid.myservice.com domain name in the browser
+     */
     await trongridTest.trongridTestAll();
     console.log("success all")
   }
