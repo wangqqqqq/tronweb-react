@@ -38,29 +38,32 @@ class App extends React.Component {
   }
 
   test = async () => {
-    await multiSignTestSide.multiSignTestAll(); // completed
-    // await trxTestSide.trxTestAll(); // completed
-    // await trc721Test.trc721TestAll(); // completed
-    // await trc20Test.trc20TestAll(); // completed
-    // await trc10Test.trc10TestAll(); // completed
-    // await multiSignTest.feelimitTestAll(); //
-    // await feelimitTest.feelimitTestAll(); // completed
-    // await abiTest.abiTestAll(); // completed
-    // await base58Test.base58TestAll(); // completed
-    // await bytesTest.bytesTestAll(); // completed
-    // await codeTest.codeTestAll(); // completed
-    // await eventTest.eventTestAll(); // completed
-    // await indexTest.indexTestAll(); // completed
-    // await methodTest.methodTestAll(); // completed
-    // await pluginTest.pluginTestAll(); // completed
-    // await providersTest.providersTestAll(); // completed
-   // await transactionBuilderTest.transactionBuilderTestAll(); // completed
-   //  await trxTestMain.trxTestAll(); // completed
-   //  await fallbackTest.fallbackTestAll(); // completed
-   //   await trongridTest.trongridTestAll(); // completed
-    // await ztronTest.ztronTestAll(); // completed
-    // await ztron2Test.ztron2TestAll(); // completed
+    // need SIDE_CHAIN environment
+    await multiSignTestMain.multiSignTestAll();
+    // await multiSignTestSide.multiSignTestAll();
+    // await trxTestSide.trxTestAll();
+    // await trc721Test.trc721TestAll();
+    // await trc20Test.trc20TestAll();
+    // await trc10Test.trc10TestAll();
+    // await multiSignTest.feelimitTestAll();
+    // await feelimitTest.feelimitTestAll();
+    // await abiTest.abiTestAll();
+    // await base58Test.base58TestAll();
+    // await bytesTest.bytesTestAll();
+    // await codeTest.codeTestAll();
+    // await methodTest.methodTestAll();
+    await pluginTest.pluginTestAll();
+    // await providersTest.providersTestAll();
+   // await transactionBuilderTest.transactionBuilderTestAll();
+   //  await trxTestMain.trxTestAll();
+   //  await fallbackTest.fallbackTestAll();
 
+    // need nile environment
+    // await eventTest.eventTestAll();
+    await indexTest.indexTestAll();
+
+    // need fullHost: TEST_TRON_GRID_API environment
+    await trongridTest.trongridTestAll();
     console.log("success all")
   }
 

@@ -128,7 +128,7 @@ async function verifyWeightAfterMultiSignByOwnerPermission() {
     let signWeight;
     for (let i = idxS; i < idxE; i++) {
         signedTransaction = await tronWeb.sidechain.multiSign(signedTransaction, accounts.pks[i], 0);
-        signWeight = await tronWeb.trx.getSignWeight(signedTransaction);
+        signWeight = await tronWeb.sidechain.sidechain.trx.getSignWeight(signedTransaction);
         if (i < idxE - 1) {
             assert.equal(signWeight.result.code, 'NOT_ENOUGH_PERMISSION');
         }
@@ -153,7 +153,7 @@ async function verifyWeightAfterMultiSignByOwnerPermission_PermissionIdInsideTx(
     let signWeight;
     for (let i = idxS; i < idxE; i++) {
         signedTransaction = await tronWeb.sidechain.multiSign(signedTransaction, accounts.pks[i]);
-        signWeight = await tronWeb.trx.getSignWeight(signedTransaction);
+        signWeight = await tronWeb.sidechain.sidechain.trx.getSignWeight(signedTransaction);
         if (i < idxE - 1) {
             assert.equal(signWeight.result.code, 'NOT_ENOUGH_PERMISSION');
         }
@@ -229,7 +229,7 @@ async function verifyWeightAfterMultiSignByActivePermission() {
     let signWeight;
     for (let i = idxS; i < idxE; i++) {
         signedTransaction = await tronWeb.sidechain.multiSign(signedTransaction, accounts.pks[i], 2);
-        signWeight = await tronWeb.trx.getSignWeight(signedTransaction, 2);
+        signWeight = await tronWeb.sidechain.sidechain.trx.getSignWeight(signedTransaction, 2);
         if (i < idxE - 1) {
             assert.equal(signWeight.result.code, 'NOT_ENOUGH_PERMISSION');
         }
@@ -254,7 +254,7 @@ async function verifyWeightAfterMultiSignByActivePermission_PermissionIdInsideTx
     let signWeight;
     for (let i = idxS; i < idxE; i++) {
         signedTransaction = await tronWeb.sidechain.multiSign(signedTransaction, accounts.pks[i]);
-        signWeight = await tronWeb.trx.getSignWeight(signedTransaction);
+        signWeight = await tronWeb.sidechain.sidechain.trx.getSignWeight(signedTransaction);
         if (i < idxE - 1) {
             assert.equal(signWeight.result.code, 'NOT_ENOUGH_PERMISSION');
         }
