@@ -1253,6 +1253,28 @@ async function getUnconfirmedBrokerage(){
   assert.equal(brokerage, 20)
 }
 
+async function broadcastHex(){
+  const transactionHex = "0a84010a02c8f32208bb3165e33e20e23b40b087d6f6b22f5a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541a1f92379d71b31e4c10c5868184eeb965ef862fa18e8077090c5d2f6b22f124122323c125105a34bc1db7c8c675f5d214f6fe1c7f635ae88adbcc31b7b11122266aab617bb2068802e727ab15180cef0d8c0c1f8cb24af450226a73529bb270a00"
+  let result = await tronWeb.trx.broadcastHex(transactionHex);
+  console.log("result1: "+util.inspect(result,true,null,true))
+  assert.isTrue(result.result);
+
+  result = await tronWeb.trx.broadcastHex(transactionHex);
+  console.log("result2: "+util.inspect(result,true,null,true))
+  assert.isFalse(result.result);
+  assert.equal(result.code,"DUP_TRANSACTION_ERROR");
+
+  await assertThrow(
+      tronWeb.trx.broadcastHex(false),
+      'Invalid hex transaction provided'
+  );
+
+  await assertThrow(
+      tronWeb.trx.broadcastHex(transactionHex, false),
+      'Invalid options provided'
+  );
+}
+
 async function trxTestAll(){
   console.log("trxTestAll start")
   await trxBefore();
@@ -1282,6 +1304,7 @@ async function trxTestAll(){
   await getUnconfirmedReward();
   await getBrokerage();
   await getUnconfirmedBrokerage();
+  await broadcastHex();
 
   console.log("trxTestAll end")
 }

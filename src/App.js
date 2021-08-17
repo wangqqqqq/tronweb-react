@@ -47,7 +47,6 @@ class App extends React.Component {
     // await trc721Test.trc721TestAll();
     // await trc20Test.trc20TestAll();
     // await trc10Test.trc10TestAll();
-    // await multiSignTest.feelimitTestAll();
     // await feelimitTest.feelimitTestAll();
     // await abiTest.abiTestAll();
     // await base58Test.base58TestAll();

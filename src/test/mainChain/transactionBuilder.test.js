@@ -574,7 +574,7 @@ async function purchaseToken(){
     [emptyAccount1.address.base58, tokenID, 20, emptyAccount2.address.base58]
   ];
   for (let param of params) {
-    await wait(10)
+    await wait(20)
 
     const transaction = await tronWeb.transactionBuilder.purchaseToken(...param);
     const parameter = txPars(transaction);
@@ -662,7 +662,7 @@ async function sendToken(){
     [emptyAccount2.address.base58, 5, tokenID, emptyAccount3.address.base58]
   ];
   for (let param of params) {
-    await wait(10)
+    await wait(20)
 
     console.log("token: "+util.inspect(token,true,null,true));
     console.log("now datatime: "+util.inspect(Date.now(),true,null,true));
