@@ -17,6 +17,7 @@
     "hashmap": "^2.4.0",
     "injectpromise": "^1.0.0",
     "jsonwebtoken": "^8.5.1",
+    "path": "^0.12.7",
     "react": "^17.0.1",
     "react-app-rewired": "^2.1.6",
     "react-dom": "^17.0.1",

@@ -63,7 +63,6 @@ class App extends React.Component {
    //  await trxTestMain.trxTestAll();
    //  await fallbackTest.fallbackTestAll();
 
-
     /** need nile environment
      *  Use react default domain name in the browser
      */
