@@ -61,6 +61,7 @@ async function depositTrc20(){
     const sTrxBalanceAfter = sAccountAfter.balance;
     console.log('mTrxBalanceAfter: ' + mTrxBalanceAfter);
     console.log('sTrxBalanceAfter: ' + sTrxBalanceAfter);
+    await wait(10);
     assert.equal(mTrxBalanceBefore-depositTxFee-approveTxFee-DEPOSIT_FEE,mTrxBalanceAfter);
     assert.equal(sTrxBalanceBefore,sTrxBalanceAfter);
 
@@ -113,7 +114,7 @@ async function depositTrc20(){
     let feeLimit = 100000000000;
     await assertThrow(
         tronWeb.sidechain.depositTrc20(num, DEPOSIT_FEE, feeLimit, contractAddress),
-        'Invalid feeLimit provided'
+        'Contract validate error : feeLimit must be >= 0 and <= 1000000000'
     );
 
     // should throw if an invalid contract address is passed
@@ -161,7 +162,7 @@ async function mappingTrc20(){
     let feeLimit = 100000000000;
     await assertThrow(
         tronWeb.sidechain.mappingTrc20(createTxId, MAPPING_FEE, feeLimit),
-        'Invalid feeLimit provided'
+        'Contract validate error : feeLimit must be >= 0 and <= 1000000000'
     );
 
     console.log("execute mappingTrc20 success")
@@ -245,7 +246,7 @@ async function withdrawTrc20(){
     let feeLimit = 100000000000;
     await assertThrow(
         tronWeb.sidechain.withdrawTrc20(100, WITHDRAW_FEE, feeLimit, sideChainContractAddress),
-        'Invalid feeLimit provided'
+        'contract validate error : feeLimit must be >= 0 and <= 1000000000'
     );
 
     // should throw if an invalid contract address is passed
