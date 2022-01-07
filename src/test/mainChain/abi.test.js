@@ -3,10 +3,14 @@ const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, FEE_LIMIT} = require('../util/con
 const testDeployRevert = require('../util/contracts').testDeployRevert;
 const testTriggerError = require('../util/contracts').testTriggerError;
 const tronWebBuilder = require('../util/tronWebBuilder');
+const {equals, getValues} = require('../util/testUtils');
+// const {loadTests} = require('../util/disk-utils');
 const broadcaster = require('../util/broadcaster');
 const wait = require('../util/wait');
 const assert = require('assert');
 const util = require('util');
+import {json} from '../util/contract-interface'
+import {json2} from '../util/contract-interface-abi2'
 
 async function decodeParams1(){
 
@@ -123,21 +127,78 @@ async function encodeParams2() {
   }
 }
 
+async function encodeParamsV2ByABI_v1_input() {
+  const tronWeb = tronWebBuilder.createInstance();
+  let coder = tronWeb.utils.abi;
+
+  json.forEach((test) => {
+    let { normalizedValues, result, interfac } = test;
+    const funcABI = JSON.parse(interfac);
+    const inputValues = getValues(JSON.parse(normalizedValues))
+    funcABI[0].inputs = funcABI[0].outputs;
+    let title = test.name + ' => (' + test.types + ') = (' + test.normalizedValues + ')';
+    const encoded = coder.encodeParamsV2ByABI(funcABI[0], inputValues);
+    assert.ok(equals(encoded, result), 'encoded data - ' + title);
+  });
+}
+
+async function encodeParamsV2ByABI_v2_input() {
+  const tronWeb = tronWebBuilder.createInstance();
+  let coder = tronWeb.utils.abi;
+
+  json2.forEach((test) => {
+    let { values, result, interfac } = test;
+    const funcABI = JSON.parse(interfac);
+    const inputValues = getValues(JSON.parse(values));
+    funcABI[0].inputs = funcABI[0].outputs;
+    let title = test.name + ' => (' + test.types + ') = (' + test.normalizedValues + ')';
+    const encoded = coder.encodeParamsV2ByABI(funcABI[0], inputValues);
+    assert.ok(equals(encoded, result), 'encoded data - ' + title);
+  });
+}
+
+async function decodeParamsV2ByABI_v1_input() {
+  const tronWeb = tronWebBuilder.createInstance();
+  let coder = tronWeb.utils.abi;
+
+  json.forEach((test) => {
+    let { normalizedValues, result, interfac } = test;
+    const funcABI = JSON.parse(interfac);
+    const outputValues = getValues(JSON.parse(normalizedValues))
+    let title = test.name + ' => (' + test.types + ') = (' + test.normalizedValues + ')';
+    const decoded = coder.decodeParamsV2ByABI(funcABI[0], result);
+    assert.ok(equals(decoded, outputValues), 'decoded data - ' + title);
+  });
+}
+
+async function decodeParamsV2ByABI_v2_input() {
+  const tronWeb = tronWebBuilder.createInstance();
+  let coder = tronWeb.utils.abi;
+
+  json2.forEach((test) => {
+    let { values, result, interfac } = test;
+    const funcABI = JSON.parse(interfac);
+    const outputValues = getValues(JSON.parse(values))
+    let title = test.name + ' => (' + test.types + ') = (' + test.normalizedValues + ')';
+    const decoded = coder.decodeParamsV2ByABI(funcABI[0], result);
+    assert.ok(equals(decoded, outputValues), 'decoded data - ' + title);
+  });
+}
+
 async function abiTestAll(){
   console.log("abiTestAll start")
-  this.decodeParams1();
-  this.decodeParams2();
-  this.decodeParams3();
-  this.encodeParams1();
-  this.encodeParams2();
+  await decodeParams1();
+  await decodeParams2();
+  await decodeParams3();
+  await encodeParams1();
+  await encodeParams2();
+  await encodeParamsV2ByABI_v1_input();
+  await encodeParamsV2ByABI_v2_input();
+  await decodeParamsV2ByABI_v1_input();
+  await decodeParamsV2ByABI_v2_input();
   console.log("abiTestAll end")
 }
 
 export{
-  decodeParams1,
-  decodeParams2,
-  decodeParams3,
-  encodeParams1,
-  encodeParams2,
   abiTestAll
 }
