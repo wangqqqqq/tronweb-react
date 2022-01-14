@@ -54,13 +54,11 @@ async function decode58(){
 
 async function base58TestAll(){
     console.log("base58TestAll start")
-    this.encode58();
-    this.decode58();
+    encode58();
+    decode58();
     console.log("base58TestAll end")
 }
 
 export{
-    encode58,
-    decode58,
     base58TestAll
 }

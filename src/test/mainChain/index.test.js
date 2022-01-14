@@ -928,28 +928,28 @@ async function abiV2Test2(){
 async function indexTestAll(){
   console.log("indexTestAll start")
   await constructor();
-  // await rejectCreateAnInstance();
-  // await createAnInstance();
-  // await createAnInstance2();
-  // await version();
-  // await setDefaultBlock();
-  // await setPrivateKey();
-  // await setAddress();
-  // await isValidProvider();
-  // await setFullNode();
-  // await setSolidityNode();
-  // await setEventServer();
-  // await currentProviders();
-  // await sha3AndToHex();
-  // await utf8();
-  // await ascii();
-  // await toBigNumber();
-  // await decimal();
-  // await sun();
-  // await isAddress();
-  // await isConnected();
+  await rejectCreateAnInstance();
+  await createAnInstance();
+  await createAnInstance2();
+  await version();
+  await setDefaultBlock();
+  await setPrivateKey();
+  await setAddress();
+  await isValidProvider();
+  await setFullNode();
+  await setSolidityNode();
+  await setEventServer();
+  await currentProviders();
+  await sha3AndToHex();
+  await utf8();
+  await ascii();
+  await toBigNumber();
+  await decimal();
+  await sun();
+  await isAddress();
+  await isConnected();
   await utils();
-  // await fromPrivateKey();
+  await fromPrivateKey();
   await abiV2Test2();
   console.log("indexTestAll end")
 }

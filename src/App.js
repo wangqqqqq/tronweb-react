@@ -43,25 +43,25 @@ class App extends React.Component {
     /** need SIDE_CHAIN environment
      *  Use react default domain name in the browser
      */
-    await multiSignTestMain.multiSignTestAll();
-    // await multiSignTestSide.multiSignTestAll();
-    // await isConstantCall.isConstantCallTestAll();
-    // await contractTypes.contractTypesTestAll();
-    // await trxTestSide.trxTestAll();
-    // await trc721Test.trc721TestAll();
-    // await trc20Test.trc20TestAll();
-    // await trc10Test.trc10TestAll();
-    // await feelimitTest.feelimitTestAll();
     // await abiTest.abiTestAll();
     // await base58Test.base58TestAll();
     // await bytesTest.bytesTestAll();
     // await codeTest.codeTestAll();
+    // await contractTypes.contractTypesTestAll();
+    // await fallbackTest.fallbackTestAll();
+    // await isConstantCall.isConstantCallTestAll();
     // await methodTest.methodTestAll();
+    // await multiSignTestMain.multiSignTestAll();
     // await pluginTest.pluginTestAll();
     // await providersTest.providersTestAll();
    // await transactionBuilderTest.transactionBuilderTestAll();
    //  await trxTestMain.trxTestAll();
-   //  await fallbackTest.fallbackTestAll();
+   //  await multiSignTestSide.multiSignTestAll();
+   //  await feelimitTest.feelimitTestAll();
+    // await trc721Test.trc721TestAll();
+    // await trc20Test.trc20TestAll();
+    // await trc10Test.trc10TestAll();
+    // await trxTestSide.trxTestAll();
 
     /** need nile environment
      *  Use react default domain name in the browser
@@ -72,7 +72,7 @@ class App extends React.Component {
     /** need fullHost: TEST_TRON_GRID_API environment
      *  Use http://trongrid.myservice.com domain name in the browser
      */
-    // await trongridTest.trongridTestAll();    运行时会有很多url返回401用例
+    await trongridTest.trongridTestAll();   // 运行时会有很多url返回401用例
     console.log("success all")
   }
 

@@ -24,8 +24,8 @@ async function transactionBuilderBefore(){
   tronWeb = tronWebBuilder.createInstance();
   emptyAccounts = await TronWeb.createAccount();
   isAllowSameTokenNameApproved = await isProposalApproved(tronWeb, 'getAllowSameTokenName')
-  // emptyAccount6 = await TronWeb.createAccount();
-  // await tronWeb.trx.sendTrx(emptyAccount6.address.hex,5000000000,{privateKey: PRIVATE_KEY})
+  emptyAccount6 = await TronWeb.createAccount();
+  await tronWeb.trx.sendTrx(emptyAccount6.address.hex,5000000000,{privateKey: PRIVATE_KEY})
 
   assert.instanceOf(tronWeb.transactionBuilder, TronWeb.TransactionBuilder);
   console.log("transactionBuilderBefore excute success")
@@ -2448,38 +2448,38 @@ async function encodeABIV2test1_V2_input(){
 async function transactionBuilderTestAll(){
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
-  // await sendTrx();
-  // await createToken();
-  // await updateToken();
-  // await purchaseToken();
-  // await sendToken();
-  // await createProposal();
-  // await deleteProposal();
-  // await applyForSR();
-  // await freezeBalance();
-  // await vote();
-  // await createSmartContract();
-  // await createSmartContractWithArray3();
-  // await createSmartContractWithTrctokenAndStateMutability();
-  // await createSmartContractWithPayable();
-  // await triggerConstantContract();
-  // await triggerComfirmedConstantContract();
-  // await clearabi();
-  // await updateBrokerage();
-  // await withdrawBlockRewards();
-  // await triggerSmartContract();
-  // await triggerSmartContractWithArrays();
-  // await triggerSmartContractWithTrctoken();
-  // await createTokenExchange();
-  // await createTRXExchange();
-  // await injectExchangeTokens();
-  // await withdrawExchangeTokens();
-  // await tradeExchangeTokens();
-  // await alterExistentTransactions();
-  // await withdrawBlockRewards();
-  // await rawParameter();
-  // await triggerSmartContractWithFuncABIV2_V1_input();
-  // await triggerSmartContractWithFuncABIV2_V2_input();
+  await sendTrx();
+  await createToken();
+  await updateToken();
+  await purchaseToken();
+  await sendToken();
+  await createProposal();
+  await deleteProposal();
+  await applyForSR();
+  await freezeBalance();
+  await vote();
+  await createSmartContract();
+  await createSmartContractWithArray3();
+  await createSmartContractWithTrctokenAndStateMutability();
+  await createSmartContractWithPayable();
+  await triggerConstantContract();
+  await triggerComfirmedConstantContract();
+  await clearabi();
+  await updateBrokerage();
+  await withdrawBlockRewards();
+  await triggerSmartContract();
+  await triggerSmartContractWithArrays();
+  await triggerSmartContractWithTrctoken();
+  await createTokenExchange();
+  await createTRXExchange();
+  await injectExchangeTokens();
+  await withdrawExchangeTokens();
+  await tradeExchangeTokens();
+  await alterExistentTransactions();
+  await withdrawBlockRewards();
+  await rawParameter();
+  await triggerSmartContractWithFuncABIV2_V1_input();
+  await triggerSmartContractWithFuncABIV2_V2_input();
   await encodeABIV2test1_V1_input();
   await encodeABIV2test1_V2_input();
   console.log("transactionBuilderTestAll end")
