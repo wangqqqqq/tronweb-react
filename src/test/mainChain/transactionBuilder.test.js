@@ -1859,7 +1859,7 @@ async function triggerSmartContractWithFuncABIV2_V2_input(){
   let deployed = await tronWeb
   .contract(abi, transaction.contract_address)
   let check = await deployed.test().call();
-  assert.ok(equals(check, outputValues[0]));
+  assert.ok(equals(check[0], outputValues[0]));
 
   transaction = await tronWeb.transactionBuilder.createSmartContract(
       {

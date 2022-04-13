@@ -58,7 +58,7 @@ async function before() {
             await wait(3);
             continue;
         } else {
-            console.log("createInfo:" + util.inspect(createInfo2))
+            console.log("createInfo2:" + util.inspect(createInfo2))
             break;
         }
     }
