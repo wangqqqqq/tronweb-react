@@ -87,7 +87,7 @@ async function depositTrc10(){
     const feeLimit = 10000000000
     await assertThrow(
         tronWeb.sidechain.depositTrc10(TOKEN_ID, 100, DEPOSIT_FEE, feeLimit),
-        'Invalid feeLimit provided'
+        'Contract validate error : feeLimit must be >= 0 and <= 1000000000'
     );
     await wait(90);
 
@@ -170,7 +170,7 @@ async function withdrawTrc10(){
     let feeLimit = 100000000000;
     await assertThrow(
         tronWeb.sidechain.withdrawTrc10(TOKEN_ID, 100, WITHDRAW_FEE, feeLimit),
-        'Invalid feeLimit provided'
+        'contract validate error : feeLimit must be >= 0 and <= 1000000000'
     );
 
     console.log("execute withdrawTrc10 success")
