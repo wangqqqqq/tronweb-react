@@ -30,6 +30,8 @@ const trc721Test = require('./test/sideChain/trc721.test.js');
 const trxTestSide = require('./test/sideChain/trx.test.js');
 const isConstantCall = require('./test/mainChain/isConstantCall.test.js');
 const contractTypes = require('./test/mainChain/contractTypes.test.js');
+const typedData = require('./test/mainChain/typedData.test.js');
+const eip712Test = require('./test/mainChain/eip712Test.test.js');
 const tronWebBuilder = require('./test/util/tronWebBuilder');
 
 
@@ -48,6 +50,7 @@ class App extends React.Component {
     // await bytesTest.bytesTestAll();
     // await codeTest.codeTestAll();
     // await contractTypes.contractTypesTestAll();
+    // await eip712Test.eip712TestAll();
     // await fallbackTest.fallbackTestAll();
     // await isConstantCall.isConstantCallTestAll();
     // await methodTest.methodTestAll();
@@ -56,8 +59,10 @@ class App extends React.Component {
     // await providersTest.providersTestAll();
    // await transactionBuilderTest.transactionBuilderTestAll();
    //  await trxTestMain.trxTestAll();
-   //  await multiSignTestSide.multiSignTestAll();
+   //  await typedData.typedDataAll();
+
    //  await feelimitTest.feelimitTestAll();
+    //  await multiSignTestSide.multiSignTestAll();
     // await trc721Test.trc721TestAll();
     // await trc20Test.trc20TestAll();
     // await trc10Test.trc10TestAll();
