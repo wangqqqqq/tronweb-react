@@ -13,6 +13,7 @@ const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
 const util = require('util');
+const ethers = require('ethers');
 let tronWeb;
 let emptyAccounts;
 let isAllowSameTokenNameApproved
@@ -242,6 +243,201 @@ async function verifyMessage(){
       'Signature does not match'
   );
   console.log("verifyMessage excute success");
+}
+
+/**
+ * ledger.fromMnemonic.account signMsg
+ */
+async function signMessageV2_1(){
+  console.log("signMessageV2_1 excute start");
+
+  const tronAccount = await tronWeb.fromMnemonic('dad topple match blade valley enact sea style focus forest spend car verify radar input sleep melody repair diamond monitor indoor east solution dwarf', "m/44'/195'/5'/0/0");
+  console.log(tronAccount.privateKey+", "+tronAccount.address)
+
+  let msg = 'test';
+  let signedMsg = await TronWeb.Trx.signMessageV2(msg, tronAccount.privateKey);
+  console.log(msg + "   .signMessageV2 :   " + signedMsg)
+  let signAddress = await TronWeb.Trx.verifyMessageV2(msg, signedMsg);
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = '74657374';
+  signedMsg = await tronWeb.trx.signMessageV2(msg, tronAccount.privateKey);
+  console.log(msg + "   .signMessageV2 :   " + signedMsg)
+  signAddress = await tronWeb.trx.verifyMessageV2(msg, signedMsg);
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = 'hello world';
+  signedMsg = await TronWeb.Trx.signMessageV2(msg, tronAccount.privateKey);
+  console.log(msg + "   .signMessageV2 :   " + signedMsg)
+  signAddress = await TronWeb.Trx.verifyMessageV2(msg, signedMsg);
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = ' hello world ';
+  signedMsg = await tronWeb.trx.signMessageV2(msg, tronAccount.privateKey);
+  console.log(msg + "   .signMessageV2 :   " + signedMsg)
+  signAddress = await tronWeb.trx.verifyMessageV2(msg, signedMsg);
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = '0x74657374';
+  signedMsg = await TronWeb.Trx.signMessageV2(msg, tronAccount.privateKey);
+  console.log(msg + "   .signMessageV2 :   " + signedMsg)
+  signAddress = await TronWeb.Trx.verifyMessageV2(msg, signedMsg);
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = '>/hello world;\'sf  ·/。/、、】';
+  signedMsg = await tronWeb.trx.signMessageV2(msg, tronAccount.privateKey);
+  console.log(msg + "   .signMessageV2 :   " + signedMsg)
+  signAddress = await tronWeb.trx.verifyMessageV2(msg, signedMsg);
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = 'skdhfoshofoshdkfjhakKJHKhsdkfhkahskfhozcvuu203840802sd8w3rhkjha98du921oieksjkfdhHKHDHHD(*UHKHIUY*HUhkjsdhkjfhusyfihskdhfkjshi8w34h2498s9dfhihsfkhs8dfu89we5h8s7fdhskfdh98ahfdjkashfkkjhkjsfd8w528947923hkhd97kakfspal;afha8yr82hsc';
+  signedMsg = await TronWeb.Trx.signMessageV2(msg, tronAccount.privateKey);
+  console.log(msg + "   .signMessageV2 :   " + signedMsg)
+  signAddress = await TronWeb.Trx.verifyMessageV2(msg, signedMsg);
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = '736b6468666f73686f666f7368646b666a68616b4b4a484b6873646b66686b6168736b66686f7a63767575323033383430383032736438773372686b6a6861393864753932316f69656b736a6b666468484b4844484844282a55484b484955592a4855686b6a7364686b6a6668757379666968736b6468666b6a7368693877333468323439387339646668696873666b687338646675383977653568387337666468736b6664683938616866646a6b617368666b6b6a686b6a7366643877353238393437393233686b686439376b616b667370616c3b616668613879723832687363';
+  signedMsg = await tronWeb.trx.signMessageV2(msg, tronAccount.privateKey);
+  console.log(msg + "   .signMessageV2 :   " + signedMsg)
+  signAddress = await tronWeb.trx.verifyMessageV2(msg, signedMsg);
+  assert.equal(tronAccount.address, signAddress);
+
+  console.log("signMessageV2_1 excute success");
+}
+
+/**
+ * param is bytearray signedMsg equals param is string signedMsg
+ */
+async function signMessageV2_2(){
+  console.log("signMessageV2_2 excute start");
+
+  let hexStr = '736b6468666f73686f666f7368646b666a68616b4b4a484b6873646b66686b6168736b66686f7a63767575323033383430383032736438773372686b6a6861393864753932316f69656b736a6b666468484b4844484844282a55484b484955592a4855686b6a7364686b6a6668757379666968736b6468666b6a7368693877333468323439387339646668696873666b687338646675383977653568387337666468736b6664683938616866646a6b617368666b6b6a686b6a7366643877353238393437393233686b686439376b616b667370616c3b616668613879723832687363';
+  let byteArray = tronWeb.utils.code.hexStr2byteArray(hexStr)
+  let signedMsg = await TronWeb.Trx.signMessageV2(byteArray, PRIVATE_KEY);
+  let signAddress = await TronWeb.Trx.verifyMessageV2(byteArray, signedMsg);
+  assert.equal(ADDRESS_BASE58, signAddress);
+  let msg = 'skdhfoshofoshdkfjhakKJHKhsdkfhkahskfhozcvuu203840802sd8w3rhkjha98du921oieksjkfdhHKHDHHD(*UHKHIUY*HUhkjsdhkjfhusyfihskdhfkjshi8w34h2498s9dfhihsfkhs8dfu89we5h8s7fdhskfdh98ahfdjkashfkkjhkjsfd8w528947923hkhd97kakfspal;afha8yr82hsc';
+  let signedMsg2 = await TronWeb.Trx.signMessageV2(msg, PRIVATE_KEY);
+  assert.equal(signedMsg, signedMsg2);
+
+  const tronAccount = await tronWeb.fromMnemonic('dad topple match blade valley enact sea style focus forest spend car verify radar input sleep melody repair diamond monitor indoor east solution dwarf', "m/44'/195'/5'/0/0");
+  console.log(tronAccount.privateKey+", "+tronAccount.address)
+  signedMsg = await tronWeb.trx.signMessageV2(byteArray, tronAccount.privateKey);
+  signAddress = await tronWeb.trx.verifyMessageV2(byteArray, signedMsg);
+  assert.equal(tronAccount.address, signAddress);
+  msg = 'skdhfoshofoshdkfjhakKJHKhsdkfhkahskfhozcvuu203840802sd8w3rhkjha98du921oieksjkfdhHKHDHHD(*UHKHIUY*HUhkjsdhkjfhusyfihskdhfkjshi8w34h2498s9dfhihsfkhs8dfu89we5h8s7fdhskfdh98ahfdjkashfkkjhkjsfd8w528947923hkhd97kakfspal;afha8yr82hsc';
+  signedMsg2 = await tronWeb.trx.signMessageV2(msg, tronAccount.privateKey);
+  assert.equal(signedMsg, signedMsg2);
+
+  hexStr = '74657374';
+  byteArray = tronWeb.utils.code.hexStr2byteArray(hexStr)
+  signedMsg = await TronWeb.Trx.signMessageV2(byteArray, PRIVATE_KEY);
+  signAddress = await TronWeb.Trx.verifyMessageV2(byteArray, signedMsg);
+  assert.equal(ADDRESS_BASE58, signAddress);
+  msg = 'test';
+  signedMsg2 = await TronWeb.Trx.signMessageV2(msg, PRIVATE_KEY);
+  assert.equal(signedMsg, signedMsg2);
+
+  hexStr = '3734363537333734';
+  byteArray = tronWeb.utils.code.hexStr2byteArray(hexStr)
+  signedMsg = await tronWeb.trx.signMessageV2(byteArray, PRIVATE_KEY);
+  signAddress = await tronWeb.trx.verifyMessageV2(byteArray, signedMsg);
+  assert.equal(ADDRESS_BASE58, signAddress);
+  msg = '74657374';
+  signedMsg2 = await tronWeb.trx.signMessageV2(msg, PRIVATE_KEY);
+  assert.equal(signedMsg, signedMsg2);
+
+  hexStr = '68656c6c6f20776f726c64';
+  byteArray = tronWeb.utils.code.hexStr2byteArray(hexStr)
+  signedMsg = await TronWeb.Trx.signMessageV2(byteArray, PRIVATE_KEY);
+  signAddress = await TronWeb.Trx.verifyMessageV2(byteArray, signedMsg);
+  assert.equal(ADDRESS_BASE58, signAddress);
+  msg = 'hello world';
+  signedMsg2 = await TronWeb.Trx.signMessageV2(msg, PRIVATE_KEY);
+  assert.equal(signedMsg, signedMsg2);
+
+  hexStr = '2068656c6c6f20776f726c6420';
+  byteArray = tronWeb.utils.code.hexStr2byteArray(hexStr)
+  signedMsg = await tronWeb.trx.signMessageV2(byteArray, PRIVATE_KEY);
+  signAddress = await tronWeb.trx.verifyMessageV2(byteArray, signedMsg);
+  assert.equal(ADDRESS_BASE58, signAddress);
+  msg = ' hello world ';
+  signedMsg2 = await tronWeb.trx.signMessageV2(msg, PRIVATE_KEY);
+  assert.equal(signedMsg, signedMsg2);
+
+  hexStr = '30783734363537333734';
+  byteArray = tronWeb.utils.code.hexStr2byteArray(hexStr)
+  signedMsg = await TronWeb.Trx.signMessageV2(byteArray, PRIVATE_KEY);
+  signAddress = await TronWeb.Trx.verifyMessageV2(byteArray, signedMsg);
+  assert.equal(ADDRESS_BASE58, signAddress);
+  msg = '0x74657374';
+  signedMsg2 = await TronWeb.Trx.signMessageV2(msg, PRIVATE_KEY);
+  assert.equal(signedMsg, signedMsg2);
+
+  hexStr = '3e2f68656c6c6f20776f726c643b2773662020c2b72fe380822fe38081e38081e38091';
+  byteArray = tronWeb.utils.code.hexStr2byteArray(hexStr)
+  signedMsg = await tronWeb.trx.signMessageV2(byteArray, PRIVATE_KEY);
+  signAddress = await tronWeb.trx.verifyMessageV2(byteArray, signedMsg);
+  assert.equal(ADDRESS_BASE58, signAddress);
+  msg = '>/hello world;\'sf  ·/。/、、】';
+  signedMsg2 = await tronWeb.trx.signMessageV2(msg, PRIVATE_KEY);
+  assert.equal(signedMsg, signedMsg2);
+
+  console.log("signMessageV2_2 excute success");
+}
+
+/**
+ * verifyMessageV2 fromMnemonic account with ledger account old sign & verifyMessageV2
+ */
+async function verifyMessageV2(){
+  console.log("verifyMessageV2 excute start");
+
+  // ledger account
+  const tronAccount = await tronWeb.fromMnemonic('dad topple match blade valley enact sea style focus forest spend car verify radar input sleep melody repair diamond monitor indoor east solution dwarf', "m/44'/195'/5'/0/0");
+
+  let msg = 'test';
+  let signAddress = await TronWeb.Trx.verifyMessageV2(msg, "f8b1613fe5fc8dd443c424b1f47399f4f7ed6303a8ea79d393efdf4f3f92d76461e48c7843c3489a07cdfe70edac89b94b1b5e3df18143e40069c8ee34dd6aa301");
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = '74657374';
+  signAddress = await tronWeb.trx.verifyMessageV2(msg, "497da63cedf90e0a84d9c7008ebed3625566d922250a184529c9f0bc0978a49d5af07d23419763a100064c3f93653835b3b0f49da2d1eec7fc7c6f8beb21506e00");
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = 'hello world';
+  signAddress = await TronWeb.Trx.verifyMessageV2(msg, "e47031146537e55928d326a9955f2ccadb1c82b5f51b9dbd8ebf526738062e184ae5d54d7b16e2b683af5495045a615cc01ed2825e893f8a91ee27ef30372f3101");
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = ' hello world ';
+  signAddress = await tronWeb.trx.verifyMessageV2(msg, "896d736085d539a64c490b0c2bf24a381c058bef695ecbec6f515a6ced44e9ee0f65ae821d2d736b62de9b5c3499732637071033c56411c2b98ee6366d08272c01");
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = '0x74657374';
+  signAddress = await TronWeb.Trx.verifyMessageV2(msg, "12582b18b27fcb0bed3c35df16aabd065c786f9db41d4b2ddcb0ff4a52814d424cb9a8bbeaa03de754e58d4af82cbc1ee152fab5f15aef037f112be407d6160801");
+  assert.equal(tronAccount.address, signAddress);
+
+  msg = '>/hello world;\'sf  ·/。/、、】';
+  signAddress = await tronWeb.trx.verifyMessageV2(msg, "a1abfab795239f3fc6e4ea08a2e2e84cd99f7c107bd0cf6596792968f022518b13e0f530d74d9e26320aed5fd610e7f2b3ea821d0b04a7912c3253fd0d475ad400");
+  assert.equal(tronAccount.address, signAddress);
+
+  // string.length is 225,tron success
+  msg = 'skdhfoshofoshdkfjhakKJHKhsdkfhkahskfhozcvuu203840802sd8w3rhkjha98du921oieksjkfdhHKHDHHD(*UHKHIUY*HUhkjsdhkjfhusyfihskdhfkjshi8w34h2498s9dfhihsfkhs8dfu89we5h8s7fdhskfdh98ahfdjkashfkkjhkjsfd8w528947923hkhd97kakfspal;afha8yr82hs';
+  signAddress = await TronWeb.Trx.verifyMessageV2(msg, "7608eb30fbb9210e7ec0b0c4011d26d9cdc8591d1c19b8578ba64375a782c39745a5f069277dadbdbb315d81e3a85347e2b1fdfd966f2b8027bb07731c622e0e00");
+  console.log("signAddress:"+signAddress)
+  assert.equal(tronAccount.address, signAddress);
+
+  // TODO string.length is 225, tron failed, eth succeed
+  msg = 'skdhfoshofoshdkfjhakKJHKhsdkfhkahskfhozcvuu203840802sd8w3rhkjha98du921oieksjkfdhHKHDHHD(*UHKHIUY*HUhkjsdhkjfhusyfihskdhfkjshi8w34h2498s9dfhihsfkhs8dfu89we5h8s7fdhskfdh98ahfdjkashfkkjhkjsfd8w528947923hkhd97kakfspal;afha8yr82hsc';
+  signAddress = await TronWeb.Trx.verifyMessageV2(msg, "983993d84ed3e567e8f65b5ad1550210aeb256da1f49fe74d22f9fcabb7622115f4ce0bcf35d9cc4704f2e228c3c2cd1b2fda4a27a6becdc6596e8f06e066f4500");
+  console.log("signAddress:"+signAddress)
+  assert.isTrue(tronAccount.address != signAddress);
+
+  // TODO string.length is 225, tron failed, eth succeed
+  msg = 'skdhfoshofoshdkfjhakKJHKhsdkfhkahskfhozcvuu203840802sd8w3rhkjha98du921oieksjkfdhHKHDHHD(*UHKHIUY*HUhkjsdhkjfhusyfihskdhfkjshi8w34h2498s9dfhihsfkhs8dfu89we5h8s7fdhskfdh98ahfdjkashfkkjhkjsfd8w528947923hkhd97kakfspal;afha8yr82hscw34h2498s9dfhihsfkhs8dfu89we5h8s7fdhskfdh98ahfdjkashfkkjhkjsfd8w528947923hkhd97kakfspal;afha8yr82hsc';
+  signAddress = await ethers.utils.verifyMessage(msg, "0xa0f6e01dfe7e8f256458163779bc947e434449ac95957d50fa7c926a9d9733f70326f3560878a08a8ef621f906d98d401ff57f72b778f089a98aa98a0d13f46d00");
+  console.log("signAddress:"+signAddress)
+  assert.equal("0xAB8deb75f43b5928161b33348EDD91FAdac24615", signAddress);
+
+  console.log("verifyMessageV2 excute success");
 }
 
 async function multiSignTransaction(){
@@ -1254,7 +1450,7 @@ async function getUnconfirmedBrokerage(){
 }
 
 async function broadcastHex(){
-  const transactionHex = "0a84010a02c8f32208bb3165e33e20e23b40b087d6f6b22f5a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541a1f92379d71b31e4c10c5868184eeb965ef862fa18e8077090c5d2f6b22f124122323c125105a34bc1db7c8c675f5d214f6fe1c7f635ae88adbcc31b7b11122266aab617bb2068802e727ab15180cef0d8c0c1f8cb24af450226a73529bb270a00"
+  const transactionHex = "0a84010a02fef522088de30cfbe36e00ff40a8e5c69ab8305a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541ea9cedaee5e55e72ca60d0fc6fdec319286fb15018e80770d38ec39ab83012412578c4121da835e5411b4ed64c3c77dd9830b6e3a60abe6841b83c7625834ce917df28645d326e0629553a3215b85eef191b2c94e5c634f7e22d9f1a2a69e15500"
   let result = await tronWeb.trx.broadcastHex(transactionHex);
   console.log("result1: "+util.inspect(result,true,null,true))
   assert.isTrue(result.result);
@@ -1278,28 +1474,31 @@ async function broadcastHex(){
 async function trxTestAll(){
   console.log("trxTestAll start")
   await trxBefore();
- await getAccount();
- await getAccountById();
- await getAccountResources();
- await getBalance();
- await getBandwidth();
- await getUnconfirmedAccount();
- await geUnconfirmedAccountById();
- await getUnconfirmedBalance();
- await updateAccount();
- await sign();
- await signMessage();
- await verifyMessage();
- await multiSignTransaction();
- await blockTest();
+  await getAccount();
+  await getAccountById();
+  await getAccountResources();
+  await getBalance();
+  await getBandwidth();
+  await getUnconfirmedAccount();
+  await geUnconfirmedAccountById();
+  await getUnconfirmedBalance();
+  await updateAccount();
+  await sign();
+  await signMessage();
+  await verifyMessage();
+  await signMessageV2_1();
+  await signMessageV2_2();
+  await verifyMessageV2();
+  await multiSignTransaction();
+  await blockTest();
   await transactionTest();
   await tokenTest();
   await exchangeTest();
   await proposalTest();
   await getContract();
   await listNodes();
- await listSuperRepresentatives();
- await timeUntilNextVoteCycle();
+  await listSuperRepresentatives();
+  await timeUntilNextVoteCycle();
   await getReward();
   await getUnconfirmedReward();
   await getBrokerage();

@@ -484,6 +484,21 @@ async function watchForAnEventWithGivenFilters(){
   console.log("execute watchForAnEventWithGivenFilters success")
 }
 
+async function watchWithSize(){
+  let index = 0
+  contract = await tronWeb.contract().at("41ea51342dabbb928ae1e576bd39eff8aaf070a8c6")
+  let watchTest = await contract.Transfer().watch({size: "2"}, (err, res) => {
+    if(res) {
+      index++
+      console.log("res:"+util.inspect(res))
+      if (index == 2) {
+        watchTest.stop() // Calls stop on itself when successful
+      }
+    }
+  })
+  console.log("execute watchWithSize success")
+}
+
 async function eventTestAll(){
   console.log("eventTestAll start")
   await eventBefore();
@@ -496,6 +511,7 @@ async function eventTestAll(){
   await onlyConfirmedAndOnlyUnconfirmed();
   await watchForAnEvent();
   await watchForAnEventWithGivenFilters();
+  await watchWithSize();
   console.log("eventTestAll end")
 }
 

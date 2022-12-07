@@ -7,7 +7,7 @@ import './App.css';
 // const TronWeb = require('tronweb')
 const TronWeb = require('./tronweb/dist/TronWeb.node');
 const abiTest = require('./test/mainChain/abi.test');
-const base58Test = require('./test/mainChain/base58.test');
+const accountsTest = require('./test/mainChain/accounts.test');
 const bytesTest = require('./test/mainChain/bytes.test');
 const codeTest = require('./test/mainChain/code.test');
 const eventTest = require('./test/mainChain/event.test');
@@ -46,13 +46,13 @@ class App extends React.Component {
      *  Use react default domain name in the browser
      */
     // await abiTest.abiTestAll();
-    // await base58Test.base58TestAll();
+    // await accountsTest.accountsTestAll(); // fail
     // await bytesTest.bytesTestAll();
     // await codeTest.codeTestAll();
     // await contractTypes.contractTypesTestAll();
     // await eip712Test.eip712TestAll();
     // await fallbackTest.fallbackTestAll();
-    // await isConstantCall.isConstantCallTestAll();
+    // await isConstantCall.isConstantCallTestAll(); // ？
     // await methodTest.methodTestAll();
     // await multiSignTestMain.multiSignTestAll();
     // await pluginTest.pluginTestAll();
@@ -61,7 +61,7 @@ class App extends React.Component {
    //  await trxTestMain.trxTestAll();
    //  await typedData.typedDataAll();
 
-   //  await feelimitTest.feelimitTestAll();
+    await feelimitTest.feelimitTestAll();
     //  await multiSignTestSide.multiSignTestAll();
     // await trc721Test.trc721TestAll();
     // await trc20Test.trc20TestAll();
@@ -75,9 +75,10 @@ class App extends React.Component {
     // await indexTest.indexTestAll();
 
     /** need fullHost: TEST_TRON_GRID_API environment
+     *  The environment is not available, this use case ignores
      *  Use http://trongrid.myservice.com domain name in the browser
      */
-    await trongridTest.trongridTestAll();   // 运行时会有很多url返回401用例
+    // await trongridTest.trongridTestAll();   // 运行时会有很多url返回401用例
     console.log("success all")
   }
 

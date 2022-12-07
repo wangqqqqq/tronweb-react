@@ -19,7 +19,7 @@ const util = require('util');
 const chai = require('chai');
 const assert = chai.assert;
 const expect = chai.expect;
-const eventContractAddress="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+const eventContractAddress="TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"
 
 async function headersTEST_TRON_HEADER_API_KEYNormal(){
   // headers:TEST_TRON_HEADER_API_KEY
