@@ -8,12 +8,13 @@ const broadcaster = async (func, pk, transaction) => {
         transaction = await func;
     }
     const signedTransaction = await tronWeb.trx.sign(transaction, pk);
-    console.log("signedTransaction:"+util.inspect(signedTransaction))
+    console.log("signedTransaction:"+util.inspect(signedTransaction,true,null,true))
     let result = {
         transaction,
         signedTransaction,
         receipt: await tronWeb.trx.sendRawTransaction(signedTransaction)
     };
+    console.log("result.receipt:"+util.inspect(result.receipt,true,null,true))
 
     let times = 0;
     while (times++ <= 10 && result.receipt.toString().indexOf("code") != -1 &&

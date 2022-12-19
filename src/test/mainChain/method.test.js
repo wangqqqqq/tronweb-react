@@ -46,6 +46,7 @@ async function send() {
   const emptyAccount1 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount1.address.hex,1000000000,{privateKey: PRIVATE_KEY})
   await testRevert.setOwner(emptyAccount1.address.base58).send()
+  console.log("emptyAccount1: "+util.inspect(emptyAccount1,true,null,true));
   assert.equal(await testRevert.getOwner(1).call(), emptyAccount1.address.hex.toLowerCase())
 
   await assertThrow(testRevert.setOwner('TSeFTBYCy3r2kZNYsj86G6Yz6rsmPdYdFs').send({shouldPollResponse: true}),

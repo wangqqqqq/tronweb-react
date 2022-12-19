@@ -591,40 +591,40 @@ async function generateAccountWithMnemonicWordlist_isNull(){
 }
 async function accountsTestAll(){
     console.log("accountsTestAll start")
-    encode58();
-    decode58();
+    await encode58();
+    await decode58();
 
-    generateRandomWhenParam_aPositiveInterger();
-    generateRandomWhenParam_bigParantheses();
-    generateRandomWhenParam_null();
-    generateRandomWhenPath_allNull();
-    generateRandomWhenPath_chainAndIndexNull();
-    generateRandomWhenPath_indexNull();
-    generateRandomWhenPath_accountIs0AndIndexIs13();
-    generateRandomWhenPath_accountIs3AndIndexIs99();
-    generateRandomWhenPath_error1();
-    generateRandomWhenPath_error2();
-    generateRandomWhenWordlist_zh_cn();
-    generateRandomWhenWordlist_zh_tw();
-    generateRandomWhenWordlist_ko();
-    generateRandomWhenWordlist_ja();
-    generateRandomWhenWordlist_it();
-    generateRandomWhenWordlist_nonexistent();
-    generateRandomWhenWordlist_emptyChar();
+    await generateRandomWhenParam_aPositiveInterger();
+    await generateRandomWhenParam_bigParantheses();
+    await generateRandomWhenParam_null();
+    await generateRandomWhenPath_allNull();
+    await generateRandomWhenPath_chainAndIndexNull();
+    await generateRandomWhenPath_indexNull();
+    await generateRandomWhenPath_accountIs0AndIndexIs13();
+    await generateRandomWhenPath_accountIs3AndIndexIs99();
+    await generateRandomWhenPath_error1();
+    await generateRandomWhenPath_error2();
+    await generateRandomWhenWordlist_zh_cn();
+    await generateRandomWhenWordlist_zh_tw();
+    await generateRandomWhenWordlist_ko();
+    await generateRandomWhenWordlist_ja();
+    await generateRandomWhenWordlist_it();
+    await generateRandomWhenWordlist_nonexistent();
+    await generateRandomWhenWordlist_emptyChar();
 
-    generateAccountWithMnemonic_withCorrectPath();
-    generateAccountWithMnemonic_withTruncatedPath();
-    generateAccountWithMnemonic_withPathIsNotSame();
-    generateAccountWithMnemonic_withPathIsNull();
-    generateAccountWithMnemonic_withErrorPath();
-    generateAccountWithMnemonicWordlist_zh_cn();
-    generateAccountWithMnemonicWordlist_zh_tw();
-    generateAccountWithMnemonicWordlist_ko();
-    generateAccountWithMnemonicWordlist_ja();
-    generateAccountWithMnemonicWordlist_it();
-    generateAccountWithMnemonicWordlist_unmatch();
-    generateAccountWithMnemonicWordlist_nonexistent();
-    generateAccountWithMnemonicWordlist_isNull();
+    await generateAccountWithMnemonic_withCorrectPath();
+    await generateAccountWithMnemonic_withTruncatedPath();
+    await generateAccountWithMnemonic_withPathIsNotSame();
+    await generateAccountWithMnemonic_withPathIsNull();
+    await generateAccountWithMnemonic_withErrorPath();
+    await generateAccountWithMnemonicWordlist_zh_cn();
+    await generateAccountWithMnemonicWordlist_zh_tw();
+    await generateAccountWithMnemonicWordlist_ko();
+    await generateAccountWithMnemonicWordlist_ja();
+    await generateAccountWithMnemonicWordlist_it();
+    await generateAccountWithMnemonicWordlist_unmatch();
+    await generateAccountWithMnemonicWordlist_nonexistent();
+    await generateAccountWithMnemonicWordlist_isNull();
     console.log("accountsTestAll end")
 }
 

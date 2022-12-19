@@ -26,6 +26,8 @@ module.exports = {
     ADDRESS_BASE58: 'THph9K2M2nLvkianrMGswRhz5hjSA9fuH7',
     WITNESS_ACCOUNT: 'TB4B1RMhoPeivkj4Hebm6tttHjRY9yQFes',
     WITNESS_KEY: '369F095838EB6EED45D4F6312AF962D5B9DE52927DA9F04174EE49F9AF54BC77',
+    WITNESS_ACCOUNT2: 'TT1smsmhxype64boboU8xTuNZVCKP1w6qT',
+    WITNESS_KEY2: '9fd8e129de181ea44c6129f727a6871440169568ade002943ead0e7a16d8edac',
     // ADDRESS_HEX: '41bafb56091591790e00aa05eaddcc7dc1474b5d4b',
     // ADDRESS_BASE58: 'TT1smsmhxype64boboU8xTuNZVCKP1w6qT',
     // ADDRESS_HEX: '41d1e7a6bc354106cb410e65ff8b181c600ff14292',
@@ -78,12 +80,12 @@ module.exports = {
             description: 'Useless utility token',
             url: `https://example-${rnd}.com/`,
             totalSupply: 100000000,
-            saleEnd: Date.now() + 2500000, // 1 minute
+            saleEnd: Date.now() + 60000, // 1 minute
             frozenAmount: 5,
             frozenDuration: 1,
             trxRatio: 10,
             tokenRatio: 2,
-            saleStart: Date.now() + 9000,// 比服务器时间慢了23秒
+            saleStart: Date.now() + 600,// 比服务器时间慢了23秒
             freeBandwidth: 100,
             freeBandwidthLimit: 1000
         }
@@ -133,10 +135,10 @@ module.exports = {
             fullNode: 'http://side.myservice.com',
             solidityNode: 'http://side.myservice.com',
             eventServer: 'http://side.myservice.com',
-            mainGatewayAddress: 'TNUHYGTZ8xvrn3dG2nKHJdohWNkQT7jNio',
-            mainGatewayAddress_hex: '4189215C49269B11D332413B4FAC6E9CDDB0D60182',
-            sideGatewayAddress: 'TCZurqsi1vBudLknat7HPSf1UkANpNtxij',
-            sideGatewayAddress_hex: '411C8080485884EC5D015F13C30BE60577DDCC5BFE',
+            mainGatewayAddress: 'TH3qs3nGmpweyXXccvpSKn8EaBYbXafk6i',
+            mainGatewayAddress_hex: '414da950a9da5e7bce23c6fc8efc034272bab91a0d',
+            sideGatewayAddress: 'TWrLwowiwSYMnVuymbrDir8C2UUy5tQshP',
+            sideGatewayAddress_hex: '41e50e5c6c9e028dd2c7eae419f992cc20291c7956',
             sideChainId: '41F7AFFF7316CDA1E1BC9B21B7CC98BB84A4EA5510'
             /*fullNode: 'https://kageraex.io',
             solidityNode: 'https://kageraex.io',

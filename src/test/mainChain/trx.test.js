@@ -1,4 +1,5 @@
 import React from 'react';
+import {FULL_NODE_API} from "../util/config";
 const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, UPDATED_TEST_TOKEN_OPTIONS, getTokenOptions, isProposalApproved} = require('../util/config');
 const {testRevert, testConstant, arrayParam} = require('../util/contracts');
 const tronWebBuilder = require('../util/tronWebBuilder');
@@ -7,6 +8,8 @@ const assertEqualHex = require('../util/assertEqualHex');
 const waitChainData = require('../util/waitChainData');
 const pollAccountFor = require('../util/pollAccountFor');
 const assertThrow = require('../util/assertThrow');
+const messageCases = require('../util/sign-message');
+const tests = messageCases.tests;
 const txPars = require('../util/txPars');
 const TronWeb = tronWebBuilder.TronWeb;
 const wait = require('../util/wait');
@@ -46,13 +49,14 @@ async function getAccount(){
 }
 
 async function getAccountById(){
+  console.log("getAccountById start");
   const emptyAccount1 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount1.address.hex,10000000,{privateKey: PRIVATE_KEY})
 
-  let accountId = TronWeb.toHex(`testtest${Math.ceil(Math.random()*100)}`);
+  let accountId = TronWeb.toHex(`testtestlll${Math.ceil(Math.random()*100)}`);
   const transaction = await tronWeb.transactionBuilder.setAccountId(accountId, emptyAccount1.address.hex);
-  await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
-
+  const res = await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
+  console.log("res:"+util.inspect(res,true,null,true))
   while (true) {
     const account = await tronWeb.trx.getAccountById(accountId);
     if (Object.keys(account).length === 0) {
@@ -71,9 +75,11 @@ async function getAccountById(){
         'Invalid accountId provided'
     );
   }
+  console.log("getAccountById end");
 }
 
 async function getAccountResources(){
+  console.log("getAccountResources start");
   const emptyAccount1 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount1.address.hex,1000000,{privateKey: PRIVATE_KEY})
 
@@ -88,27 +94,33 @@ async function getAccountResources(){
       tronWeb.trx.getAccountResources('notAnAddress'),
       'Invalid address provided'
   );
+  console.log("getAccountResources end");
 }
 
 async function getBalance(){
+  console.log("getBalance start");
   const emptyAccount1 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount1.address.hex,1000000,{privateKey: PRIVATE_KEY})
   let balance = await tronWeb.trx.getBalance(emptyAccount1.address.hex);
   assert.isTrue(balance >= 0);
   balance = await tronWeb.trx.getBalance(emptyAccount1.address.base58);
   assert.isTrue(balance >= 0);
+  console.log("getBalance end");
 }
 
 async function getBandwidth(){
+  console.log("getBandwidth start");
   const emptyAccount1 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount1.address.hex,1000000,{privateKey: PRIVATE_KEY})
   let bp = await tronWeb.trx.getBandwidth(emptyAccount1.address.hex);
   assert.isTrue(bp >= 0);
   bp = await tronWeb.trx.getBandwidth(emptyAccount1.address.base58);
   assert.isTrue(bp >= 0);
+  console.log("getBandwidth end");
 }
 
 async function getUnconfirmedAccount(){
+  console.log("getUnconfirmedAccount start");
   const emptyAccount1 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount1.address.hex,10000000,{privateKey: PRIVATE_KEY})
 
@@ -125,13 +137,15 @@ async function getUnconfirmedAccount(){
       tronWeb.trx.getUnconfirmedAccount('notAnAddress'),
       'Invalid address provided'
   );
+  console.log("getUnconfirmedAccount end");
 }
 
 async function geUnconfirmedAccountById(){
+  console.log("geUnconfirmedAccountById start");
   const emptyAccount1 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount1.address.hex,10000000,{privateKey: PRIVATE_KEY})
 
-  let accountId = TronWeb.toHex(`testtest${Math.ceil(Math.random()*100)}`);
+  let accountId = TronWeb.toHex(`testtestl${Math.ceil(Math.random()*1001)}`);
   const transaction = await tronWeb.transactionBuilder.setAccountId(accountId, emptyAccount1.address.hex);
   await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
   await waitChainData('accountById', accountId);
@@ -146,6 +160,7 @@ async function geUnconfirmedAccountById(){
         'Invalid accountId provided'
     );
   }
+  console.log("geUnconfirmedAccountById end");
 }
 
 async function getUnconfirmedBalance(){
@@ -160,6 +175,7 @@ async function getUnconfirmedBalance(){
 
   const balance = await tronWeb.trx.getUnconfirmedBalance(toHex);
   assert.equal(balance, 10e5);
+  console.log("getUnconfirmedBalance success");
 }
 
 async function updateAccount(){
@@ -175,6 +191,7 @@ async function updateAccount(){
       tronWeb.trx.updateAccount({}),
       'Name must be a string'
   );
+  console.log("updateAccount success");
 }
 
 async function sign(){
@@ -204,6 +221,16 @@ async function sign(){
       tronWeb.trx.sign(signedTransaction, emptyAccount1.privateKey),
       'Transaction is already signed'
   );
+
+  const emptyAccount2 = await TronWeb.createAccount();
+  await tronWeb.trx.sendTrx(emptyAccount2.address.hex,10000000,{privateKey: PRIVATE_KEY})
+  transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount2.address.base58);
+  transaction.raw_data_hex += '00';
+  await assertThrow(
+      tronWeb.trx.sign(transaction, emptyAccount2.privateKey),
+      'Invalid transaction'
+  );
+  console.log("sign success");
 }
 
 async function signMessage(){
@@ -218,6 +245,7 @@ async function signMessage(){
       tronWeb.trx.sign(hexMsg, emptyAccount1.privateKey),
       'Private key does not match address in transaction'
   );
+  console.log("signMessage success");
 }
 
 async function verifyMessage(){
@@ -384,6 +412,20 @@ async function signMessageV2_2(){
   assert.equal(signedMsg, signedMsg2);
 
   console.log("signMessageV2_2 excute success");
+}
+
+async function signMessageV2_3() {
+  console.log("signMessageV2_3 excute start");
+
+  tests.forEach(function(test) {
+    async function s3() {
+      const tronWeb = new TronWeb({ fullHost: FULL_NODE_API }, test.privateKey)
+      const signature = await tronWeb.trx.signMessageV2(test.message);
+      assert.equal(signature, test.signature, 'computes message signature');
+    }
+  });
+
+  console.log("signMessageV2_3 excute end");
 }
 
 /**
@@ -677,6 +719,16 @@ async function multiSignTransaction(){
     console.log("e:"+e);
     assert.isTrue(e.indexOf('Permission for this, does not exist!') != -1);
   }
+
+  try {
+    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+    transaction.txID = transaction.txID + '00'
+    await tronWeb.trx.multiSign(transaction, emptyAccount1.privateKey, 2);
+  } catch (e) {
+    console.log("e:"+e);
+    assert.isTrue(e.indexOf('Invalid transaction') != -1);
+  }
+
   console.log("multiSignTransaction excute success");
 }
 
@@ -1449,8 +1501,12 @@ async function getUnconfirmedBrokerage(){
   assert.equal(brokerage, 20)
 }
 
+/**
+ * Need to execute java-tron2.HttpTestMutiSign001.test3Broadcasthex() to get transactionHex
+ */
 async function broadcastHex(){
-  const transactionHex = "0a84010a02fef522088de30cfbe36e00ff40a8e5c69ab8305a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541ea9cedaee5e55e72ca60d0fc6fdec319286fb15018e80770d38ec39ab83012412578c4121da835e5411b4ed64c3c77dd9830b6e3a60abe6841b83c7625834ce917df28645d326e0629553a3215b85eef191b2c94e5c634f7e22d9f1a2a69e15500"
+  console.log("broadcastHex start")
+  const transactionHex = "0a84010a0275042208cc36dfe004ab610240a0e986a8d0305a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b12154132c8db972fafd796dda17c0562839c3d2aea5fc118e80770cc9f83a8d03012418ce09ca1ee16a7a9bbbf334b1a3c1cd7081e61fd710bc9a9a40dc1f5c7908d6f435e6963829f816a8ca1829269685af755702187ba64e99c82244e1ff6734d0601"
   let result = await tronWeb.trx.broadcastHex(transactionHex);
   console.log("result1: "+util.inspect(result,true,null,true))
   assert.isTrue(result.result);
@@ -1469,6 +1525,7 @@ async function broadcastHex(){
       tronWeb.trx.broadcastHex(transactionHex, false),
       'Invalid options provided'
   );
+  console.log("broadcastHex end")
 }
 
 async function trxTestAll(){
@@ -1488,6 +1545,7 @@ async function trxTestAll(){
   await verifyMessage();
   await signMessageV2_1();
   await signMessageV2_2();
+  await signMessageV2_3();
   await verifyMessageV2();
   await multiSignTransaction();
   await blockTest();

@@ -140,6 +140,7 @@ async function triggerNegativeInt(){
 }
 
 async function triggerchangeUint(){
+    console.log("triggerchangeUint start")
     const issuerAddress = account0.address.hex;
     transaction = await tronWeb.transactionBuilder.triggerConstantContract(contractAddress, 'getUint()', {},
         [], issuerAddress);
@@ -178,8 +179,9 @@ async function triggerchangeUint(){
         [], issuerAddress);
     assert.isTrue(transaction.result.result &&
         transaction.transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.TriggerSmartContract');
+    console.log("transaction:"+util.inspect(transaction,true,null,true))
     assert.equal(transaction.constant_result,"0000000000000000000000000000000000000000000000000000000000000005");
-
+    console.log("triggerchangeUint end")
 }
 
 async function triggerChangeAddress() {
