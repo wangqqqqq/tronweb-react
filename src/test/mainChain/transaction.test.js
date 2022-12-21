@@ -2594,6 +2594,7 @@ async function txCheckWithArgs_ProposalCreateContract(){
         const authResult6 = TronWeb.utils.transaction.txCheckWithArgs(transaction, dataCop6, {});
         assert.equal(authResult6, false);
     }
+    console.log("txCheckWithArgs_ProposalCreateContract success")
 }
 
 async function txCheckWithArgs_ProposalDeleteContract(){
@@ -2631,6 +2632,7 @@ async function txCheckWithArgs_ProposalDeleteContract(){
         const authResult6 = TronWeb.utils.transaction.txCheckWithArgs(transaction, dataCop6, {});
         assert.equal(authResult6, false);
     }
+    console.log("txCheckWithArgs_ProposalDeleteContract success")
 }
 
 async function txCheckWithArgs_ProposalApproveContract_approve_true(){
@@ -2673,6 +2675,7 @@ async function txCheckWithArgs_ProposalApproveContract_approve_true(){
         const authResult7 = TronWeb.utils.transaction.txCheckWithArgs(transaction, dataCop7, {});
         assert.equal(authResult7, false);
     }
+    console.log("txCheckWithArgs_ProposalApproveContract_approve_true success")
 }
 
 async function txCheckWithArgs_ProposalApproveContract_approve_false(){

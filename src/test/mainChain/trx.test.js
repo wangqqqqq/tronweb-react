@@ -1,5 +1,5 @@
 import React from 'react';
-import {FULL_NODE_API} from "../util/config";
+const {FULL_NODE_API} = require('../util/config');
 const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, UPDATED_TEST_TOKEN_OPTIONS, getTokenOptions, isProposalApproved} = require('../util/config');
 const {testRevert, testConstant, arrayParam} = require('../util/contracts');
 const tronWebBuilder = require('../util/tronWebBuilder');
@@ -1280,6 +1280,7 @@ async function exchangeTest(){
     console.log("999-1")
     await waitChainData('token', tempAccount.address.hex);
     const token = await tronWeb.trx.getTokensIssuedByAddress(tempAccount.address.hex);
+    console.log("token:"+token)
     await waitChainData('tokenById', token[Object.keys(token)[0]]['id']);
     console.log("")
     await broadcaster.broadcaster(null, tempAccount.privateKey, await tronWeb.transactionBuilder.sendToken(
@@ -1293,6 +1294,7 @@ async function exchangeTest(){
     await waitChainData('sendToken', emptyAccount3.address.hex, 0);
     tokenNames.push(token[Object.keys(token)[0]]['id']);
   }
+  console.log("createTokenExchange 1")
   await broadcaster.broadcaster(
       null,
       emptyAccount3.privateKey,
@@ -1329,6 +1331,7 @@ async function exchangeTest(){
     await waitChainData('sendToken', emptyAccount6.address.hex, 0);
     tokenNames.push(token[Object.keys(token)[0]]['id']);
   }
+  console.log("createTokenExchange 2")
   await broadcaster.broadcaster(
       null,
       emptyAccount6.privateKey,
@@ -1366,6 +1369,7 @@ async function exchangeTest(){
     await waitChainData('sendToken', emptyAccount9.address.hex, 0);
     tokenNames.push(token[Object.keys(token)[0]]['id']);
   }
+  console.log("createTokenExchange 3")
   await broadcaster.broadcaster(
       null,
       emptyAccount9.privateKey,
@@ -1465,7 +1469,7 @@ async function listSuperRepresentatives(){
   assert.isArray(srs);
   let i = 1;
   for (let sr of srs) {
-    if (i > 2){
+    if (i > 1){
       break;
     }
     console.log("sr: "+util.inspect(sr,true,null,true))
@@ -1506,7 +1510,7 @@ async function getUnconfirmedBrokerage(){
  */
 async function broadcastHex(){
   console.log("broadcastHex start")
-  const transactionHex = "0a84010a0275042208cc36dfe004ab610240a0e986a8d0305a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b12154132c8db972fafd796dda17c0562839c3d2aea5fc118e80770cc9f83a8d03012418ce09ca1ee16a7a9bbbf334b1a3c1cd7081e61fd710bc9a9a40dc1f5c7908d6f435e6963829f816a8ca1829269685af755702187ba64e99c82244e1ff6734d0601"
+  const transactionHex = "0a84010a02d3cd2208ea9a7c42a222810e4088a697f8d2305a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541959972f4d54d0c030247cafdf6ec7ab4e66fceda18e80770afdd93f8d23012416fa0f530f1d1822727de97baa204cf88f830b42b2ed5edd2e2be4bd4b47747627a760fca43b3b6b5bdf1b5044966ece9615422863ec2fb4063b5d2db3c1c592201"
   let result = await tronWeb.trx.broadcastHex(transactionHex);
   console.log("result1: "+util.inspect(result,true,null,true))
   assert.isTrue(result.result);

@@ -669,6 +669,7 @@ async function purchaseToken(){
   let tokenOptions = getTokenOptions();
   let tokenID
   await broadcaster.broadcaster(tronWeb.transactionBuilder.createToken(tokenOptions, emptyAccount1.address.base58), emptyAccount1.privateKey)
+  await wait(45)
   let tokenList
   while (!tokenList) {
     tokenList = await tronWeb.trx.getTokensIssuedByAddress(emptyAccount1.address.base58)
@@ -758,10 +759,13 @@ async function sendToken(){
   let tokenOptions = getTokenOptions();
   let tokenID
   await broadcaster.broadcaster(tronWeb.transactionBuilder.createToken(tokenOptions, emptyAccount1.address.base58), emptyAccount1.privateKey)
+  await wait(45)
   let tokenList
   while (!tokenList) {
     tokenList = await tronWeb.trx.getTokensIssuedByAddress(emptyAccount1.address.base58)
   }
+  console.log("tokenList: "+util.inspect(tokenList,true,null,true))
+  console.log("tokenOptions.name: "+util.inspect(tokenOptions.name,true,null,true))
   if (isAllowSameTokenNameApproved) {
     tokenID = tokenList[tokenOptions.name].id
   } else {
@@ -782,8 +786,6 @@ async function sendToken(){
     [emptyAccount2.address.base58, 5, tokenID, emptyAccount3.address.base58]
   ];
   for (let param of params) {
-    await wait(20)
-
     console.log("token: "+util.inspect(token,true,null,true));
     console.log("now datatime: "+util.inspect(Date.now(),true,null,true));
 
@@ -1697,6 +1699,7 @@ async function createTokenExchange(){
   assert.equal(TronWeb.toUtf8(parameter.value.second_token_id), tokenNames[1]);
   assert.equal(parameter.type_url, 'type.googleapis.com/protocol.ExchangeCreateContract');
   assert.equal(transaction.raw_data.contract[0].Permission_id, 2);
+  console.log("createTokenExchange success")
 }
 
 async function createTRXExchange(){
@@ -1747,6 +1750,7 @@ async function injectExchangeTokens(){
         TronWeb.utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
+  console.log("injectExchangeTokens success")
 }
 
 async function withdrawExchangeTokens(){

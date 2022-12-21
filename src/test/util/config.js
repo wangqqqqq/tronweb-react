@@ -80,12 +80,12 @@ module.exports = {
             description: 'Useless utility token',
             url: `https://example-${rnd}.com/`,
             totalSupply: 100000000,
-            saleEnd: Date.now() + 60000, // 1 minute
+            saleEnd: Date.now() + 160000, // 1 minute
             frozenAmount: 5,
             frozenDuration: 1,
             trxRatio: 10,
             tokenRatio: 2,
-            saleStart: Date.now() + 600,// 比服务器时间慢了23秒
+            saleStart: Date.now() + 600,
             freeBandwidth: 100,
             freeBandwidthLimit: 1000
         }
@@ -114,12 +114,6 @@ module.exports = {
         // fullNode: 'https://api.nileex.io',
         // solidityNode: 'https://api.nileex.io',
         // eventServer: 'https://nile.trongrid.io',
-        /*fullNode: 'http://3.225.171.164:8090',
-        solidityNode: 'http://3.225.171.164:8090',
-        eventServer: 'http://3.225.171.164:8090',*/
-        /*fullNode: 'http://39.107.123.182:8590',
-        solidityNode: 'http://39.107.123.182:8591',
-        eventServer: 'http://39.107.123.182:8590',*/
         sideOptions: {
             // fullNode: 'https://suntest.tronex.io',
             // solidityNode: 'https://suntest.tronex.io',
@@ -129,9 +123,6 @@ module.exports = {
             // sideGatewayAddress: 'TRDepx5KoQ8oNbFVZ5sogwUxtdYmATDRgX',
             // sideGatewayAddress_hex: '41a74544b896f6a50f8ef1c2d64803c462cbdb019d',
             // sideChainId: '413AF23F37DA0D48234FDD43D89931E98E1144481B'
-            // fullNode: 'http://39.107.81.225:8190',
-            // solidityNode: 'http://39.107.81.225:8197',
-            // eventServer: 'http://39.107.81.225:8190',
             fullNode: 'http://side.myservice.com',
             solidityNode: 'http://side.myservice.com',
             eventServer: 'http://side.myservice.com',

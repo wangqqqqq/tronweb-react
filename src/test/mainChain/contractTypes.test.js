@@ -96,6 +96,7 @@ async function triggertypeInt(){
     const transaction5 = await tronWeb.transactionBuilder.triggerConstantContract(contractAddress, 'getInt()', {},
         [], issuerAddress);
     assert.equal(transaction5.constant_result, '0000000000000000000000000000000000000000000000000000000000000005');
+    console.log("triggertypeInt success")
 }
 
 async function triggerNegativeInt(){
@@ -136,7 +137,7 @@ async function triggerNegativeInt(){
     assert.isTrue(transaction.result.result &&
         transaction.transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.TriggerSmartContract');
     assert.equal(transaction.constant_result,"0000000000000000000000000000000000000000000000000000000000000005");
-
+    console.log("triggerNegativeInt success")
 }
 
 async function triggerchangeUint(){
@@ -305,7 +306,7 @@ async function triggerchangeBytes() {
     transaction = await tronWeb.transactionBuilder.triggerConstantContract(contractAddress, 'getBytes()', {},
         [], issuerAddress);
     assert.equal(transaction.constant_result,"000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010800000000000000000000000000000000000000000000000000000000000000");
-
+    console.log("triggerchangeBytes success")
 }
 
 async function triggerchangeString() {
@@ -426,7 +427,7 @@ async function triggerchangeint64Array() {
     transaction = await tronWeb.transactionBuilder.triggerConstantContract(contractAddress, 'getInt64NegativeArray()', {},
         [], issuerAddress);
     assert.equal(transaction.constant_result,"0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003");
-
+    console.log("triggerchangeint64Array success")
 };
 
 async function triggerchangeuint32Array() {

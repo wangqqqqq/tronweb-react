@@ -33,6 +33,7 @@ const contractTypes = require('./test/mainChain/contractTypes.test.js');
 const typedData = require('./test/mainChain/typedData.test.js');
 const eip712Test = require('./test/mainChain/eip712Test.test.js');
 const transactionTest = require('./test/mainChain/transaction.test.js');
+const signVisibleTest = require('./test/mainChain/signVisible.test.js');
 const tronWebBuilder = require('./test/util/tronWebBuilder');
 
 
@@ -46,35 +47,36 @@ class App extends React.Component {
     /** need SIDE_CHAIN environment
      *  Use react default domain name in the browser
      */
-    // await abiTest.abiTestAll();// yes
-    // await accountsTest.accountsTestAll(); // yes
-    // await bytesTest.bytesTestAll();// yes
-    // await codeTest.codeTestAll();// yes
-    // await contractTypes.contractTypesTestAll();// yes
-    // await eip712Test.eip712TestAll();// yes
-    // await fallbackTest.fallbackTestAll();// yes
-    // await isConstantCall.isConstantCallTestAll(); // yes
-    // await methodTest.methodTestAll();// yes
-    // await multiSignTestMain.multiSignTestAll();// yes
-    // await pluginTest.pluginTestAll();// yes
-    // await providersTest.providersTestAll();// yes
-   // await transactionBuilderTest.transactionBuilderTestAll();// yes
-   //  await trxTestMain.trxTestAll();// yes
-   //  await typedData.typedDataAll();// yes
-   //  await transactionTest.transactionTestAll();// yes
+    // await abiTest.abiTestAll();//yes
+    // await accountsTest.accountsTestAll(); //yes
+    // await bytesTest.bytesTestAll();//yes
+    // await codeTest.codeTestAll();//yes
+    // await contractTypes.contractTypesTestAll();//yes
+    // await eip712Test.eip712TestAll();//yes
+    // await fallbackTest.fallbackTestAll();//yes
+    // await isConstantCall.isConstantCallTestAll(); //yes
+    // await methodTest.methodTestAll();//yes
+    // await multiSignTestMain.multiSignTestAll();//yes
+    // await pluginTest.pluginTestAll();//yes
+    // await providersTest.providersTestAll();//yes
+   // await transactionBuilderTest.transactionBuilderTestAll();//yes
+   //  await trxTestMain.trxTestAll();//yes
+   //  await typedData.typedDataAll();//yes
+   //  await transactionTest.transactionTestAll();//yes
+    await signVisibleTest.signVisibleTestAll();//yes
 
-    // await feelimitTest.feelimitTestAll();// yes
-    //  await multiSignTestSide.multiSignTestAll();// yes
+    // await feelimitTest.feelimitTestAll();//yes
+    //  await multiSignTestSide.multiSignTestAll();//yes
     // await trc721Test.trc721TestAll();// yes
-    // await trc20Test.trc20TestAll();// yes
-    // await trc10Test.trc10TestAll();// yes
-    await trxTestSide.trxTestAll();// yes
+    // await trc20Test.trc20TestAll();//
+    // await trc10Test.trc10TestAll();// 
+    // await trxTestSide.trxTestAll();// 
 
     /** need nile environment
      *  Use react default domain name in the browser
      */
-    // await eventTest.eventTestAll();// yes
-    // await indexTest.indexTestAll();// yes
+    // await eventTest.eventTestAll();//yes
+    // await indexTest.indexTestAll();//yes
 
     /** need fullHost: TEST_TRON_GRID_API environment
      *  The environment is not available, this use case ignores
