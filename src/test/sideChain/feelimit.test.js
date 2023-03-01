@@ -13,6 +13,7 @@ async function mainBefore(){
     const accountBalanceBefore1 = await tronWeb.trx.getBalance(ADDRESS_BASE58);
     console.log('accountBalanceBefore1: ' + accountBalanceBefore1);
     await tronWeb.trx.freezeBalance(1e6, 3, 'BANDWIDTH', {}, ADDRESS_BASE58)
+    // await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(1e6, 'BANDWIDTH', ADDRESS_BASE58));
     await wait(60);
     while (true) {
         let accountBalanceBefore2 = await tronWeb.trx.getBalance(ADDRESS_BASE58);

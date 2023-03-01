@@ -492,7 +492,7 @@ async function triggerchangeuint256Array() {
         [], issuerAddress);
     assert.isTrue(transaction.result.result &&
         transaction.transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.TriggerSmartContract');
-    // console.log(transaction.constant_result);
+    console.log(transaction.constant_result);
     assert.equal(transaction.constant_result,"0000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000007a00000000000000000000000000000000000000000000000000000000000000850000000000000000000000000000000000000000000000000000000000000090");
 
     //abiV2

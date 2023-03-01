@@ -1,5 +1,6 @@
 import React from 'react';
 const {PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58,FEE_LIMIT, TOKEN_ID,getTokenOptions} = require('../util/config');
+const TestCustomError = require('../util/contracts').TestCustomError;
 const testRevertContract = require('../util/contracts').testRevert;
 const testSetValContract = require('../util/contracts').testSetVal;
 const testEmptyAbi = require('../util/contracts').testEmptyAbi;
@@ -28,6 +29,28 @@ let contractAddressCall2;
 let contractInstanceCall2;
 let accounts;
 let emptyAccount;
+
+async function customError() {
+  let accounts = await tronWebBuilder.getTestAccountsInMain(1);
+  let tronWeb = tronWebBuilder.createInstance();
+
+  const tx = await broadcaster.broadcaster(tronWeb.transactionBuilder.createSmartContract({
+    abi: TestCustomError.abi,
+    bytecode: TestCustomError.bytecode
+  }, accounts.b58[0]), accounts.pks[0]);
+  let customError = await tronWeb.contract(TestCustomError.abi, tx.transaction.contract_address);
+
+  const txid = await customError.test(111).send();
+  console.log("txid: "+txid);
+  await wait(40);
+  const data = await tronWeb.trx.getTransactionInfo(txid);
+  const errorData = data.contractResult;
+  const expectedErrorData =
+      TronWeb.sha3('CustomError(uint256,uint256)', false).slice(0, 8) +
+      '000000000000000000000000000000000000000000000000000000000000006f' + // 111
+      '0000000000000000000000000000000000000000000000000000000000000001'; // 1
+  assert.equal(errorData, expectedErrorData);
+}
 
 async function send() {
   const tx = await broadcaster.broadcaster(tronWeb.transactionBuilder.createSmartContract({
@@ -595,6 +618,7 @@ async function callAndsendTest2setMappinga() {
 
 async function methodTestAll(){
   console.log("methodTestAll start")
+  await customError();
   await send();
   await call();
   await emptyAbiBefore();

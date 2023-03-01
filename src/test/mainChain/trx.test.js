@@ -1,6 +1,6 @@
 import React from 'react';
 const {FULL_NODE_API} = require('../util/config');
-const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, UPDATED_TEST_TOKEN_OPTIONS, getTokenOptions, isProposalApproved} = require('../util/config');
+const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, WITNESS_ACCOUNT2, WITNESS_KEY2, getTokenOptions, isProposalApproved} = require('../util/config');
 const {testRevert, testConstant, arrayParam} = require('../util/contracts');
 const tronWebBuilder = require('../util/tronWebBuilder');
 const broadcaster = require('../util/broadcaster');
@@ -19,13 +19,14 @@ const util = require('util');
 const ethers = require('ethers');
 let tronWeb;
 let emptyAccounts;
-let isAllowSameTokenNameApproved
+let isAllowSameTokenNameApproved;
+let accounts;
 
 async function trxBefore(){
   tronWeb = tronWebBuilder.createInstance();
   emptyAccounts = await TronWeb.createAccount();
   isAllowSameTokenNameApproved = await isProposalApproved(tronWeb, 'getAllowSameTokenName')
-
+  accounts = await tronWebBuilder.getTestAccountsInMain(43);
   assert.instanceOf(tronWeb.trx, TronWeb.Trx);
 }
 
@@ -199,6 +200,7 @@ async function sign(){
   await tronWeb.trx.sendTrx(emptyAccount1.address.hex,10000000,{privateKey: PRIVATE_KEY})
 
   let transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // let transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
 
   let signedTransaction = await tronWeb.trx.sign(transaction, emptyAccount1.privateKey);
   assert.equal(signedTransaction.txID, transaction.txID);
@@ -210,12 +212,14 @@ async function sign(){
   );
 
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
   await assertThrow(
       tronWeb.trx.sign(transaction, emptyAccount1.privateKey),
       'Private key does not match address in transaction'
   );
 
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
   signedTransaction = await tronWeb.trx.sign(transaction, emptyAccount1.privateKey);
   await assertThrow(
       tronWeb.trx.sign(signedTransaction, emptyAccount1.privateKey),
@@ -225,6 +229,7 @@ async function sign(){
   const emptyAccount2 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount2.address.hex,10000000,{privateKey: PRIVATE_KEY})
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount2.address.base58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount2.address.base58);
   transaction.raw_data_hex += '00';
   await assertThrow(
       tronWeb.trx.sign(transaction, emptyAccount2.privateKey),
@@ -499,7 +504,10 @@ async function multiSignTransaction(){
   ownerPermission.keys  = [];
   let activePermission = { type: 2, permission_name: 'active0' };
   activePermission.threshold = threshold;
+  // freezebalance
   activePermission.operations = '7fff1fc0037e0000000000000000000000000000000000000000000000000000';
+  // freezebalanceV2
+  // activePermission.operations = '7fff1fc0033ec107000000000000000000000000000000000000000000000000';
   activePermission.keys = [];
 
   let weight = 1;
@@ -520,9 +528,10 @@ async function multiSignTransaction(){
   // broadcast update transaction
   const signedUpdateTransaction = await tronWeb.trx.sign(updateTransaction, ownerPk, null, false);
   await tronWeb.trx.broadcast(signedUpdateTransaction);
-  await wait(3);
+  await wait(40);
 
   let transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // let transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
   let signedTransaction = transaction;
   signedTransaction = await tronWeb.trx.multiSign(signedTransaction, emptyAccount1.privateKey, 0);
   signedTransaction = await tronWeb.trx.multiSign(signedTransaction, emptyAccount2.privateKey, 0);
@@ -534,6 +543,7 @@ async function multiSignTransaction(){
   assert.isTrue(result.result);
 
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58, {permissionId: 0});
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58, {permissionId: 0});
   signedTransaction = transaction;
   signedTransaction = await tronWeb.trx.multiSign(signedTransaction, emptyAccount1.privateKey);
   signedTransaction = await tronWeb.trx.multiSign(signedTransaction, emptyAccount2.privateKey);
@@ -546,6 +556,7 @@ async function multiSignTransaction(){
 
   // create transaction and do multi-sign
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
   // sign and verify sign weight
   signedTransaction = transaction;
   let signWeight;
@@ -574,6 +585,7 @@ async function multiSignTransaction(){
 
   // create transaction and do multi-sign
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58, {permissionId: 0});
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58, {permissionId: 0});
   // sign and verify sign weight
   signedTransaction = transaction;
   signWeight;
@@ -600,6 +612,7 @@ async function multiSignTransaction(){
   assert.isTrue(result.result);
 
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
   try {
     await tronWeb.trx.multiSign(transaction, (emptyAccount1.privateKey + '123'), 0);
   } catch (e) {
@@ -607,6 +620,7 @@ async function multiSignTransaction(){
   }
 
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
   try {
     let signedTransaction = await tronWeb.trx.multiSign(transaction, emptyAccount1.privateKey, 0);
     await tronWeb.trx.multiSign(signedTransaction, emptyAccount1.privateKey, 0);
@@ -614,7 +628,10 @@ async function multiSignTransaction(){
     assert.isTrue(e.indexOf('already sign transaction') != -1);
   }
 
+  console.log("=========")
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
+  console.log("transaction3: "+util.inspect(transaction,true,null,true))
   signedTransaction = transaction;
   signedTransaction = await tronWeb.trx.multiSign(signedTransaction, emptyAccount1.privateKey, 2);
   signedTransaction = await tronWeb.trx.multiSign(signedTransaction, emptyAccount2.privateKey, 2);
@@ -623,8 +640,9 @@ async function multiSignTransaction(){
   // broadcast multi-sign transaction
   result = await tronWeb.trx.broadcast(signedTransaction);
   assert.isTrue(result.result);
-
+  console.log("!!!!!!!")
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58, {permissionId: 2});
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58, {permissionId: 2});
   signedTransaction = transaction;
   signedTransaction = await tronWeb.trx.multiSign(signedTransaction, emptyAccount1.privateKey);
   signedTransaction = await tronWeb.trx.multiSign(signedTransaction, emptyAccount2.privateKey);
@@ -636,6 +654,7 @@ async function multiSignTransaction(){
 
   // create transaction and do multi-sign
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
   // sign and verify sign weight
   signedTransaction = transaction;
   signWeight;
@@ -663,6 +682,7 @@ async function multiSignTransaction(){
 
   // create transaction and do multi-sign
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58, {permissionId: 2});
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58, {permissionId: 2});
   // sign and verify sign weight
   signedTransaction = transaction;
   signWeight;
@@ -689,6 +709,7 @@ async function multiSignTransaction(){
   assert.isTrue(result.result);
 
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
   try {
     await tronWeb.trx.multiSign(transaction, (emptyAccount1.privateKey + '123'), 2);
   } catch (e) {
@@ -696,6 +717,7 @@ async function multiSignTransaction(){
   }
 
   transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
   try {
     let signedTransaction = await tronWeb.trx.multiSign(transaction, emptyAccount1.privateKey, 2);
     await tronWeb.trx.multiSign(signedTransaction, emptyAccount1.privateKey, 2);
@@ -706,6 +728,7 @@ async function multiSignTransaction(){
 
   try {
     const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+    // const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
     let signedTransaction = await tronWeb.trx.multiSign(transaction, emptyAccount1.privateKey, 0);
     await tronWeb.trx.multiSign(signedTransaction, emptyAccount1.privateKey, 2);
   } catch (e) {
@@ -714,6 +737,7 @@ async function multiSignTransaction(){
 
   try {
     const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+    // const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
     await tronWeb.trx.multiSign(transaction, emptyAccount1.privateKey, 1);
   } catch (e) {
     console.log("e:"+e);
@@ -722,6 +746,7 @@ async function multiSignTransaction(){
 
   try {
     const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', emptyAccount1.address.base58);
+    // const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', emptyAccount1.address.base58);
     transaction.txID = transaction.txID + '00'
     await tronWeb.trx.multiSign(transaction, emptyAccount1.privateKey, 2);
   } catch (e) {
@@ -849,12 +874,14 @@ async function transactionTest(){
   // freezeBalance
   let accountBefore = await tronWeb.trx.getAccount(ADDRESS_HEX);
   await tronWeb.trx.freezeBalance(10e5, 3, 'BANDWIDTH', { privateKey: PRIVATE_KEY, address: ADDRESS_HEX });
-  await waitChainData('freezeBp', ADDRESS_HEX, 0);
+  // let transaction = await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', ADDRESS_HEX));
+  await wait(30);
   let accountAfter = await tronWeb.trx.getUnconfirmedAccount(ADDRESS_HEX);
   assert.equal((!accountBefore.frozen ? 0: accountBefore.frozen[0].frozen_balance) + 10e5, accountAfter.frozen[0].frozen_balance);
   accountBefore = accountAfter;
   await tronWeb.trx.freezeBalance(10e5, 3, 'ENERGY', { privateKey: PRIVATE_KEY, address: ADDRESS_HEX });
-  await waitChainData('freezeEnergy', ADDRESS_HEX, 0);
+  // transaction = await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'ENERGY', ADDRESS_HEX));
+  await wait(30);
   accountAfter = await tronWeb.trx.getUnconfirmedAccount(ADDRESS_HEX);
   assert.equal(
       (!accountBefore.account_resource ||
@@ -911,6 +938,7 @@ async function transactionTest(){
 
   // broadcast
   let transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', ADDRESS_BASE58);
+  // transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', ADDRESS_BASE58);
   let signedTransaction = await tronWeb.trx.sign(transaction, PRIVATE_KEY);
   const result = await tronWeb.trx.broadcast(signedTransaction);
   assert.isTrue(result.result);
@@ -930,6 +958,7 @@ async function transactionTest(){
 
   // getTransaction
   transaction = await tronWeb.trx.freezeBalance(10e5, 3, 'BANDWIDTH', { privateKey: PRIVATE_KEY, address: ADDRESS_HEX });
+  // transaction = await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', ADDRESS_HEX));
   transaction = transaction.transaction;
   await waitChainData('tx', transaction.txID);
   let tx = await tronWeb.trx.getTransaction(transaction.txID);
@@ -942,6 +971,7 @@ async function transactionTest(){
   // getTransactionFromBlock
   let currBlockNum;
   transaction = await tronWeb.trx.freezeBalance(10e5, 3, 'BANDWIDTH', { privateKey: PRIVATE_KEY, address: ADDRESS_HEX });
+  // transaction = await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', ADDRESS_HEX));
   transaction = transaction.transaction;
   console.log("transaction:"+util.inspect(transaction,true,null,true))
 
@@ -989,6 +1019,7 @@ async function transactionTest(){
   // getTransactionInfo(Confirmed)
   // const idx = 2;
   transaction = await tronWeb.trx.freezeBalance(10e5, 3, 'BANDWIDTH', { privateKey: PRIVATE_KEY, address: ADDRESS_HEX });
+  // transaction = await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', ADDRESS_HEX));
   transaction = transaction.transaction;
   while (true) {
     const tx = await tronWeb.trx.getTransactionInfo(transaction.txID);
@@ -1005,6 +1036,7 @@ async function transactionTest(){
   // geUnconfirmedTransactionInfo
   // const idx = 25;
   transaction = (await tronWeb.trx.freezeBalance(10e5, 3, 'BANDWIDTH', { privateKey: PRIVATE_KEY, address: ADDRESS_HEX })).transaction;
+  // transaction = (await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', ADDRESS_HEX))).transaction;
   await waitChainData('tx', transaction.txID);
   await wait(3)
   tx = await tronWeb.trx.getUnconfirmedTransactionInfo(transaction.txID);
@@ -1018,6 +1050,7 @@ async function transactionTest(){
   // getConfirmedTransaction
   // const idx = 26;
   transaction = await tronWeb.trx.freezeBalance(10e5, 3, 'BANDWIDTH', { privateKey: PRIVATE_KEY, address: ADDRESS_HEX });
+  // transaction = await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', ADDRESS_HEX));
   while (true) {
     try {
       const tx = await tronWeb.trx.getConfirmedTransaction(transaction.transaction.txID);
@@ -1532,6 +1565,250 @@ async function broadcastHex(){
   console.log("broadcastHex end")
 }
 
+async function getDelegatedResourceV2(){
+  const idx = 10;
+  await broadcaster.broadcaster(null, accounts.pks[idx], await tronWeb.transactionBuilder.freezeBalanceV2(50e6, 'BANDWIDTH', accounts.hex[idx]));
+  await broadcaster.broadcaster(null, accounts.pks[idx], await tronWeb.transactionBuilder.freezeBalanceV2(50e6, 'ENERGY', accounts.hex[idx]));
+  await wait(40);
+  const transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.hex[idx + 1], 'BANDWIDTH', accounts.hex[idx]);
+  await broadcaster.broadcaster(null, accounts.pks[idx], transaction);
+  const transaction3 = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.hex[idx + 1], 'ENERGY', accounts.hex[idx]);
+  await broadcaster.broadcaster(null, accounts.pks[idx], transaction3);
+  await wait(40);
+
+  const addressType = ['hex', 'b58'];
+  let delegationInfo;
+  for (let type of addressType) {
+    delegationInfo = await tronWeb.trx.getDelegatedResourceV2(accounts[type][idx], accounts[type][idx + 1]);
+    console.log("delegationInfo: "+util.inspect(delegationInfo,true,null,true))
+    assert.isDefined(delegationInfo.delegatedResource);
+  }
+
+  await wait(10); // wait for solidity
+  delegationInfo = await tronWeb.trx.getDelegatedResourceV2(accounts['hex'][idx], accounts['hex'][idx + 1], { confirmed: true });
+  assert.isDefined(delegationInfo.delegatedResource);
+  delegationInfo = await tronWeb.trx.getDelegatedResourceV2();
+  console.log("delegationInfo: "+util.inspect(delegationInfo,true,null,true))
+  delegationInfo = await tronWeb.trx.getDelegatedResourceV2(accounts['hex'][idx]);
+  console.log("delegationInfo: "+util.inspect(delegationInfo,true,null,true))
+  delegationInfo = tronWeb.trx.getDelegatedResourceV2(accounts['hex'][idx], accounts['hex'][idx + 1]);
+  console.log("delegationInfo: "+util.inspect(delegationInfo,true,null,true))
+  await assertThrow(
+      tronWeb.trx.getDelegatedResourceV2('notAnAddress'),
+      'Invalid address provided'
+  );
+  await assertThrow(
+      tronWeb.trx.getDelegatedResourceV2(accounts.hex[idx], 'notAnAddress'),
+      'Invalid address provided'
+  );
+}
+
+async function getDelegatedResourceAccountIndexV2(){
+  const idx = 10;
+  await broadcaster.broadcaster(null, accounts.pks[idx], await tronWeb.transactionBuilder.freezeBalanceV2(50e6, 'BANDWIDTH',accounts.b58[idx]));
+  await broadcaster.broadcaster(null, accounts.pks[idx], await tronWeb.transactionBuilder.freezeBalanceV2(50e6, 'ENERGY',accounts.b58[idx]));
+  await wait(40);
+  const transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.hex[idx+1], 'BANDWIDTH', accounts.b58[idx]);
+  await broadcaster.broadcaster(null, accounts.pks[idx], transaction);
+  const transaction3 = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[idx+2], 'ENERGY', accounts.hex[idx]);
+  await broadcaster.broadcaster(null, accounts.pks[idx], transaction3);
+  const transaction4 = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[idx+3], 'BANDWIDTH', accounts.hex[idx],true);
+  await broadcaster.broadcaster(null, accounts.pks[idx], transaction4);
+  const transaction5 = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.hex[idx+4], 'ENERGY', accounts.b58[idx],true);
+  await broadcaster.broadcaster(null, accounts.pks[idx], transaction5);
+  await wait(40);
+
+  const addressType = ['hex', 'b58'];
+  let delegationInfo;
+  for (let type of addressType) {
+    delegationInfo = await tronWeb.trx.getDelegatedResourceAccountIndexV2(accounts[type][idx]);
+    console.log("delegationInfo: "+util.inspect(delegationInfo,true,null,true))
+    assert.isDefined(delegationInfo.account);
+    assert.isArray(delegationInfo.toAccounts);
+    assert.equal(delegationInfo.toAccounts.length,4)
+  }
+
+  /*tronWeb.trx.getDelegatedResourceAccountIndexV2(accounts.hex[idx], (err, delegationInfo) => {
+    if (err) return done(err);
+    console.log("delegationInfo: "+util.inspect(delegationInfo,true,null,true))
+    assert.isDefined(delegationInfo.account);
+    assert.isArray(delegationInfo.toAccounts);
+    assert.equal(delegationInfo.toAccounts.length,4)
+    done();
+  });*/
+
+  await wait(10); // wait for solidity
+  delegationInfo = await tronWeb.trx.getDelegatedResourceAccountIndexV2(accounts['hex'][idx], { confirmed: true });
+  console.log("delegationInfo: "+util.inspect(delegationInfo,true,null,true))
+  assert.isDefined(delegationInfo.account);
+  assert.isArray(delegationInfo.toAccounts);
+  assert.equal(delegationInfo.toAccounts.length,4)
+
+  delegationInfo = await tronWeb.trx.getDelegatedResourceAccountIndexV2();
+  console.log("delegationInfo: "+util.inspect(delegationInfo,true,null,true))
+  assert.isDefined(delegationInfo.account);
+  assert.isArray(delegationInfo.toAccounts);
+  assert.isTrue(delegationInfo.toAccounts.length>2)
+
+  await assertThrow(
+      tronWeb.trx.getDelegatedResourceAccountIndexV2('notAnAddress'),
+      'Invalid address provided'
+  );
+}
+
+async function getCanDelegatedMaxSize(){
+  const idx = 10;
+  const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e6, 'ENERGY', accounts.hex[idx]);
+  await broadcaster.broadcaster(null, accounts.pks[idx], transaction);
+  const transaction2 = await tronWeb.transactionBuilder.freezeBalanceV2(10e6, 'BANDWIDTH', accounts.hex[idx]);
+  await broadcaster.broadcaster(null, accounts.pks[idx], transaction2);
+  await wait(40);
+
+  const addressType = ['hex', 'b58'];
+  let max_size_bandwidth;
+  for (let type of addressType) {
+    const { max_size } = await tronWeb.trx.getCanDelegatedMaxSize(accounts[type][idx], "BANDWIDTH");
+    console.log(accounts[type][idx]+"-BANDWIDTH-max_size: "+max_size)
+    assert.isNumber(max_size);
+    max_size_bandwidth = max_size;
+  }
+
+  const max_size1 = await tronWeb.trx.getCanDelegatedMaxSize(accounts.hex[idx]);
+  console.log(accounts.hex[idx]+"-BANDWIDTH-max_size: "+max_size1.max_size)
+  assert.isNumber(max_size1.max_size);
+  assert.equal(max_size_bandwidth,max_size1.max_size);
+  for (let type of addressType) {
+    const { max_size } = await tronWeb.trx.getCanDelegatedMaxSize(accounts[type][idx], "ENERGY");
+    console.log(accounts[type][idx]+"-ENERGY-max_size: "+max_size)
+    assert.isNumber(max_size);
+    assert.isTrue(max_size>=10000000);
+  }
+
+  /*tronWeb.trx.getCanDelegatedMaxSize(accounts.hex[idx], "BANDWIDTH", (err, max_size) => {
+    if (err) return done(err);
+    console.log("max_size: "+util.inspect(max_size,true,null,true));
+    assert.isNumber(max_size.max_size);
+    done();
+  });*/
+
+  await wait(10); // wait for solidity
+  const max_size2 = await tronWeb.trx.getCanDelegatedMaxSize(accounts['hex'][idx], "BANDWIDTH", { confirmed: true });
+  console.log("max_size2: "+max_size2.max_size)
+  assert.isNumber(max_size2.max_size);
+  assert.isTrue(max_size2.max_size>1000000);
+
+  const max_size3 = await tronWeb.trx.getCanDelegatedMaxSize(accounts['hex'][idx]);
+  console.log("max_size3: "+max_size3.max_size)
+  assert.isNumber(max_size3.max_size);
+  assert.isTrue(max_size3.max_size>1000000);
+
+  const max_size4 = await tronWeb.trx.getCanDelegatedMaxSize(ADDRESS_HEX);
+  console.log("max_size4: "+util.inspect(max_size4.max_size,true,null,true))
+  assert.isNumber(max_size4.max_size);
+  const max_size5 = await tronWeb.trx.getCanDelegatedMaxSize();
+  console.log("max_size5: "+util.inspect(max_size5.max_size,true,null,true))
+  assert.isNumber(max_size5.max_size);
+  assert.isTrue(max_size5.max_size>1000000);
+  assert.equal(max_size4.max_size,max_size5.max_size)
+
+  await assertThrow(
+      tronWeb.trx.getCanDelegatedMaxSize('notAnAddress', "ENERGY"),
+      'Invalid address provided'
+  );
+
+  await assertThrow(
+      tronWeb.trx.getCanDelegatedMaxSize(accounts.hex[idx], "ENER"),
+      'Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"'
+  );
+}
+
+async function getAvailableUnfreezeCount(){
+  const idx = 10;
+  const addressType = ['hex', 'b58'];
+  let count1;
+  for (let type of addressType) {
+    const { count } = await tronWeb.trx.getAvailableUnfreezeCount(accounts[type][idx]);
+    console.log("count:"+count)
+    assert.isNumber(count);
+    assert.isTrue(count>30)
+    if (type === 'b58') {
+      assert.equal(count1,count)
+    }
+    count1 = count;
+  }
+
+  /*tronWeb.trx.getAvailableUnfreezeCount(accounts.hex[idx], (err, { count }) => {
+    if (err) return done(err);
+    assert.isNumber(count);
+    console.log("count:" + count)
+    assert.isTrue(count > 30)
+    done();
+  })*/
+  const count2 = await tronWeb.trx.getAvailableUnfreezeCount(accounts['hex'][idx], { confirmed: true });
+  console.log("count:"+count2.count)
+  assert.isTrue(count2.count>30)
+  assert.isNumber(count2.count);
+
+  const count3 = await tronWeb.trx.getAvailableUnfreezeCount();
+  console.log("count:"+count3.count)
+  assert.isNumber(count3.count);
+  assert.isTrue(count3.count>30)
+
+  await assertThrow(
+      tronWeb.trx.getAvailableUnfreezeCount('notAnAddress'),
+      'Invalid address provided'
+  );
+}
+
+async function getCanWithdrawUnfreezeAmount(){
+  const idx = 11;
+  const transaction2 = await tronWeb.transactionBuilder.freezeBalanceV2(100e6, 'ENERGY', accounts.hex[idx]);
+  await broadcaster.broadcaster(null, accounts.pks[idx], transaction2);
+  const transaction = await tronWeb.transactionBuilder.unfreezeBalanceV2(10e6, 'ENERGY', accounts.hex[idx], accounts.hex[idx + 1]);
+  await broadcaster.broadcaster(null, accounts.pks[idx], transaction);
+
+  const transaction3 = await tronWeb.transactionBuilder.freezeBalanceV2(100e6, 'ENERGY');
+  await broadcaster.broadcaster(null, PRIVATE_KEY, transaction3);
+  const transaction4 = await tronWeb.transactionBuilder.unfreezeBalanceV2(10e6, 'ENERGY', tronWeb.defaultAddress.hex, accounts.hex[idx + 1]);
+  await broadcaster.broadcaster(null, PRIVATE_KEY, transaction4);
+  await wait(45);
+
+  const addressType = ['hex', 'b58'];
+  for (let type of addressType) {
+    const { amount } = await tronWeb.trx.getCanWithdrawUnfreezeAmount(accounts[type][idx], Date.now());
+    console.log("amount: "+amount)
+    assert.isNumber(amount);
+    assert.equal(amount,10e6)
+  }
+
+  /*tronWeb.trx.getCanWithdrawUnfreezeAmount(accounts.hex[idx], Date.now(), (err, { amount }) => {
+    if (err) return done(err);
+    console.log("amount: "+amount)
+    assert.isNumber(amount);
+    assert.equal(amount,10e6)
+    done();
+  });*/
+
+  const amount1 = await tronWeb.trx.getCanWithdrawUnfreezeAmount(accounts['hex'][idx], Date.now(), { confirmed: true });
+  assert.isNumber(amount1.amount);
+  assert.equal(amount1.amount,10e6)
+
+  const amount2 = await tronWeb.trx.getCanWithdrawUnfreezeAmount();
+  console.log("amount2: "+amount2.amount)
+  assert.isNumber(amount2.amount);
+  assert.isTrue(amount2.amount >1e6)
+
+  await assertThrow(
+      tronWeb.trx.getCanWithdrawUnfreezeAmount('notAnAddress', Date.now()),
+      'Invalid address provided'
+  );
+
+  await assertThrow(
+      tronWeb.trx.getCanWithdrawUnfreezeAmount(accounts.hex[idx], -1),
+      'Invalid timestamp provided'
+  );
+}
+
 async function trxTestAll(){
   console.log("trxTestAll start")
   await trxBefore();
@@ -1566,6 +1843,11 @@ async function trxTestAll(){
   await getBrokerage();
   await getUnconfirmedBrokerage();
   await broadcastHex();
+  await getDelegatedResourceV2();
+  await getDelegatedResourceAccountIndexV2();
+  await getCanDelegatedMaxSize();
+  await getAvailableUnfreezeCount();
+  await getCanWithdrawUnfreezeAmount();
 
   console.log("trxTestAll end")
 }

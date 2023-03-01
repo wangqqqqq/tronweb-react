@@ -229,6 +229,7 @@ async function generateRandomWhenPath_error2(){
 }
 
 async function generateRandomWhenWordlist_zh_cn(){
+    console.log("generateRandomWhenWordlist_zh_cn start")
     const tronWeb = tronWebBuilder.createInstance();
 
     const wordlist = 'zh_cn';
@@ -247,9 +248,11 @@ async function generateRandomWhenWordlist_zh_cn(){
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
     publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
+    console.log("generateRandomWhenWordlist_zh_cn end")
 }
 
 async function generateRandomWhenWordlist_zh_tw(){
+    console.log("generateRandomWhenWordlist_zh_tw start")
     const tronWeb = tronWebBuilder.createInstance();
 
     const wordlist = 'zh_tw';
@@ -268,6 +271,7 @@ async function generateRandomWhenWordlist_zh_tw(){
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
     publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
+    console.log("generateRandomWhenWordlist_zh_tw end")
 }
 
 async function generateRandomWhenWordlist_ko(){
@@ -604,11 +608,12 @@ async function accountsTestAll(){
     await generateRandomWhenPath_accountIs3AndIndexIs99();
     await generateRandomWhenPath_error1();
     await generateRandomWhenPath_error2();
+    /* Only the test environment supports
     await generateRandomWhenWordlist_zh_cn();
     await generateRandomWhenWordlist_zh_tw();
     await generateRandomWhenWordlist_ko();
     await generateRandomWhenWordlist_ja();
-    await generateRandomWhenWordlist_it();
+    await generateRandomWhenWordlist_it();*/
     await generateRandomWhenWordlist_nonexistent();
     await generateRandomWhenWordlist_emptyChar();
 
@@ -617,12 +622,13 @@ async function accountsTestAll(){
     await generateAccountWithMnemonic_withPathIsNotSame();
     await generateAccountWithMnemonic_withPathIsNull();
     await generateAccountWithMnemonic_withErrorPath();
+    /* Only the test environment supports
     await generateAccountWithMnemonicWordlist_zh_cn();
     await generateAccountWithMnemonicWordlist_zh_tw();
     await generateAccountWithMnemonicWordlist_ko();
     await generateAccountWithMnemonicWordlist_ja();
     await generateAccountWithMnemonicWordlist_it();
-    await generateAccountWithMnemonicWordlist_unmatch();
+    await generateAccountWithMnemonicWordlist_unmatch();*/
     await generateAccountWithMnemonicWordlist_nonexistent();
     await generateAccountWithMnemonicWordlist_isNull();
     console.log("accountsTestAll end")

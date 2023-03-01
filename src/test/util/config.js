@@ -85,7 +85,7 @@ module.exports = {
             frozenDuration: 1,
             trxRatio: 10,
             tokenRatio: 2,
-            saleStart: Date.now() + 600,
+            saleStart: Date.now() + 800,
             freeBandwidth: 100,
             freeBandwidthLimit: 1000
         }

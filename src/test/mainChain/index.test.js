@@ -906,22 +906,23 @@ async function abiV2Test2(){
 
   // nile SaiValuesAggregator
   const contractInstance2 = await tronWeb.contract(abiV2Test2t.abi,"41E38397ADACF9C723C06CE1F5E2E1E84CA487D07D");
-  const res = await contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016a').call();
-  contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016a').call((err, data)=>{
+  const res = await contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016c').call();
+  console.log("res:"+res)
+  contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016c').call((err, data)=>{
     console.log("data:"+data)
     assert.equal(data.toString(),res.toString())
   });
   console.log("res:"+res)
-  assert.equal(res[1],'4104001be68322c0c3640c6a1384c891697b53c231')
-  assert.equal(res[2],false)
+  assert.equal(res[1],'41fdbbdc2e4b98deffeaa4d1299ee5301e24e8e246')
+  assert.equal(res[2],true)
   const array = res[3]
-  assert.equal(parseInt(array[0],10),9999999999000000000000)
-  assert.equal(parseInt(array[1],10),800000000000000000000)
-  assert.equal(parseInt(array[2],10),788074048671296707459)
+  assert.equal(parseInt(array[0],10),199999997000000267934)
+  assert.equal(parseInt(array[1],10),4000000000000000000)
+  assert.equal(parseInt(array[2],10),3940370243356483537)
   assert.isTrue(parseInt(array[3],10) > 0)
-  assert.equal(parseInt(array[4],10),0)
-  assert.equal(parseInt(array[5],10),0)
-  assert.equal(parseInt(array[6],10),0)
+  assert.equal(parseInt(array[4],10),2666666566667568805)
+  assert.equal(parseInt(array[5],10),79999997000016345667)
+  assert.equal(parseInt(array[6],10),79999997000027064155)
   assert.isTrue(parseInt(array[7],10) > 0)
 }
 

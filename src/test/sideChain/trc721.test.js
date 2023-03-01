@@ -65,8 +65,9 @@ async function depositTrc721(){
         [{type: 'uint256', value: trc721Id}]);
     let sTrc721OwnerAfter = sTrc721OwnerResultAfter && sTrc721OwnerResultAfter.result ? sTrc721OwnerResultAfter.constant_result[0].toLocaleString().toLowerCase() : 0;
     sTrc721OwnerAfter = "41"+sTrc721OwnerAfter.substr(24);
-    assert.equal(mTrc721BalanceAfter,SIDE_CHAIN.sideOptions.mainGatewayAddress_hex)
-    assert.equal(sTrc721OwnerAfter.toLocaleString().toLowerCase(),ADDRESS_HEX)
+    assert.equal(mTrc721BalanceAfter.toUpperCase(),SIDE_CHAIN.sideOptions.mainGatewayAddress_hex.toUpperCase())
+    assert.equal(sTrc721OwnerAfter.toLocaleString().toUpperCase(),ADDRESS_HEX.toUpperCase())
+
 
     // depositTrc721 with the defined private key
     let mintMap = await publicMethod.mintTrc721(contractAddress,1003);
