@@ -557,6 +557,109 @@ async function setAccountId(){
       tronWeb.transactionBuilder.setAccountId(TronWeb.toHex('testtest001'), '0xzzzww'),
       'Invalid origin address provided'
   );
+
+  const params = [
+    [TronWeb.toHex('abcabc220'), accounts.b58[4], {permissionId: 2}],
+    [TronWeb.toHex('abcab0000'), accounts.b58[4], {permissionId: 0}],
+    [TronWeb.toHex('testtest'), accounts.b58[4]],
+  ]
+
+  for (let param of params) {
+    const transaction = await tronWeb.transactionBuilder.setAccountId(...param);
+    const parameter = txPars(transaction);
+    assert.equal(transaction.txID.length, 64);
+    console.log("parameter",parameter);
+    assert.equal(parameter.value.account_id, param[0].slice(2));
+    assert.equal(parameter.value.owner_address, accounts.hex[4]);
+    assert.equal(parameter.type_url, 'type.googleapis.com/protocol.SetAccountIdContract');
+    assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[2] ? param[2]['permissionId'] : 0);
+  }
+}
+
+function randomString(e) {
+  e = e || 32;
+  var t = "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz",
+      a = t.length,
+      n = "";
+  for (let i = 0; i < e; i++) n += t.charAt(Math.floor(Math.random() * a));
+  return n
+}
+
+//shoule set account id by multiSign transaction
+async function setAccountIdMultiSign(){
+  const accountsl = {
+    b58: [],
+    hex: [],
+    pks: []
+  }
+  const idxS = 0;
+  const idxE = 2;
+  const threshold = 2;
+  tronWeb = tronWebBuilder.createInstance();
+  const sendTrxTx = await tronWeb.trx.sendTrx(accounts.b58[0], 5000000000);
+  const sendTrxTx2 = await tronWeb.trx.sendTrx(accounts.b58[1], 500000000);
+  assert.isTrue(sendTrxTx.result);
+  assert.isTrue(sendTrxTx2.result);
+  await wait(15);
+
+  accountsl.pks.push(accounts.pks[1]);
+  accountsl.b58.push(accounts.b58[1]);
+  accountsl.hex.push(accounts.hex[1]);
+  accountsl.pks.push(accounts.pks[0]);
+  accountsl.b58.push(accounts.b58[0]);
+  accountsl.hex.push(accounts.hex[0]);
+  let ownerPk = accounts.pks[1]
+  let ownerAddressBase58 = accounts.b58[1];
+  let ownerAddress = accounts.hex[1];
+  console.log("ownerAddress: "+ownerAddress + "    ownerAddressBase58：" + ownerAddressBase58)
+
+  // update account permission
+  let ownerPermission = { type: 0, permission_name: 'owner' };
+  ownerPermission.threshold = 1;
+  ownerPermission.keys  = [];
+  let activePermission = { type: 2, permission_name: 'active0' };
+  activePermission.threshold = threshold;
+  activePermission.operations = '7fff1fc0037e0000000000000000000000000000000000000000000000000000';
+  activePermission.keys = [];
+
+  ownerPermission.keys.push({ address: ownerAddress, weight: 1 });
+  for (let i = idxS; i < idxE; i++) {
+    let address = accountsl.hex[i];
+    let weight = 1;
+    activePermission.keys.push({ address: address, weight: weight });
+  }
+
+  const updateTransaction = await tronWeb.transactionBuilder.updateAccountPermissions(
+      ownerAddress,
+      ownerPermission,
+      null,
+      [activePermission]
+  );
+
+  console.log("updateTransaction:"+util.inspect(updateTransaction))
+  await wait(30);
+  const updateTx = await broadcaster.broadcaster(null, ownerPk, updateTransaction);
+  console.log("updateTx:"+util.inspect(updateTx))
+  console.log("updateTx.txID:"+updateTx.transaction.txID)
+  assert.equal(updateTx.transaction.txID.length, 64);
+  await wait(30);
+
+  const accountID = TronWeb.toHex(randomString(10))
+  const param = [accountID, ownerAddressBase58, {permissionId: 2}]
+  const transaction = await tronWeb.transactionBuilder.setAccountId(...param);
+  let signedTransaction = transaction;
+  for (let i = idxS; i < idxE; i++) {
+    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accountsl.pks[i], 2);
+  }
+
+  assert.equal(signedTransaction.signature.length, 2);
+
+  // broadcast multi-sign transaction
+  const result = await tronWeb.trx.broadcast(signedTransaction);
+  await wait(30);
+  const ans = await tronWeb.trx.getAccount(ownerAddress);
+  assert.isTrue(result.result);
+  assert.equal(accountID.replace(/^0x/, ''),ans.account_id,"setaccountID error!")
 }
 
 async function updateToken(){
@@ -2602,15 +2705,15 @@ async function triggerComfirmedConstantContract(){
 
 async function clearabi(){
   console.log("clearabi excute start");
-  const emptyAccount1 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount1.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  await tronWeb.trx.sendTrx(accounts.hex[7],3000000000,{privateKey: PRIVATE_KEY})
+  await wait(3);
 
   let contract;
   let transaction = await tronWeb.transactionBuilder.createSmartContract({
     abi: testConstant.abi,
     bytecode: testConstant.bytecode
-  }, emptyAccount1.address.hex);
-  await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
+  }, accounts.hex[7]);
+  await broadcaster.broadcaster(null, accounts.pks[7], transaction);
   while (true) {
     const tx = await tronWeb.trx.getTransactionInfo(transaction.txID);
     if (Object.keys(tx).length === 0) {
@@ -2621,32 +2724,162 @@ async function clearabi(){
     }
   }
 
-  const contractAddress = transaction.contract_address;
-  const ownerAddress = emptyAccount1.address.hex;
+  const params = [
+    [transaction, accounts.hex[7], {permissionId: 2}],
+    [transaction, accounts.hex[7]],
+  ];
+  for (const param of params) {
+    const contractAddress = param[0].contract_address;
+    const ownerAddress = param[1];
 
-  // verify contract abi before
-  contract = await tronWeb.trx.getContract(contractAddress);
-  assert.isTrue(Object.keys(contract.abi).length > 0)
-
-  // clear abi
-  transaction = await tronWeb.transactionBuilder.clearABI(contractAddress, ownerAddress);
-  assert.isTrue(!transaction.visible &&
-      transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.ClearABIContract');
-  transaction = await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
-  assert.isTrue(transaction.receipt.result);
-
-  // verify contract abi after
-  while (true) {
+    // verify contract abi before
     contract = await tronWeb.trx.getContract(contractAddress);
-    if (Object.keys(contract.abi).length > 0) {
+    assert.isTrue(Object.keys(contract.abi).length > 0)
+
+    // clear abi
+    let transaction1 = await tronWeb.transactionBuilder.clearABI(contractAddress, ownerAddress, param[2]);
+    const parameter = txPars(transaction1);
+    assert.isTrue(!transaction1.visible &&
+        transaction1.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.ClearABIContract');
+    assert.equal(transaction1.txID.length, 64);
+    assert.equal(parameter.value.contract_address, tronWeb.address.toHex(contractAddress));
+    assert.equal(parameter.value.owner_address, tronWeb.address.toHex(ownerAddress));
+    assert.equal(transaction1.raw_data.contract[0].Permission_id, param[2]?.permissionId);
+
+    if (param.length === 2) {
+      let transaction2 = await broadcaster.broadcaster(null, accounts.pks[7], transaction1);
+      assert.isTrue(transaction2.receipt.result);
+
+      // verify contract abi after
+      while (true) {
+        contract = await tronWeb.trx.getContract(contractAddress);
+        if (Object.keys(contract.abi).length > 0) {
+          await wait(3);
+          continue;
+        } else {
+          break;
+        }
+      }
+      assert.isTrue(Object.keys(contract.abi).length === 0);
+    }
+  }
+  console.log("clearabi excute success");
+}
+
+async function clearabiMultiSign(){
+  let transactions = [];
+  let contracts = [];
+  transactions.push(await tronWeb.transactionBuilder.createSmartContract({
+    abi: testConstant.abi,
+    bytecode: testConstant.bytecode
+  }, accounts.hex[7]));
+  transactions.forEach(async (tx) => {
+    contracts.push(await broadcaster.broadcaster(null, accounts.pks[7], tx));
+  });
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(transactions[0].txID);
+    if (Object.keys(tx).length === 0 ) {
       await wait(3);
       continue;
     } else {
       break;
     }
   }
-  assert.isTrue(Object.keys(contract.abi).length === 0);
-  console.log("clearabi excute success");
+  const accountsl = {
+    b58: [],
+    hex: [],
+    pks: []
+  }
+  const idxS = 0;
+  const idxE = 2;
+  const threshold = 2;
+  tronWeb = tronWebBuilder.createInstance();
+  const sendTrxTx = await tronWeb.trx.sendTrx(accounts.b58[7], 5000000000);
+  const sendTrxTx2 = await tronWeb.trx.sendTrx(accounts.b58[6], 500000000);
+  assert.isTrue(sendTrxTx.result);
+  assert.isTrue(sendTrxTx2.result);
+  await wait(15);
+
+  accountsl.pks.push(accounts.pks[6]);
+  accountsl.b58.push(accounts.b58[6]);
+  accountsl.hex.push(accounts.hex[6]);
+  accountsl.pks.push(accounts.pks[7]);
+  accountsl.b58.push(accounts.b58[7]);
+  accountsl.hex.push(accounts.hex[7]);
+  let ownerPk = accounts.pks[7]
+
+  // update account permission
+  let ownerPermission = { type: 0, permission_name: 'owner' };
+  ownerPermission.threshold = 1;
+  ownerPermission.keys  = [];
+  let activePermission = { type: 2, permission_name: 'active0' };
+  activePermission.threshold = threshold;
+  activePermission.operations = '7fff1fc0037e0300000000000000000000000000000000000000000000000000';
+  activePermission.keys = [];
+
+  ownerPermission.keys.push({ address: accounts.hex[7], weight: 1 });
+  for (let i = idxS; i < idxE; i++) {
+    let address = accountsl.hex[i];
+    let weight = 1;
+    activePermission.keys.push({ address: address, weight: weight });
+  }
+
+  const updateTransaction = await tronWeb.transactionBuilder.updateAccountPermissions(
+      accounts.hex[7],
+      ownerPermission,
+      null,
+      [activePermission]
+  );
+
+  console.log("updateTransaction:"+util.inspect(updateTransaction))
+  await wait(30);
+  const updateTx = await broadcaster.broadcaster(null, ownerPk, updateTransaction);
+  console.log("updateTx:"+util.inspect(updateTx))
+  console.log("updateTx.txID:"+updateTx.transaction.txID)
+  assert.equal(updateTx.transaction.txID.length, 64);
+  await wait(30);
+
+  const param = [transactions[0], accounts.hex[7], {permissionId: 2}];
+
+  const contractAddress = param[0].contract_address;
+  const ownerAddress = param[1];
+
+  // verify contract abi before
+  const contract = await tronWeb.trx.getContract(contractAddress);
+  assert.isTrue(Object.keys(contract.abi).length > 0)
+
+  // clear abi
+  const transaction = await tronWeb.transactionBuilder.clearABI(contractAddress, ownerAddress, param[2]);
+  const parameter = txPars(transaction);
+  assert.isTrue(!transaction.visible &&
+      transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.ClearABIContract');
+  assert.equal(transaction.txID.length, 64);
+  assert.equal(parameter.value.contract_address, tronWeb.address.toHex(contractAddress));
+  assert.equal(parameter.value.owner_address, tronWeb.address.toHex(ownerAddress));
+  assert.equal(transaction.raw_data.contract[0].Permission_id, param[2]?.permissionId);
+
+  let signedTransaction = transaction;
+  for (let i = idxS; i < idxE; i++) {
+    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accountsl.pks[i], 2);
+  }
+  assert.equal(signedTransaction.signature.length, 2);
+
+  // broadcast multi-sign transaction
+  const result = await tronWeb.trx.broadcast(signedTransaction);
+  assert.isTrue(result.result)
+  let contract1;
+  // verify contract abi after
+  while (true) {
+    contract1 = await tronWeb.trx.getContract(contractAddress);
+    if (Object.keys(contract1.abi).length > 0) {
+      await wait(3);
+      continue;
+    } else {
+      break;
+    }
+  }
+  assert.isTrue(Object.keys(contract1.abi).length === 0);
+  console.log("clearabiMultiSign excute success!");
 }
 
 async function updateBrokerage(){
@@ -2680,6 +2913,102 @@ async function updateBrokerage(){
       'Invalid owner address provided'
   );
   console.log("updateBrokerage excute success")
+}
+
+async function updateBrokerageMultiSign(){
+  await broadcaster.broadcaster(tronWeb.transactionBuilder.sendTrx(accounts.b58[1], 10000e6), PRIVATE_KEY);
+  await broadcaster.broadcaster(tronWeb.transactionBuilder.applyForSR(accounts.b58[1], 'abc.tron.network'), accounts.pks[1])
+
+  const params = [
+    [10, accounts.hex[3], {permissionId: 2}],
+    [20, accounts.hex[3]]
+  ];
+  for (const param of params) {
+    const transaction = await tronWeb.transactionBuilder.updateBrokerage(...param);
+    const parameter = txPars(transaction);
+    assert.equal(transaction.txID.length, 64);
+    assert.equal(parameter.value.brokerage, param[0]);
+    assert.equal(parameter.value.owner_address, param[1]);
+    assert.equal(parameter.type_url, 'type.googleapis.com/protocol.UpdateBrokerageContract');
+    assert.equal(transaction.raw_data.contract[0].Permission_id, param[2]?.permissionId);
+  }
+
+  const accountsl = {
+    b58: [],
+    hex: [],
+    pks: []
+  }
+  const idxS = 0;
+  const idxE = 2;
+  const threshold = 2;
+  tronWeb = tronWebBuilder.createInstance();
+  const sendTrxTx = await tronWeb.trx.sendTrx(accounts.b58[1], 5000000000);
+  const sendTrxTx2 = await tronWeb.trx.sendTrx(accounts.b58[2], 500000000);
+  assert.isTrue(sendTrxTx.result);
+  assert.isTrue(sendTrxTx2.result);
+  await wait(15);
+
+  accountsl.pks.push(accounts.pks[2]);
+  accountsl.b58.push(accounts.b58[2]);
+  accountsl.hex.push(accounts.hex[2]);
+  accountsl.pks.push(accounts.pks[1]);
+  accountsl.b58.push(accounts.b58[1]);
+  accountsl.hex.push(accounts.hex[1]);
+  let ownerPk = accounts.pks[1]
+  let ownerAddressBase58 = accounts.b58[1];
+  let ownerAddress = accounts.hex[1];
+  console.log("ownerAddress: "+ownerAddress + "    ownerAddressBase58：" + ownerAddressBase58)
+
+  // update account permission
+  let ownerPermission = { type: 0, permission_name: 'owner' };
+  ownerPermission.threshold = 1;
+  ownerPermission.keys  = [];
+  let activePermission = { type: 2, permission_name: 'active0' };
+  let witnessPermission = { type: 1, permission_name: 'witness' };
+  activePermission.threshold = threshold;
+  activePermission.operations = '7fff1fc0037e0200000000000000000000000000000000000000000000000000';
+  activePermission.keys = [];
+  witnessPermission.threshold = 1;
+  witnessPermission.keys = [];
+
+  ownerPermission.keys.push({ address: ownerAddress, weight: 1 });
+  witnessPermission.keys.push({ address:ownerAddress, weight: 1 })
+  for (let i = idxS; i < idxE; i++) {
+    let address = accountsl.hex[i];
+    let weight = 1;
+    activePermission.keys.push({ address: address, weight: weight });
+  }
+
+  const updateTransaction = await tronWeb.transactionBuilder.updateAccountPermissions(
+      ownerAddress,
+      ownerPermission,
+      witnessPermission,
+      [activePermission]
+  );
+
+  console.log("updateTransaction:"+util.inspect(updateTransaction))
+  await wait(30);
+  const updateTx = await broadcaster.broadcaster(null, ownerPk, updateTransaction);
+  console.log("updateTx:"+util.inspect(updateTx))
+  console.log("updateTx.txID:"+updateTx.transaction.txID)
+  assert.equal(updateTx.transaction.txID.length, 64);
+  await wait(30);
+
+  const cnt = 30
+  const param = [cnt, ownerAddress, {permissionId: 2}];
+  const transaction = await tronWeb.transactionBuilder.updateBrokerage(...param);
+  //
+  let signedTransaction = transaction;
+  for (let i = idxS; i < idxE; i++) {
+    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accountsl.pks[i], 2);
+  }
+  assert.equal(signedTransaction.signature.length, 2);
+
+  // broadcast multi-sign transaction
+  const result = await tronWeb.trx.broadcast(signedTransaction);
+  assert.isTrue(result.result); //It takes about 3-5 minutes for the modification to succeed！
+
+  console.log("updateBrokerageMultiSign excute success")
 }
 
 async function triggerSmartContract(){
@@ -3224,17 +3553,102 @@ async function accountPermissionUpdate(){
     ]
   };
   const params = [
+    [accounts.hex[0], permissionData.owner, permissionData.witness, permissionData.actives, {permissionId: 2}],
     [accounts.hex[0], permissionData.owner, permissionData.witness, permissionData.actives] // No suppored for multiSign
   ];
   for (let param of params) {
     const transaction = await tronWeb.transactionBuilder.updateAccountPermissions(
         ...param
     );
-    const authResult =
-        TronWeb.utils.transaction.txCheck(transaction);
-    assert.equal(authResult, true);
+    const parameter = txPars(transaction);
+    assert.equal(transaction.txID.length, 64);
+    assert.equal(parameter.value.owner_address, param[0]);
+    assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AccountPermissionUpdateContract');
+    assert.equal(transaction.raw_data.contract[0].Permission_id, param[4]?.permissionId);
   }
   console.log("accountPermissionUpdate excute success");
+}
+
+async function accountPermissionUpdateMultiSign(){
+  const accountsl = {
+    b58: [],
+    hex: [],
+    pks: []
+  }
+  const idxS = 0;
+  const idxE = 2;
+  const threshold = 2;
+  tronWeb = tronWebBuilder.createInstance();
+  const sendTrxTx = await tronWeb.trx.sendTrx(accounts.b58[8], 5000000000);
+  const sendTrxTx2 = await tronWeb.trx.sendTrx(accounts.b58[9], 500000000);
+  assert.isTrue(sendTrxTx.result);
+  assert.isTrue(sendTrxTx2.result);
+  await wait(15);
+
+  accountsl.pks.push(accounts.pks[8]);
+  accountsl.b58.push(accounts.b58[8]);
+  accountsl.hex.push(accounts.hex[8]);
+  accountsl.pks.push(accounts.pks[9]);
+  accountsl.b58.push(accounts.b58[9]);
+  accountsl.hex.push(accounts.hex[9]);
+
+  // update account permission
+  let ownerPermission = { type: 0, permission_name: 'owner' };
+  ownerPermission.threshold = threshold;
+  ownerPermission.keys  = [];
+  let activePermission = { type: 2, permission_name: 'active0' };
+  activePermission.threshold = threshold;
+  activePermission.operations = '7fff1fc0037e0300000000000000000000000000000000000000000000000000';
+  activePermission.keys = [];
+
+  for (let i = idxS; i < idxE; i++) {
+    let address = accountsl.hex[i];
+    let weight = 1;
+    ownerPermission.keys.push({ address: address, weight: weight });
+    activePermission.keys.push({ address: address, weight: weight });
+  }
+
+  let updateTransaction = await tronWeb.transactionBuilder.updateAccountPermissions(
+      accounts.hex[8],
+      ownerPermission,
+      null,
+      [activePermission]
+  );
+
+  console.log("updateTransaction:"+util.inspect(updateTransaction))
+  await wait(30);
+  const updateTx = await broadcaster.broadcaster(null, accounts.pks[8], updateTransaction);
+  console.log("updateTx:"+util.inspect(updateTx))
+  console.log("updateTx.txID:"+updateTx.transaction.txID)
+  assert.equal(updateTx.transaction.txID.length, 64);
+  await wait(30);
+
+  let res = await tronWeb.trx.getAccount(accounts.b58[8])
+  assert.equal(res.owner_permission.threshold,2,"ownerPermission set 2 users error!")
+
+  ownerPermission = { type: 0, permission_name: 'owner' };
+  ownerPermission.threshold = 1;
+  ownerPermission.keys  = [];
+  ownerPermission.keys.push({ address: accounts.hex[8], weight: 1 });
+  updateTransaction = await tronWeb.transactionBuilder.updateAccountPermissions(
+      accounts.hex[8],
+      ownerPermission,
+      null,
+      [activePermission]
+  );
+  let signedTransaction = updateTransaction;
+  for (let i = idxS; i < idxE; i++) {
+    signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accountsl.pks[i], 0);
+  }
+  assert.equal(signedTransaction.signature.length, 2);
+
+  // broadcast multi-sign transaction
+  const result = await tronWeb.trx.broadcast(signedTransaction);
+  await wait(30);
+  assert.isTrue(result.result)
+  res = await tronWeb.trx.getAccount(accounts.b58[8])
+  assert.equal(res.owner_permission.threshold, 1, "multiSign updateAccountPermissions error!")
+  console.log("accountPermissionUpdateMultiSign excute success");
 }
 
 async function alterExistentTransactions(){
@@ -4167,6 +4581,7 @@ async function transactionBuilderTestAll(){
   await createAccount();
   await updateAccount();
   await setAccountId();
+  await setAccountIdMultiSign()
   await updateToken();
   await purchaseToken();
   await sendToken();
@@ -4215,7 +4630,9 @@ async function transactionBuilderTestAll(){
   await triggerConstantContract();
   await triggerComfirmedConstantContract();
   await clearabi();
+  await clearabiMultiSign()
   await updateBrokerage();
+  await updateBrokerageMultiSign();
   await triggerSmartContract();
   await triggerSmartContractWithArrays();
   await triggerSmartContractWithTrctoken();
@@ -4225,6 +4642,7 @@ async function transactionBuilderTestAll(){
   await updateSetting();
   await updateEnergyLimit();
   await accountPermissionUpdate();
+  await accountPermissionUpdateMultiSign()
   await withdrawExchangeTokens();
   await tradeExchangeTokens();
   await alterExistentTransactions();
