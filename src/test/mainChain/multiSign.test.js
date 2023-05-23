@@ -75,7 +75,7 @@ async function multiSignTestBefore(){
     console.log("updateTx.txID:"+updateTx.transaction.txID)
     assert.equal(updateTx.transaction.txID.length, 64);
     await wait(30);
-
+    console.log("execute multiSignTestBefore success")
     /*let updateInfo;
     while (true) {
         updateInfo = await tronWeb.trx.getTransactionInfo(updateTx.transaction.txID);
@@ -102,6 +102,8 @@ async function multiSignATransactionByOwnerPermission(){
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
     assert.isTrue(result.result);
+    console.log("execute multiSignATransactionByOwnerPermission success")
+
 }
 
 async function multiSignATransactionByOwnerPermission_PermissionIdInsideTx() {
@@ -117,6 +119,7 @@ async function multiSignATransactionByOwnerPermission_PermissionIdInsideTx() {
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
     assert.isTrue(result.result);
+    console.log("execute multiSignATransactionByOwnerPermission_PermissionIdInsideTx success")
 }
 
 async function verifyWeightAfterMultiSignByOwnerPermission() {
@@ -142,6 +145,7 @@ async function verifyWeightAfterMultiSignByOwnerPermission() {
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
     assert.isTrue(result.result);
+    console.log("execute verifyWeightAfterMultiSignByOwnerPermission success")
 }
 
 async function verifyWeightAfterMultiSignByOwnerPermission_PermissionIdInsideTx() {
@@ -167,6 +171,7 @@ async function verifyWeightAfterMultiSignByOwnerPermission_PermissionIdInsideTx(
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
     assert.isTrue(result.result);
+    console.log("execute verifyWeightAfterMultiSignByOwnerPermission_PermissionIdInsideTx success")
 }
 
 async function multiSignATransactionWithNoPermissionErrorByOwnerPermission() {
@@ -176,6 +181,7 @@ async function multiSignATransactionWithNoPermissionErrorByOwnerPermission() {
     } catch (e) {
         assert.isTrue(e.indexOf('has no permission to sign') != -1);
     }
+    console.log("execute multiSignATransactionWithNoPermissionErrorByOwnerPermission success")
 }
 
 async function multiSignDuplicatedATransactionByOwnerPermission() {
@@ -186,6 +192,7 @@ async function multiSignDuplicatedATransactionByOwnerPermission() {
     } catch (e) {
         assert.isTrue(e.indexOf('already sign transaction') != -1);
     }
+    console.log("execute multiSignDuplicatedATransactionByOwnerPermission success")
 }
 
 async function multiSignATransactionByActivePermission() {
@@ -200,6 +207,7 @@ async function multiSignATransactionByActivePermission() {
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
     assert.isTrue(result.result);
+    console.log("execute multiSignATransactionByActivePermission success")
 }
 
 async function multiSignATransactionByActivePermission_PermissionIdInsideTx() {
@@ -218,6 +226,7 @@ async function multiSignATransactionByActivePermission_PermissionIdInsideTx() {
     const result = await tronWeb.trx.broadcast(signedTransaction);
     console.log("result:"+util.inspect(result))
     assert.isTrue(result.result);
+    console.log("execute multiSignATransactionByActivePermission_PermissionIdInsideTx success")
 }
 
 async function verifyWeightAfterMultiSignByActivePermission() {
@@ -243,6 +252,7 @@ async function verifyWeightAfterMultiSignByActivePermission() {
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
     assert.isTrue(result.result);
+    console.log("execute verifyWeightAfterMultiSignByActivePermission success")
 }
 
 async function verifyWeightAfterMultiSignByActivePermission_PermissionIdInsideTx() {
@@ -268,6 +278,7 @@ async function verifyWeightAfterMultiSignByActivePermission_PermissionIdInsideTx
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
     assert.isTrue(result.result);
+    console.log("execute verifyWeightAfterMultiSignByActivePermission_PermissionIdInsideTx success")
 }
 
 async function multiSignATransactionWithNoPermissionErrorByActivePermission() {
@@ -277,6 +288,7 @@ async function multiSignATransactionWithNoPermissionErrorByActivePermission() {
     } catch (e) {
         assert.isTrue(e.indexOf('has no permission to sign') != -1);
     }
+    console.log("execute multiSignATransactionWithNoPermissionErrorByActivePermission success")
 }
 
 async function multiSignDuplicatedATransactionByActivePermission() {
@@ -287,6 +299,7 @@ async function multiSignDuplicatedATransactionByActivePermission() {
     } catch (e) {
         assert.isTrue(e.indexOf('already sign transaction') != -1);
     }
+    console.log("execute multiSignDuplicatedATransactionByActivePermission success")
 }
 
 async function multiSignATransactionWithPermissionErrorByBothOwnerAndActivePermission() {
@@ -297,6 +310,7 @@ async function multiSignATransactionWithPermissionErrorByBothOwnerAndActivePermi
     } catch (e) {
         assert.isTrue(e.indexOf('not contained of permission') != -1);
     }
+    console.log("execute multiSignATransactionWithPermissionErrorByBothOwnerAndActivePermission success")
 }
 
 async function multiSignATransactionWithWrongPermissionIdError() {
@@ -306,6 +320,7 @@ async function multiSignATransactionWithWrongPermissionIdError() {
     } catch (e) {
         assert.isTrue(e.indexOf('has no permission to sign') != -1);
     }
+    console.log("execute multiSignATransactionWithWrongPermissionIdError success")
 }
 
 

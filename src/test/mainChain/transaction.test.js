@@ -186,6 +186,7 @@ async function txCheck_TransferAssetContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheck_TransferAssetContract end")
 }
 
 async function txCheck_ParticipateAssetIssueContract(){
@@ -241,6 +242,7 @@ async function txCheck_ParticipateAssetIssueContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheck_ParticipateAssetIssueContract end")
 }
 
 async function txCheck_TriggerSmartContract(){
@@ -335,6 +337,7 @@ async function txCheck_TriggerSmartContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_TriggerSmartContract end")
 }
 
 async function txCheck_FreezeBalanceContract(){
@@ -423,6 +426,7 @@ async function txCheck_FreezeBalanceContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_FreezeBalanceContract end")
 }
 
 async function txCheck_UnfreezeBalanceContract(){
@@ -536,6 +540,7 @@ async function txCheck_FreezeBalanceV2Contract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_FreezeBalanceV2Contract end")
 }
 
 async function txCheck_UnfreezeBalanceV2Contract(){
@@ -577,6 +582,7 @@ async function txCheck_UnfreezeBalanceV2Contract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_UnfreezeBalanceV2Contract end")
 }
 
 async function txCheck_DelegateResourceContract(){
@@ -632,6 +638,7 @@ async function txCheck_DelegateResourceContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_DelegateResourceContract end")
 }
 
 async function txCheck_UnDelegateResourceContract(){
@@ -683,6 +690,7 @@ async function txCheck_UnDelegateResourceContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_UnDelegateResourceContract end")
 }
 
 async function txCheck_WithdrawExpireUnfreezeContract(){
@@ -715,6 +723,7 @@ async function txCheck_WithdrawExpireUnfreezeContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_WithdrawExpireUnfreezeContract end")
 }
 
 async function txCheck_WithdrawBalanceContract(){
@@ -740,6 +749,7 @@ async function txCheck_WithdrawBalanceContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_WithdrawBalanceContract end")
 }
 
 async function txCheck_WitnessCreateContract(){
@@ -773,6 +783,7 @@ async function txCheck_WitnessCreateContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_WitnessCreateContract end")
 }
 
 async function txCheck_VoteWitnessContract(){
@@ -825,6 +836,7 @@ async function txCheck_VoteWitnessContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_VoteWitnessContract end")
 }
 
 async function txCheck_CreateSmartContract(){
@@ -920,6 +932,7 @@ async function txCheck_CreateSmartContract(){
             assert.equal(authResult21, false);
         }
     }
+    console.log("txCheck_CreateSmartContract end")
 }
 
 async function txCheck_ClearABIContract(){
@@ -960,6 +973,7 @@ async function txCheck_ClearABIContract(){
         const authResult9 = TronWeb.utils.transaction.txCheck(cop9);
         assert.equal(authResult9, false);
     }
+    console.log("txCheck_ClearABIContract end")
 }
 
 async function txCheck_UpdateBrokerageContract(){
@@ -981,6 +995,7 @@ async function txCheck_UpdateBrokerageContract(){
         const authResult9 = TronWeb.utils.transaction.txCheck(cop9);
         assert.equal(authResult9, false);
     }
+    console.log("txCheck_UpdateBrokerageContract end")
 }
 
 async function txCheck_AssetIssueContract(){
@@ -1068,6 +1083,7 @@ async function txCheck_AssetIssueContract(){
             assert.equal(authResult22, false);
         }
     }
+    console.log("txCheck_AssetIssueContract end")
 }
 
 async function txCheck_UpdateAssetContract(){
@@ -1125,6 +1141,7 @@ async function txCheck_UpdateAssetContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheck_UpdateAssetContract end")
 }
 
 async function txCheck_AccountCreateContract(){
@@ -1187,6 +1204,7 @@ async function txCheck_AccountUpdateContract(){
             assert.equal(authResult10, false);
         }
     }
+    console.log("txCheck_AccountUpdateContract end")
 }
 
 async function txCheck_SetAccountIdContract(){
@@ -1217,6 +1235,7 @@ async function txCheck_SetAccountIdContract(){
             assert.equal(authResult10, false);
         }*/
     }
+    console.log("txCheck_SetAccountIdContract end")
 }
 
 async function txCheck_ProposalCreateContract(){
@@ -1251,6 +1270,7 @@ async function txCheck_ProposalCreateContract(){
             assert.equal(authResult11, false);
         }
     }
+    console.log("txCheck_ProposalCreateContract end")
 }
 
 async function txCheck_ProposalDeleteContract(){
@@ -1286,6 +1306,7 @@ async function txCheck_ProposalDeleteContract(){
             assert.equal(authResult10, false);
         }
     }
+    console.log("txCheck_ProposalDeleteContract end")
 }
 
 async function txCheck_ProposalApproveContract_approve_true(){
@@ -1326,6 +1347,7 @@ async function txCheck_ProposalApproveContract_approve_true(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_ProposalApproveContract_approve_true end")
 }
 
 async function txCheck_ProposalApproveContract_approve_false(){
@@ -1367,6 +1389,7 @@ async function txCheck_ProposalApproveContract_approve_false(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheck_ProposalApproveContract_approve_false end")
 }
 
 async function txCheck_ExchangeCreateContract(){
@@ -1441,6 +1464,7 @@ async function txCheck_ExchangeCreateContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheck_ExchangeCreateContract end")
 }
 
 async function txCheck_TRXExchangeCreateContract(){
@@ -1502,6 +1526,7 @@ async function txCheck_TRXExchangeCreateContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheck_TRXExchangeCreateContract end")
 }
 
 async function txCheck_ExchangeInjectContract(){
@@ -1572,6 +1597,7 @@ async function txCheck_ExchangeInjectContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheck_ExchangeInjectContract end")
 }
 
 async function txCheck_ExchangeWithdrawContract(){
@@ -1721,6 +1747,7 @@ async function txCheck_ExchangeTransactionContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheck_ExchangeTransactionContract end")
 }
 
 async function txCheck_UpdateSettingContract(){
@@ -1771,6 +1798,7 @@ async function txCheck_UpdateSettingContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheck_UpdateSettingContract end")
 }
 
 async function txCheck_UpdateEnergyLimitContract(){
@@ -1819,6 +1847,7 @@ async function txCheck_UpdateEnergyLimitContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheck_UpdateEnergyLimitContract end")
 }
 
 async function txCheck_AccountPermissionUpdateContract(){
@@ -1947,6 +1976,7 @@ async function txCheck_AccountPermissionUpdateContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheck_AccountPermissionUpdateContract end")
 }
 
 async function txCheckWithArgs_commonAssertPbWithArgs(transaction, args, options){
@@ -1956,6 +1986,7 @@ async function txCheckWithArgs_commonAssertPbWithArgs(transaction, args, options
     const txPbToTxID = TronWeb.utils.transaction.txPbToTxID(transactionPb);
     assert.equal(txID.replace(/^0x/, ''), transaction.txID);
     assert.equal(txPbToTxID.replace(/^0x/, ''), transaction.txID);
+    console.log("txCheckWithArgs_commonAssertPbWithArgs end")
 }
 
 async function txCheckWithArgs_commonAssertFalsePbWithArgs(transaction, data, param){
@@ -2008,6 +2039,7 @@ async function txCheckWithArgs_commonAssertFalsePbWithArgs(transaction, data, pa
         authResult13 = TronWeb.utils.transaction.txCheckWithArgs(transaction, dataCop13, param[3] || {});
         assert.equal(authResult13, false);
     }
+    console.log("txCheckWithArgs_commonAssertFalsePbWithArgs end")
 }
 
 async function txCheckWithArgs_TransferContract(){
@@ -2053,6 +2085,7 @@ async function txCheckWithArgs_TransferContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheckWithArgs_TransferContract end")
 }
 
 async function txCheckWithArgs_TransferAssetContract(){
@@ -2120,6 +2153,7 @@ async function txCheckWithArgs_TransferAssetContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheckWithArgs_TransferAssetContract end")
 }
 
 async function txCheckWithArgs_ParticipateAssetIssueContract(){
@@ -2188,6 +2222,7 @@ async function txCheckWithArgs_ParticipateAssetIssueContract(){
             assert.equal(authResult13, false);
         }
     }
+    console.log("txCheckWithArgs_ParticipateAssetIssueContract end")
 }
 
 async function txCheckWithArgs_TriggerSmartContract(){
@@ -2337,6 +2372,7 @@ async function txCheckWithArgs_TriggerSmartContract(){
             assert.equal(authResult16, false);
         }
     }
+    console.log("txCheckWithArgs_TriggerSmartContract end")
 }
 
 async function txCheckWithArgs_FreezeBalanceContract(){
@@ -2551,6 +2587,7 @@ async function txCheckWithArgs_UnfreezeBalanceContract(){
             assert.equal(authResult16, false);
         }
     }
+    console.log("txCheckWithArgs_UnfreezeBalanceContract end")
 }
 
 async function txCheckWithArgs_FreezeBalanceV2Contract(){
@@ -2599,6 +2636,7 @@ async function txCheckWithArgs_FreezeBalanceV2Contract(){
             assert.equal(authResult16, false);
         }
     }
+    console.log("txCheckWithArgs_FreezeBalanceV2Contract end")
 }
 
 async function txCheckWithArgs_UnfreezeBalanceV2Contract(){
@@ -2649,6 +2687,7 @@ async function txCheckWithArgs_UnfreezeBalanceV2Contract(){
             assert.equal(authResult16, false);
         }
     }
+    console.log("txCheckWithArgs_UnfreezeBalanceV2Contract end")
 }
 
 async function txCheckWithArgs_DelegateResourceContract(){
@@ -2718,6 +2757,7 @@ async function txCheckWithArgs_DelegateResourceContract(){
             assert.equal(authResult16, false);
         }
     }
+    console.log("txCheckWithArgs_DelegateResourceContract end")
 }
 
 async function txCheckWithArgs_UnDelegateResourceContract(){
@@ -2780,6 +2820,7 @@ async function txCheckWithArgs_UnDelegateResourceContract(){
             assert.equal(authResult16, false);
         }
     }
+    console.log("txCheckWithArgs_UnDelegateResourceContract end")
 }
 
 async function txCheckWithArgs_WithdrawExpireUnfreezeContract(){
@@ -2818,6 +2859,7 @@ async function txCheckWithArgs_WithdrawExpireUnfreezeContract(){
             assert.equal(authResult16, false);
         }
     }
+    console.log("txCheckWithArgs_WithdrawExpireUnfreezeContract end")
 }
 
 async function txCheckWithArgs_WithdrawBalanceContract(){
@@ -2845,6 +2887,7 @@ async function txCheckWithArgs_WithdrawBalanceContract(){
             assert.equal(authResult16, false);
         }
     }
+    console.log("txCheckWithArgs_WithdrawBalanceContract end")
 }
 
 async function txCheckWithArgs_WitnessCreateContract(){
@@ -2887,6 +2930,7 @@ async function txCheckWithArgs_WitnessCreateContract(){
             assert.equal(authResult16, false);
         }
     }
+    console.log("txCheckWithArgs_WitnessCreateContract end")
 }
 
 async function txCheckWithArgs_VoteWitnessContract(){
@@ -2952,6 +2996,7 @@ async function txCheckWithArgs_VoteWitnessContract(){
             assert.equal(authResult16, false);
         }
     }
+    console.log("txCheckWithArgs_VoteWitnessContract end")
 }
 
 async function txCheckWithArgs_CreateSmartContract(){
@@ -3068,6 +3113,7 @@ async function txCheckWithArgs_CreateSmartContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_CreateSmartContract end")
 }
 
 async function txCheckWithArgs_ClearABIContract(){
@@ -3110,6 +3156,7 @@ async function txCheckWithArgs_ClearABIContract(){
         const authResult6 = TronWeb.utils.transaction.txCheckWithArgs(transaction, dataCop6, {});
         assert.equal(authResult6, false);
     }
+    console.log("txCheckWithArgs_ClearABIContract end")
 }
 
 async function txCheckWithArgs_UpdateBrokerageContract(){
@@ -3134,6 +3181,7 @@ async function txCheckWithArgs_UpdateBrokerageContract(){
     dataCop9.brokerage = 12;
     const authResult9 = TronWeb.utils.transaction.txCheckWithArgs(transaction, dataCop9, {});
     assert.equal(authResult9, false);
+    console.log("txCheckWithArgs_UpdateBrokerageContract end")
 }
 
 async function txCheckWithArgs_AssetIssueContract(){
@@ -3320,6 +3368,7 @@ async function txCheckWithArgs_UpdateAssetContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_UpdateAssetContract end")
 }
 
 async function txCheckWithArgs_AccountCreateContract(){
@@ -3358,6 +3407,7 @@ async function txCheckWithArgs_AccountCreateContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_AccountCreateContract end")
 }
 
 async function txCheckWithArgs_AccountUpdateContract(){
@@ -3396,6 +3446,7 @@ async function txCheckWithArgs_AccountUpdateContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_AccountUpdateContract end")
 }
 
 async function txCheckWithArgs_SetAccountIdContract(){
@@ -3420,6 +3471,7 @@ async function txCheckWithArgs_SetAccountIdContract(){
         const authResult6 = TronWeb.utils.transaction.txCheckWithArgs(transaction, dataCop6, {});
         assert.equal(authResult6, false);
     }
+    console.log("txCheckWithArgs_SetAccountIdContract end")
 }
 
 async function txCheckWithArgs_ProposalCreateContract(){
@@ -3609,6 +3661,7 @@ async function txCheckWithArgs_ProposalApproveContract_approve_false(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_ProposalApproveContract_approve_false end")
 }
 
 async function txCheckWithArgs_ExchangeCreateContract(){
@@ -3690,6 +3743,7 @@ async function txCheckWithArgs_ExchangeCreateContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_ExchangeCreateContract end");
 }
 
 async function txCheckWithArgs_TRXExchangeCreateContract(){
@@ -3758,6 +3812,7 @@ async function txCheckWithArgs_TRXExchangeCreateContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_TRXExchangeCreateContract end");
 }
 
 async function txCheckWithArgs_ExchangeInjectContract(){
@@ -3925,6 +3980,7 @@ async function txCheckWithArgs_ExchangeWithdrawContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_ExchangeWithdrawContract end");
 }
 
 async function txCheckWithArgs_ExchangeTransactionContract(){
@@ -4012,6 +4068,7 @@ async function txCheckWithArgs_ExchangeTransactionContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_ExchangeTransactionContract end");
 }
 
 async function txCheckWithArgs_UpdateSettingContract(){
@@ -4067,6 +4124,7 @@ async function txCheckWithArgs_UpdateSettingContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_UpdateSettingContract end")
 }
 
 async function txCheckWithArgs_UpdateEnergyLimitContract(){
@@ -4122,6 +4180,7 @@ async function txCheckWithArgs_UpdateEnergyLimitContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_UpdateEnergyLimitContract end");
 }
 
 async function txCheckWithArgs_AccountPermissionUpdateContract(){
@@ -4249,6 +4308,7 @@ async function txCheckWithArgs_AccountPermissionUpdateContract(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("txCheckWithArgs_AccountPermissionUpdateContract end");
 }
 
 async function commonOptions_feeLimit(){
@@ -4327,6 +4387,7 @@ async function commonOptions_data(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("commonOptions_data end")
 }
 
 async function commonOptions_expiration(){
@@ -4365,6 +4426,7 @@ async function commonOptions_expiration(){
             assert.equal(authResult18, false);
         }
     }
+    console.log("commonOptions_expiration end")
 }
 
 async function transactionTestAll(){

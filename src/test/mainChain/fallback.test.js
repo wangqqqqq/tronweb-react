@@ -38,6 +38,7 @@ async function oldVersion(){
             break;
         }
     }
+    console.log("deploy testFallbackOldVersion end.");
     const contractAddressTest0 = createInfo.contract_address;
     options = {
         abi: fallbackOldversionCall.abi,
@@ -56,6 +57,7 @@ async function oldVersion(){
             break;
         }
     }
+    console.log("deploy fallbackOldversionCall end.");
     const contractAddressCall = createInfo.contract_address;
 
     // before trigger
@@ -95,7 +97,7 @@ async function oldVersion(){
     triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
         contractAddressCall, functionSelector, {feeLimit:FEE_LIMIT}, [{type: 'address', value: contractAddressTest0}], ADDRESS_BASE58);
     triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
-    console.log("triggerTx:"+util.inspect(triggerTx))
+    console.log("Second triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);

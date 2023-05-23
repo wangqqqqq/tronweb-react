@@ -20,9 +20,10 @@ let emptyAccounts;
 let isAllowSameTokenNameApproved
 let emptyAccount6;
 let accounts;
-
 async function transactionBuilderBefore(){
+  console.log("start...");
   tronWeb = tronWebBuilder.createInstance();
+  console.log("end...");
   emptyAccounts = await TronWeb.createAccount();
   isAllowSameTokenNameApproved = await isProposalApproved(tronWeb, 'getAllowSameTokenName')
   emptyAccount6 = await TronWeb.createAccount();
@@ -49,9 +50,9 @@ async function sendTrx(){
   ];
   for (let param of params) {
     const transaction = await tronWeb.transactionBuilder.sendTrx(...param);
-
+    console.log("---------sendTrx() transaction:----------");
+    console.log(transaction);
     const parameter = txPars(transaction);
-
     assert.equal(transaction.txID.length, 64);
     assert.equal(parameter.value.amount, 10);
     assert.equal(parameter.value.owner_address, ADDRESS_HEX);
@@ -67,7 +68,8 @@ async function sendTrx(){
   for (let param of params) {
     const transaction = await tronWeb.transactionBuilder.sendTrx(...param);
     const parameter = txPars(transaction);
-
+    console.log("---------sendTrx() transaction 2:----------");
+    console.log(transaction);
     assert.equal(transaction.txID.length, 64);
     assert.equal(parameter.value.amount, 10);
     assert.equal(parameter.value.owner_address, emptyAccount.address.hex.toLowerCase());
@@ -101,6 +103,7 @@ async function sendTrx(){
       null,
       'ContractValidateException'
   );
+  console.log("---------sendTrx() end------------")
 }
 
 async function createToken(){
@@ -114,7 +117,11 @@ async function createToken(){
   await tronWeb.trx.sendTrx(emptyAccount4.address.hex,5000000000,{privateKey: PRIVATE_KEY})
   const emptyAccount5 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount5.address.hex,5000000000,{privateKey: PRIVATE_KEY})
-
+  console.log("emptyAccount1: ",emptyAccount1)
+  console.log("emptyAccount2: ",emptyAccount2)
+  console.log("emptyAccount3: ",emptyAccount3)
+  console.log("emptyAccount4: ",emptyAccount4)
+  console.log("emptyAccount5: ",emptyAccount5)
   let options = getTokenOptions();
 
   for (let i = 0; i < 2; i++) {
@@ -519,7 +526,7 @@ async function updateAccount(){
 
   await assertThrow(
       tronWeb.transactionBuilder.updateAccount(123, emptyAccount2.address.base58),
-      'Invalid Name provided'
+      'Invalid accountName'
   );
 
   await assertThrow(
@@ -536,12 +543,17 @@ async function setAccountId(){
 
   for (let id of ids) {
     let accountId = TronWeb.toHex(id);
+    console.log("accountId",accountId)
     const transaction = await tronWeb.transactionBuilder.setAccountId(accountId, emptyAccount1.address.base58);
+    console.log("set AccountId transaction",JSON.stringify(transaction, null, 2))
     const parameter = txPars(transaction);
     assert.equal(transaction.txID.length, 64);
+    console.log("webTransaction: ",parameter.value.account_id);
+    console.log("origin accountId: ",accountId.slice(2));
     assert.equal(parameter.value.account_id, accountId.slice(2));
     assert.equal(parameter.value.owner_address.toLowerCase(), emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.SetAccountIdContract');
+
   }
 
   // account id length should be between 8 and 32
@@ -574,6 +586,7 @@ async function setAccountId(){
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.SetAccountIdContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[2] ? param[2]['permissionId'] : 0);
   }
+  console.log("execute setAccountId end")
 }
 
 function randomString(e) {
@@ -619,7 +632,8 @@ async function setAccountIdMultiSign(){
   ownerPermission.keys  = [];
   let activePermission = { type: 2, permission_name: 'active0' };
   activePermission.threshold = threshold;
-  activePermission.operations = '7fff1fc0037e0000000000000000000000000000000000000000000000000000';
+  //activePermission.operations = '7fff1fc0037e0000000000000000000000000000000000000000000000000000';
+  activePermission.operations = '7fff1fc0037e0100000000000000000000000000000000000000000000000000';
   activePermission.keys = [];
 
   ownerPermission.keys.push({ address: ownerAddress, weight: 1 });
@@ -660,6 +674,7 @@ async function setAccountIdMultiSign(){
   const ans = await tronWeb.trx.getAccount(ownerAddress);
   assert.isTrue(result.result);
   assert.equal(accountID.replace(/^0x/, ''),ans.account_id,"setaccountID error!")
+  console.log("execute setAccountIdMultiSign end")
 }
 
 async function updateToken(){
@@ -999,6 +1014,7 @@ async function createProposal(){
       null,
       `Witness[${emptyAccount1.address.hex.toLowerCase()}] not exists`
   )
+  console.log("createProposal excute success")
 }
 
 async function deleteProposal(){
@@ -1037,6 +1053,7 @@ async function deleteProposal(){
   proposals = await tronWeb.trx.listProposals();
   if (proposals[0].state !== 'CANCELED')
     await broadcaster.broadcaster(tronWeb.transactionBuilder.deleteProposal(proposals[0].proposal_id, witnessAccount), witnessKey)
+  console.log("deleteProposal excute success")
 }
 
 async function voteProposal(){
@@ -1071,6 +1088,7 @@ async function voteProposal(){
         TronWeb.utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
+  console.log("voteProposal excute success")
 }
 
 async function applyForSR(){
@@ -1085,6 +1103,7 @@ async function applyForSR(){
   assert.equal(parameter.value.owner_address, emptyAccount1.address.hex.toLowerCase());
   await assertEqualHex(parameter.value.url, url);
   assert.equal(parameter.type_url, 'type.googleapis.com/protocol.WitnessCreateContract');
+  console.log("applyForSR excute success")
 }
 
 async function freezeBalance(){
@@ -1107,6 +1126,7 @@ async function freezeBalance(){
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.FreezeBalanceContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[4] ? param[4]['permissionId'] : 0);
   }
+  console.log("freezeBalance excute success")
 }
 
 async function unfreezeBalance(){
@@ -1135,6 +1155,7 @@ async function unfreezeBalance(){
         TronWeb.utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
+  console.log("unfreezeBalance excute success")
 }
 
 async function freezeBalanceV2_1(){
@@ -1176,6 +1197,7 @@ async function freezeBalanceV2_1(){
   assert.equal(accountInfo.frozenV2[1].type, 'ENERGY');
   assert.equal(accountInfo.frozenV2[1].amount, 3e6);
   assert.equal(accountResource.tronPowerLimit, 7);
+  console.log("freezeBalanceV2_1 excute success")
 }
 
 async function freezeBalanceV2_2(){
@@ -1218,6 +1240,7 @@ async function freezeBalanceV2_2(){
   console.log("accountResource: "+util.inspect(accountResource,true,null,true))
   assert.equal(accountInfo.frozenV2[0].amount, 6e6);
   assert.equal(accountResource.tronPowerLimit, 11);
+  console.log("freezeBalanceV2_2 excute success")
 }
 
 async function freezeBalanceV2_3(){
@@ -1240,6 +1263,7 @@ async function freezeBalanceV2_3(){
   console.log("accountAfter: "+util.inspect(accountAfter,true,null,true))
   assert.equal(accountAfter.frozenV2[0].amount, accountBefore.frozenV2[0].amount+1e6);
   assert.equal(accountResourceAfter.tronPowerLimit, accountResourceBeofre.tronPowerLimit+1);
+  console.log("freezeBalanceV2_3 excute success")
 }
 
 async function freezeBalanceV2_4(){
@@ -1279,6 +1303,7 @@ async function freezeBalanceV2_4(){
         'Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"'
     )
   }
+  console.log("freezeBalanceV2_4 excute success")
 }
 
 async function unfreezeBalanceV2_1(){
@@ -1287,7 +1312,7 @@ async function unfreezeBalanceV2_1(){
   console.log("tx:"+util.inspect(tx))
   console.log("tx.txID:"+tx.transaction.txID)
   assert.equal(tx.transaction.txID.length, 64);
-  await wait(30);
+  await wait(40);
   let parameter = txPars(transaction);
   assert.equal(parameter.value.owner_address, accounts.hex[0]);
   assert.equal(parameter.value.unfreeze_balance, 3e6);
@@ -1320,6 +1345,7 @@ async function unfreezeBalanceV2_1(){
   assert.equal(accountInfo.frozenV2[1].type, 'ENERGY');
   assert.equal(accountInfo.frozenV2[1].amount, 1e6);
   assert.equal(accountResource.tronPowerLimit, 2);
+  console.log("unfreezeBalanceV2_1 excute success")
 }
 
 async function unfreezeBalanceV2_2(){
@@ -1360,6 +1386,8 @@ async function unfreezeBalanceV2_2(){
   console.log("accountResource: "+util.inspect(accountResource,true,null,true))
   assert.isUndefined(accountInfo.frozenV2[0].amount);
   assert.isUndefined(accountResource.tronPowerLimit);
+  console.log("unfreezeBalanceV2_2 excute success")
+
 }
 
 async function unfreezeBalanceV2_3(){
@@ -1382,6 +1410,7 @@ async function unfreezeBalanceV2_3(){
   console.log("accountAfter: "+util.inspect(accountAfter,true,null,true))
   assert.equal(accountAfter.frozenV2[0].amount, accountBefore.frozenV2[0].amount-1e6);
   assert.equal(accountResourceAfter.tronPowerLimit, accountResourceBeofre.tronPowerLimit-1);
+  console.log("unfreezeBalanceV2_3 excute success")
 }
 
 async function unfreezeBalanceV2_4(){
@@ -1421,6 +1450,7 @@ async function unfreezeBalanceV2_4(){
         'Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"'
     )
   }
+  console.log("unfreezeBalanceV2_4 excute success")
 }
 
 async function delegateResource_before(){
@@ -1431,6 +1461,7 @@ async function delegateResource_before(){
   const transaction3 = await tronWeb.transactionBuilder.freezeBalanceV2(50e6);
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction3);
   await wait(40);
+  console.log("delegateResource_before excute success")
 }
 
 async function delegateResource_1(){
@@ -1475,6 +1506,7 @@ async function delegateResource_1(){
   assert.equal(accountAfter2.frozenV2[0].amount, accountAfter1.frozenV2[0].amount-10e6);
   assert.equal(accountAfter2.delegated_frozenV2_balance_for_bandwidth, accountAfter1.delegated_frozenV2_balance_for_bandwidth+10e6);
   assert.equal(accountResourceAfter2.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
+  console.log("delegateResource_1 excute success")
 }
 
 async function delegateResource_2(){
@@ -1521,6 +1553,7 @@ async function delegateResource_2(){
   assert.equal(accountAfter2.frozenV2[1].amount, accountAfter1.frozenV2[1].amount-10e6);
   assert.equal(accountAfter2.account_resource.delegated_frozenV2_balance_for_energy, accountAfter1.account_resource.delegated_frozenV2_balance_for_energy+10e6);
   assert.equal(accountResourceAfter2.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
+  console.log("delegateResource_2 excute success")
 }
 
 async function delegateResource_3(){
@@ -1565,6 +1598,7 @@ async function delegateResource_3(){
   assert.equal(accountAfter2.frozenV2[0].amount, accountAfter1.frozenV2[0].amount-10e6);
   assert.equal(accountAfter2.delegated_frozenV2_balance_for_bandwidth, accountAfter1.delegated_frozenV2_balance_for_bandwidth+10e6);
   assert.equal(accountResourceAfter2.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
+  console.log("delegateResource_3 excute success")
 }
 
 async function delegateResource_4(){
@@ -1609,6 +1643,7 @@ async function delegateResource_4(){
   assert.equal(accountAfter2.frozenV2[0].amount, accountAfter1.frozenV2[0].amount-10e6);
   assert.equal(accountAfter2.delegated_frozenV2_balance_for_bandwidth, accountAfter1.delegated_frozenV2_balance_for_bandwidth+10e6);
   assert.equal(accountResourceAfter2.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
+  console.log("delegateResource_4 excute success")
 }
 
 async function delegateResource_5(){
@@ -1655,6 +1690,7 @@ async function delegateResource_5(){
   assert.equal(accountAfter2.frozenV2[1].amount, accountAfter1.frozenV2[1].amount-10e6);
   assert.equal(accountAfter2.account_resource.delegated_frozenV2_balance_for_energy, accountAfter1.account_resource.delegated_frozenV2_balance_for_energy+10e6);
   assert.equal(accountResourceAfter2.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
+  console.log("delegateResource_5 excute success")
 }
 
 async function delegateResource_6(){
@@ -1702,6 +1738,7 @@ async function delegateResource_6(){
   assert.equal(accountAfter2.frozenV2[1].amount, accountAfter1.frozenV2[1].amount-10e6);
   assert.equal(accountAfter2.account_resource.delegated_frozenV2_balance_for_energy, accountAfter1.account_resource.delegated_frozenV2_balance_for_energy+10e6);
   assert.equal(accountResourceAfter2.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
+  console.log("delegateResource_6 excute success")
 }
 
 async function delegateResource_7(){
@@ -1728,6 +1765,7 @@ async function delegateResource_7(){
   const accountBefore_delegated_frozenV2_balance_for_bandwidth = accountBefore1.delegated_frozenV2_balance_for_bandwidth?accountBefore1.delegated_frozenV2_balance_for_bandwidth:0;
   assert.equal(accountAfter1.delegated_frozenV2_balance_for_bandwidth, accountBefore_delegated_frozenV2_balance_for_bandwidth+10e6);
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
+  console.log("delegateResource_7 excute success")
 }
 
 async function delegateResource_8(){
@@ -1793,6 +1831,7 @@ async function delegateResource_8(){
         'Receiver address must not be the same as owner address'
     )
   }
+  console.log("delegateResource_8 excute success")
 }
 
 async function undelegateResource_before(){
@@ -1807,6 +1846,7 @@ async function undelegateResource_before(){
   const transaction3 = await tronWeb.transactionBuilder.delegateResource(50e6, accounts.b58[7]);
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction3);
   await wait(30);
+  console.log("undelegateResource_before excute success")
 }
 
 async function undelegateResource_1(){
@@ -1851,6 +1891,7 @@ async function undelegateResource_1(){
   assert.equal(accountAfter2.frozenV2[0].amount, accountAfter1.frozenV2[0].amount+10e6);
   assert.equal(accountAfter2.delegated_frozenV2_balance_for_bandwidth, accountAfter1.delegated_frozenV2_balance_for_bandwidth-10e6);
   assert.equal(accountResourceAfter2.tronPowerLimit, accountResourceAfter1.tronPowerLimit);
+  console.log("undelegateResource_1 excute success")
 }
 
 async function undelegateResource_2(){
@@ -1895,6 +1936,7 @@ async function undelegateResource_2(){
   assert.equal(accountAfter2.frozenV2[1].amount, accountAfter1.frozenV2[1].amount+10e6);
   assert.equal(accountAfter2.account_resource.delegated_frozenV2_balance_for_energy, accountAfter1.account_resource.delegated_frozenV2_balance_for_energy-10e6);
   assert.equal(accountResourceAfter2.tronPowerLimit, accountResourceAfter1.tronPowerLimit);
+  console.log("undelegateResource_2 excute success")
 }
 
 async function undelegateResource_3(){
@@ -1919,6 +1961,7 @@ async function undelegateResource_3(){
   assert.equal(accountAfter1.frozenV2[0].amount, accountBefore1.frozenV2[0].amount+10e6);
   assert.equal(accountAfter1.delegated_frozenV2_balance_for_bandwidth, accountBefore1.delegated_frozenV2_balance_for_bandwidth-10e6);
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
+  console.log("undelegateResource_3 excute success")
 }
 
 async function undelegateResource_4(){
@@ -1984,6 +2027,7 @@ async function undelegateResource_4(){
         'Receiver address must not be the same as owner address'
     )
   }
+  console.log("undelegateResource_4 excute success")
 }
 
 async function withdrawExpireUnfreeze_1(){
@@ -2026,6 +2070,7 @@ async function withdrawExpireUnfreeze_1(){
   let accountAfter2 = await tronWeb.trx.getAccount(accounts.hex[3]);
   console.log("accountAfter2: "+util.inspect(accountAfter2,true,null,true))
   assert.isUndefined(accountAfter2.unfrozenV2);
+  console.log("withdrawExpireUnfreeze_1 excute success")
 }
 
 async function withdrawExpireUnfreeze_2(){
@@ -2047,6 +2092,7 @@ async function withdrawExpireUnfreeze_2(){
         'Invalid origin address provided'
     )
   }
+  console.log("withdrawExpireUnfreeze_2 excute success")
 }
 
 async function estimateEnergy_1(){
@@ -2100,6 +2146,7 @@ async function estimateEnergy_1(){
     energyRequired2 = result.energy_required;
   }
   assert.equal(energyRequired1,energyRequired2)
+  console.log("estimateEnergy_1 excute success")
 }
 
 async function estimateEnergy_2(){
@@ -2156,6 +2203,7 @@ async function estimateEnergy_2(){
     energyRequired2 = result.energy_required;
   }
   assert.equal(energyRequired1,energyRequired2)
+  console.log("estimateEnergy_2 excute success")
 }
 
 async function estimateEnergy_3(){
@@ -2212,6 +2260,7 @@ async function estimateEnergy_3(){
     energyRequired2 = result.energy_required;
   }
   assert.equal(energyRequired1,energyRequired2)
+  console.log("estimateEnergy_3 excute success")
 }
 
 async function estimateEnergy_4(){
@@ -2356,6 +2405,7 @@ async function estimateEnergy_4(){
   const transaction3 = await tronWeb.transactionBuilder.triggerConstantContract(contractAddressWithTrctoken,  functionSelector, options3,
       parameter, ADDRESS_HEX);
   console.log("transaction3: "+util.inspect(transaction3,true,null,true))
+  console.log("estimateEnergy_4 excute success")
 }
 
 async function withdrawBalance(){
@@ -2372,6 +2422,7 @@ async function withdrawBalance(){
     assert.equal(authResult, true);
 
   }
+  console.log("withdrawBalance excute success")
 }
 
 async function vote(){
@@ -2399,6 +2450,7 @@ async function vote(){
   assert.equal(parameter.value.votes[0].vote_address, tronWeb.address.toHex(WITNESS_ACCOUNT));
   assert.equal(parameter.value.votes[0].vote_count, 5);
   assert.equal(parameter.type_url, 'type.googleapis.com/protocol.VoteWitnessContract');
+  console.log("vote excute success")
 }
 
 async function createSmartContract(){
@@ -2773,9 +2825,11 @@ async function clearabiMultiSign(){
     abi: testConstant.abi,
     bytecode: testConstant.bytecode
   }, accounts.hex[7]));
+  console.log("Create transaction end.");
   transactions.forEach(async (tx) => {
     contracts.push(await broadcaster.broadcaster(null, accounts.pks[7], tx));
   });
+
   while (true) {
     const tx = await tronWeb.trx.getTransactionInfo(transactions[0].txID);
     if (Object.keys(tx).length === 0 ) {
@@ -2785,6 +2839,7 @@ async function clearabiMultiSign(){
       break;
     }
   }
+  console.log("Deploy transaction end.");
   const accountsl = {
     b58: [],
     hex: [],
@@ -2814,7 +2869,8 @@ async function clearabiMultiSign(){
   ownerPermission.keys  = [];
   let activePermission = { type: 2, permission_name: 'active0' };
   activePermission.threshold = threshold;
-  activePermission.operations = '7fff1fc0037e0300000000000000000000000000000000000000000000000000';
+  //activePermission.operations = '7fff1fc0037e0300000000000000000000000000000000000000000000000000';
+  activePermission.operations = '7fff1fc0037e0100000000000000000000000000000000000000000000000000';
   activePermission.keys = [];
 
   ownerPermission.keys.push({ address: accounts.hex[7], weight: 1 });
@@ -2838,18 +2894,21 @@ async function clearabiMultiSign(){
   console.log("updateTx.txID:"+updateTx.transaction.txID)
   assert.equal(updateTx.transaction.txID.length, 64);
   await wait(30);
+  console.log("update permission end");
+  const updateAfter = await tronWeb.trx.getAccount(accounts.hex[7]);
+  console.log("account7 permission: ",JSON.stringify(updateAfter, null, 2))
 
   const param = [transactions[0], accounts.hex[7], {permissionId: 2}];
-
   const contractAddress = param[0].contract_address;
   const ownerAddress = param[1];
 
   // verify contract abi before
   const contract = await tronWeb.trx.getContract(contractAddress);
   assert.isTrue(Object.keys(contract.abi).length > 0)
-
+  console.log("clear abi start");
   // clear abi
   const transaction = await tronWeb.transactionBuilder.clearABI(contractAddress, ownerAddress, param[2]);
+  console.log("create multi transaction: ",JSON.stringify(transaction, null, 2));
   const parameter = txPars(transaction);
   assert.isTrue(!transaction.visible &&
       transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.ClearABIContract');
@@ -2861,11 +2920,15 @@ async function clearabiMultiSign(){
   let signedTransaction = transaction;
   for (let i = idxS; i < idxE; i++) {
     signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accountsl.pks[i], 2);
+    console.log("multi transaction signed by ",accountsl.b58[i]);
+    console.log("multi transaction is ",JSON.stringify(signedTransaction, null, 2));
   }
   assert.equal(signedTransaction.signature.length, 2);
 
   // broadcast multi-sign transaction
+
   const result = await tronWeb.trx.broadcast(signedTransaction);
+  console.log("broadcast multi transaction result: ", JSON.stringify(result, null, 2));
   assert.isTrue(result.result)
   let contract1;
   // verify contract abi after
@@ -3045,6 +3108,7 @@ async function triggerSmartContract(){
         parameter, issuerAddress);
     assert.isTrue(transaction.result.result &&
         transaction.transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.TriggerSmartContract');
+    console.log("trigger transaction: ",JSON.stringify(transaction, null, 2) )
     assert.equal(transaction.constant_result, '0000000000000000000000000000000000000000000000000000000000000004');
     transaction = await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction.transaction);
     assert.isTrue(transaction.receipt.result)
@@ -3301,7 +3365,8 @@ async function injectExchangeTokens(){
     tokenNames.push(token[Object.keys(token)[0]]['id']);
   }
   const transaction = await tronWeb.transactionBuilder.createTokenExchange(tokenNames[1], 10, tokenNames[0], 10);
-  await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
+  const result = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
+  console.log("result: "+util.inspect(result,true,null,true))
   let receipt = await tronWeb.trx.getTransactionInfo(transaction.txID);
   while (!Object.keys(receipt).length) {
     await wait(5);
@@ -3463,6 +3528,7 @@ async function updateSetting(){
         TronWeb.utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
+  console.log("updateSetting excute success");
 }
 
 async function updateEnergyLimit(){
@@ -3494,6 +3560,7 @@ async function updateEnergyLimit(){
         TronWeb.utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
+  console.log("updateEnergyLimit excute success");
 }
 
 async function accountPermissionUpdate(){
@@ -3598,7 +3665,7 @@ async function accountPermissionUpdateMultiSign(){
   ownerPermission.keys  = [];
   let activePermission = { type: 2, permission_name: 'active0' };
   activePermission.threshold = threshold;
-  activePermission.operations = '7fff1fc0037e0300000000000000000000000000000000000000000000000000';
+  activePermission.operations = '7fff1fc0037e0100000000000000000000000000000000000000000000000000';
   activePermission.keys = [];
 
   for (let i = idxS; i < idxE; i++) {
@@ -3748,6 +3815,13 @@ async function rawParameter(){
   ), PRIVATE_KEY)
   contractAddress3 = tronWeb.address.fromHex(tx3.transaction.contract_address)
 
+  //use contract1, query before balance
+  let functionSelector1 = 'balanceOf(address)';
+  let param3B = await publicMethod.to64String(ADDRESS_HEX);
+  let transactionB = await tronWeb.transactionBuilder.triggerConstantContract(contractAddress1, functionSelector1, {rawParameter: param3B},
+      [], ADDRESS_BASE58);
+  let ownerBalanceBefore = tronWeb.BigNumber(transactionB.constant_result[0], 16);
+  console.log("ownerBalanceBefore:",ownerBalanceBefore);
 
   // abi:[]
   let triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
@@ -3775,7 +3849,9 @@ async function rawParameter(){
   let transaction = await tronWeb.transactionBuilder.triggerConstantContract(contractAddress1, functionSelector, {rawParameter: param3},
       [], ADDRESS_BASE58);
   let ownerBalanceAfter = tronWeb.BigNumber(transaction.constant_result[0], 16);
+  console.log("ownerBalanceAfter:",ownerBalanceAfter);
   assert.equal(ownerBalanceAfter, totalSupply-123);
+
   let param4 = await publicMethod.to64String(emptyAccount1.address.hex);
   transaction = await tronWeb.transactionBuilder.triggerConstantContract(contractAddress1, functionSelector, {rawParameter: param4},
       [], ADDRESS_BASE58);
@@ -3895,6 +3971,7 @@ async function rawParameter(){
       [], ADDRESS_BASE58);
   newAccount1BalanceAfter = tronWeb.BigNumber(transaction.constant_result[0], 16);
   assert.equal(newAccount1BalanceAfter, 246);
+  console.log("rawParameter execute success");
 }
 
 async function triggerSmartContractWithFuncABIV2_V1_input(){
@@ -3957,6 +4034,7 @@ async function triggerSmartContractWithFuncABIV2_V1_input(){
 
   check = await deployed.check().call();
   assert.ok(check.eq(16));
+  console.log("triggerSmartContractWithFuncABIV2_V1_input execute success")
 }
 
 async function triggerSmartContractWithFuncABIV2_V2_input(){
@@ -4057,6 +4135,7 @@ async function triggerSmartContractWithFuncABIV2_V2_input(){
 
   check = await deployed.s(0).call();
   assert.ok(equals(check, ['TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY', 1000100, 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY']));
+  console.log("triggerSmartContractWithFuncABIV2_V2_input execute success");
 }
 
 async function encodeABIV2test1_V1_input(){
@@ -4216,6 +4295,7 @@ async function encodeABIV2test1_V1_input(){
       {},
       []);
   assert.equal(transaction.constant_result[0],'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6d87');
+  console.log("encodeABIV2test1_V1_input execute success")
 }
 
 async function encodeABIV2test1_V2_input(){
@@ -4571,6 +4651,7 @@ async function encodeABIV2test1_V2_input(){
       {},
       []);
   assert.equal(transaction.constant_result[0],'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6d87');
+  console.log("encodeABIV2test1_V2_input execute success")
 }
 
 async function transactionBuilderTestAll(){
@@ -4646,7 +4727,7 @@ async function transactionBuilderTestAll(){
   await withdrawExchangeTokens();
   await tradeExchangeTokens();
   await alterExistentTransactions();
-  await rawParameter();
+  await rawParameter(); //有时候不通过，是因为好像余额转了两次
   await triggerSmartContractWithFuncABIV2_V1_input();
   await triggerSmartContractWithFuncABIV2_V2_input();
   await encodeABIV2test1_V1_input();
