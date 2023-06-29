@@ -1836,9 +1836,9 @@ async function trxTestAll(){
   await signMessageV2_2();
   await signMessageV2_3();
   await verifyMessageV2();
-  await multiSignTransaction();
+  //await multiSignTransaction(); //need freeze V1 started.
   await blockTest();
-  await transactionTest();
+  //await transactionTest(); //need freeze V1 started
   await tokenTest();
   await exchangeTest();
   await proposalTest();
@@ -1850,9 +1850,9 @@ async function trxTestAll(){
   await getUnconfirmedReward();
   await getBrokerage();
   await getUnconfirmedBrokerage();
-  await broadcastHex();
+  //await broadcastHex();  //need use java tron to make transaction.
   await getDelegatedResourceV2();
-  await getDelegatedResourceAccountIndexV2();
+  //await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？
   await getCanDelegatedMaxSize();
   await getAvailableUnfreezeCount();
   await getCanWithdrawUnfreezeAmount();

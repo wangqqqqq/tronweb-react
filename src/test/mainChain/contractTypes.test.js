@@ -837,7 +837,7 @@ async function contractTypesTestAll(){
     await triggerActionChoices();
     await triggerchangeint64Array();
     await triggerchangeuint32Array();
-    await triggerchangeuint256Array();
+    await triggerchangeuint256Array();    //sometimes error.
     await triggersetMappinga();
 
     await callsendInt();

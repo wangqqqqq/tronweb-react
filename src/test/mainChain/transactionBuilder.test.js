@@ -1158,16 +1158,51 @@ async function voteProposal(){
   const proposalsBeforeNums = proposals.length
   console.log("proposalsBeforeNums: "+proposalsBeforeNums)
   const sendTrxTransaction = await tronWeb.transactionBuilder.sendTrx(emptyAccount1.address.base58, 10000e6);
-  await broadcaster.broadcaster(sendTrxTransaction, PRIVATE_KEY);
+  brodcastResp = await broadcaster.broadcaster(sendTrxTransaction, PRIVATE_KEY);
+  console.log("brodcastResp: ",brodcastResp)
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+        console.log("tx:",tx)
+        await wait(3);
+        continue;
+    } else {
+        console.log("tx:",tx)
+        break;
+    }
+  }
   waitChainData('tx', sendTrxTransaction.txID);
   const applyForSrTransaction = await tronWeb.transactionBuilder.applyForSR(emptyAccount1.address.base58, 'url.tron.network');
-  await broadcaster.broadcaster(applyForSrTransaction, emptyAccount1.privateKey);
+  brodcastResp = await broadcaster.broadcaster(applyForSrTransaction, emptyAccount1.privateKey);
+  console.log("brodcastResp: ",brodcastResp)
+  while (true) {
+  const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+  if (Object.keys(tx).length === 0) {
+      console.log("tx:",tx)
+      await wait(3);
+      continue;
+  } else {
+      console.log("tx:",tx)
+      break;
+  }
+  }
   waitChainData('tx', applyForSrTransaction.txID);
   let parameters = [{ "key": 0, "value": 100000 }, { "key": 1, "value": 2 }]
 
+  //Account resource insufficient error.
   const createRes = await broadcaster.broadcaster(tronWeb.transactionBuilder.createProposal(parameters, WITNESS_ACCOUNT), WITNESS_KEY)
   console.log("createRes: "+util.inspect(createRes,true,null,true))
-  await wait(45);
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(createRes.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+        console.log("tx:",tx)
+        await wait(3);
+        continue;
+    } else {
+        console.log("tx:",tx)
+        break;
+    }
+  }
   proposals = await tronWeb.trx.listProposals();
   console.log("proposals.length: "+proposals.length)
   assert.equal(proposals.length,proposalsBeforeNums+1);
@@ -1217,6 +1252,7 @@ async function freezeBalance(){
   let brodcastResp;
   const emptyAccount1 = await TronWeb.createAccount();
   brodcastResp = await tronWeb.trx.sendTrx(emptyAccount1.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
   while (true) {
       const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
       if (Object.keys(tx).length === 0) {
@@ -1248,10 +1284,24 @@ async function freezeBalance(){
 }
 
 async function unfreezeBalance(){
+  let brodcastResp;
   const emptyAccount1 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount1.address.hex,10100000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount1.address.hex,10100000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+    while (true) {
+        const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+        if (Object.keys(tx).length === 0) {
+            console.log("tx:",tx)
+            await wait(3);
+            continue;
+        } else {
+            console.log("tx:",tx)
+            break;
+        }
+    }
   const transaction = await tronWeb.transactionBuilder.freezeBalance(100e6, 0, 'BANDWIDTH', emptyAccount1.address.base58);
-  await broadcaster.broadcaster(transaction, emptyAccount1.privateKey);
+  brodcastResp = await broadcaster.broadcaster(transaction, emptyAccount1.privateKey);
+  console.log("brodcastResp: ",brodcastResp);
   while (true) {
     const tx = await tronWeb.trx.getTransactionInfo(transaction.txID);
     if (Object.keys(tx).length === 0) {
@@ -1282,7 +1332,17 @@ async function freezeBalanceV2_1(){
   console.log("tx:"+util.inspect(tx))
   console.log("tx.txID:"+tx.transaction.txID)
   assert.equal(tx.transaction.txID.length, 64);
-  await wait(30);
+  while (true) {
+    const tx_add = await tronWeb.trx.getTransactionInfo(tx.transaction.txID);
+    if (Object.keys(tx_add).length === 0) {
+        console.log("tx_add:",tx_add)
+        await wait(3);
+        continue;
+    } else {
+        console.log("tx_add:",tx)
+        break;
+    }
+  }
   let parameter = txPars(transaction);
   console.log("parameter: "+util.inspect(parameter,true,null,true))
   assert.equal(parameter.value.owner_address, accounts.hex[0]);
@@ -2548,8 +2608,21 @@ async function withdrawBalance(){
 }
 
 async function vote(){
+  let brodcastResp;
   const emptyAccount2 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount2.address.hex,1000000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount2.address.hex,1000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+      const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+      if (Object.keys(tx).length === 0) {
+          console.log("tx:",tx)
+          await wait(3);
+          continue;
+      } else {
+          console.log("tx:",tx)
+          break;
+      }
+  }
 
   let url = 'https://xtron.network';
 
@@ -2576,16 +2649,77 @@ async function vote(){
 }
 
 async function createSmartContract(){
+  let brodcastResp;
   const emptyAccount1 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount1.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount1.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+        console.log("tx:",tx)
+        await wait(3);
+        continue;
+    } else {
+        console.log("tx:",tx)
+        break;
+    }
+  }
   const emptyAccount2 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount2.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount2.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+      console.log("tx:",tx)
+      await wait(3);
+      continue;
+    } else {
+      console.log("tx:",tx)
+    break;
+    }
+  }
   const emptyAccount3 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount3.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount3.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+      const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+      if (Object.keys(tx).length === 0) {
+        console.log("tx:",tx)
+        await wait(3);
+        continue;
+      } else {
+        console.log("tx:",tx)
+      break;
+      }
+  }
   const emptyAccount4 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount4.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount4.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+      const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+      if (Object.keys(tx).length === 0) {
+        console.log("tx:",tx)
+        await wait(3);
+        continue;
+      } else {
+        console.log("tx:",tx)
+      break;
+      }
+  }
   const emptyAccount5 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount5.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount5.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+      const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+      if (Object.keys(tx).length === 0) {
+        console.log("tx:",tx)
+        await wait(3);
+        continue;
+      } else {
+        console.log("tx:",tx)
+      break;
+      }
+  }
 
   let options = {
     abi: testRevert.abi,
@@ -2656,14 +2790,63 @@ async function createSmartContract(){
 }
 
 async function createSmartContractWithArray3(){
+  let brodcastResp;
   const emptyAccount1 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount1.address.hex,1000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount1.address.hex,1000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+      console.log("tx:",tx)
+      await wait(3);
+      continue;
+    } else {
+      console.log("tx:",tx)
+    break;
+    }
+  }
   const emptyAccount2 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount2.address.hex,1000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount2.address.hex,1000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+      console.log("tx:",tx)
+      await wait(3);
+      continue;
+    } else {
+      console.log("tx:",tx)
+    break;
+    }
+  }
   const emptyAccount3 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount3.address.hex,1000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount3.address.hex,1000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+      console.log("tx:",tx)
+      await wait(3);
+      continue;
+    } else {
+      console.log("tx:",tx)
+    break;
+    }
+  }
   const emptyAccount4 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount4.address.hex,1000000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount4.address.hex,1000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+      console.log("tx:",tx)
+      await wait(3);
+      continue;
+    } else {
+      console.log("tx:",tx)
+    break;
+    }
+  }
 
   const options = {
     abi: testAddressArray.abi,
@@ -2703,8 +2886,21 @@ async function createSmartContractWithArray3(){
 }
 
 async function createSmartContractWithTrctokenAndStateMutability(){
+  let brodcastResp;
   const emptyAccount1 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount1.address.hex,1000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount1.address.hex,1000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+    while (true) {
+      const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+      if (Object.keys(tx).length === 0) {
+        console.log("tx:",tx)
+        await wait(3);
+        continue;
+      } else {
+        console.log("tx:",tx)
+      break;
+      }
+    }
 
   // before token balance
   const accountbefore = await tronWeb.trx.getAccount(ADDRESS_HEX);
@@ -2748,8 +2944,22 @@ async function createSmartContractWithTrctokenAndStateMutability(){
 }
 
 async function createSmartContractWithPayable(){
+  let brodcastResp;
   const emptyAccount1 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount1.address.hex,1000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount1.address.hex,1000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+      console.log("tx:",tx)
+      await wait(3);
+      continue;
+    } else {
+      console.log("tx:",tx)
+    break;
+    }
+  }
+
 
   // before token balance
   const accountbefore = await tronWeb.trx.getAccount(ADDRESS_HEX);
@@ -2792,9 +3002,22 @@ async function createSmartContractWithPayable(){
 }
 
 async function triggerConstantContract(){
+  let brodcastResp;
   console.log("triggerConstantContract excute start");
   const emptyAccount1 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount1.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  brodcastResp = await tronWeb.trx.sendTrx(emptyAccount1.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+      const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+      if (Object.keys(tx).length === 0) {
+        console.log("tx:",tx)
+        await wait(3);
+        continue;
+      } else {
+        console.log("tx:",tx)
+      break;
+      }
+    }
 
   let transaction;
   transaction = await tronWeb.transactionBuilder.createSmartContract({
@@ -2837,7 +3060,19 @@ async function triggerConstantContract(){
 async function triggerComfirmedConstantContract(){
   console.log("triggerComfirmedConstantContract excute start");
   const emptyAccount1 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount1.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  let brodcastResp = await tronWeb.trx.sendTrx(emptyAccount1.address.hex,3000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+      console.log("tx:",tx)
+      await wait(3);
+      continue;
+    } else {
+      console.log("tx:",tx)
+    break;
+    }
+  }
 
   let transaction = await tronWeb.transactionBuilder.createSmartContract({
     abi: testConstant.abi,
@@ -2879,9 +3114,19 @@ async function triggerComfirmedConstantContract(){
 
 async function clearabi(){
   console.log("clearabi excute start");
-  await tronWeb.trx.sendTrx(accounts.hex[7],3000000000,{privateKey: PRIVATE_KEY})
-  await wait(3);
-
+  let brodcastResp = await tronWeb.trx.sendTrx(accounts.hex[7],3000000000,{privateKey: PRIVATE_KEY})
+  console.log("brodcastResp:",brodcastResp)
+  while (true) {
+      const tx = await tronWeb.trx.getTransactionInfo(brodcastResp.transaction.txID);
+      if (Object.keys(tx).length === 0) {
+        console.log("tx:",tx)
+        await wait(3);
+        continue;
+      } else {
+        console.log("tx:",tx)
+      break;
+      }
+  }
   let contract;
   let transaction = await tronWeb.transactionBuilder.createSmartContract({
     abi: testConstant.abi,
@@ -2975,7 +3220,17 @@ async function clearabiMultiSign(){
   const sendTrxTx2 = await tronWeb.trx.sendTrx(accounts.b58[6], 500000000);
   assert.isTrue(sendTrxTx.result);
   assert.isTrue(sendTrxTx2.result);
-  await wait(15);
+  while (true) {
+    const tx = await tronWeb.trx.getTransactionInfo(sendTrxTx2.transaction.txID);
+    if (Object.keys(tx).length === 0) {
+      console.log("tx:",tx)
+      await wait(3);
+      continue;
+    } else {
+      console.log("tx:",tx)
+    break;
+    }
+  }
 
   accountsl.pks.push(accounts.pks[6]);
   accountsl.b58.push(accounts.b58[6]);
@@ -4725,6 +4980,7 @@ async function encodeABIV2test1_V2_input(){
       contractAddress, "changeBool(bool)", {feeLimit:FEE_LIMIT,funcABIV2:abiV2Test1.abi[8],parametersV2:[false]},
       [], ADDRESS_BASE58);
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
+  console.log("triggerTx: ",triggerTx);
   assert.equal(triggerTx.transaction.txID.length, 64);
   while (true) {
     triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
@@ -4748,6 +5004,7 @@ async function encodeABIV2test1_V2_input(){
       [], ADDRESS_BASE58);
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
+  console.log("triggerTx: ",triggerTx);
   while (true) {
     triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
     if (Object.keys(triggerInfo).length === 0) {
@@ -4770,7 +5027,7 @@ async function encodeABIV2test1_V2_input(){
       [], ADDRESS_BASE58);
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
-
+  console.log("triggerTx: ",triggerTx)
   while (true) {
     triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
     if (Object.keys(triggerInfo).length === 0) {
@@ -4792,7 +5049,7 @@ async function encodeABIV2test1_V2_input(){
 async function transactionBuilderTestAll(){
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
-  await sendTrx();
+  /*await sendTrx();
   await createToken();
   await createAccount();
   await updateAccount();
@@ -4803,15 +5060,15 @@ async function transactionBuilderTestAll(){
   await sendToken();
   await createProposal();
   await deleteProposal();
-  await voteProposal();
-  await applyForSR();
+  await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
+  await applyForSR();*/
   // Execute this method when Proposition 70 is not enabled
   /*await freezeBalance();
   await unfreezeBalance();*/
   // Execute this method when Proposition 70 is enabled
-  /*await freezeBalanceV2_1();
-  await freezeBalanceV2_2();*/
-  await freezeBalanceV2_3();//sometimes error
+  await freezeBalanceV2_1();
+  await freezeBalanceV2_2();
+  await freezeBalanceV2_3();
   await freezeBalanceV2_4();
   await unfreezeBalanceV2_1();
   await unfreezeBalanceV2_2();
