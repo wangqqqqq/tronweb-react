@@ -32,10 +32,15 @@ async function before() {
     }, ADDRESS_HEX,), PRIVATE_KEY);
     assert.equal(tx.transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
         createInfo = await tronWeb.trx.getTransactionInfo(tx.transaction.txID);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
+            count+=1;
+            if(count >10){
+                throw Error("time out failed!!");
+            }
             continue;
         } else {
             console.log("createInfo:" + util.inspect(createInfo))
@@ -52,9 +57,14 @@ async function before() {
     }, ADDRESS_HEX), PRIVATE_KEY);
     assert.equal(tx2.transaction.txID.length, 64);
     let createInfo2;
+    count = 0;
     while (true) {
         createInfo2 = await tronWeb.trx.getTransactionInfo(tx2.transaction.txID);
         if (Object.keys(createInfo2).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {

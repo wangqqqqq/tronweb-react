@@ -31,9 +31,14 @@ async function before() {
     // console.log("createTx.transaction.txID:" + createTx.transaction.txID)
     assert.equal(createTx.transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
         createInfo = await tronWeb.trx.getTransactionInfo(createTx.transaction.txID);
         if (Object.keys(createInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -57,9 +62,14 @@ async function callMethod(){
     const clearAbiTransaction = await tronWeb.transactionBuilder.clearABI(contractAddress, ADDRESS_BASE58);
     console.log("clearAbiTransaction:" + util.inspect(clearAbiTransaction));
     const clearAbiTx = await broadcaster.broadcaster(null, PRIVATE_KEY, clearAbiTransaction);
+    let count = 0;
     while (true) {
         let clearAbiInfo = await tronWeb.trx.getTransactionInfo(clearAbiTx.transaction.txID);
         if (Object.keys(clearAbiInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {

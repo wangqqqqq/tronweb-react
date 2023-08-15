@@ -13,12 +13,12 @@ module.exports = {
     // FULL_NODE_API: 'http://new.myservice.com',
     // SOLIDITY_NODE_API: 'http://new.myservice.com',
     // EVENT_API: 'http://newevent.myservice.com',
-    FULL_NODE_API: 'http://main.myservice.com',
-    SOLIDITY_NODE_API: 'http://main.myservice.com',
-    EVENT_API: 'http://mainevent.myservice.com',
-    // FULL_NODE_API: 'https://api.nileex.io',
-    // SOLIDITY_NODE_API: 'https://api.nileex.io',
-    // EVENT_API: 'https://nile.trongrid.io',
+    // FULL_NODE_API: 'http://main.myservice.com',
+    // SOLIDITY_NODE_API: 'http://main.myservice.com',
+    // EVENT_API: 'http://mainevent.myservice.com',
+    FULL_NODE_API: 'https://api.nileex.io',
+    SOLIDITY_NODE_API: 'https://api.nileex.io',
+    EVENT_API: 'https://nile.trongrid.io',
     NETWORK_ID: "*",
     // ADDRESS_HEX: '41928c9af0651632157ef27a2cf17ca72c575a4d21',
     // ADDRESS_BASE58: 'TPL66VK2gCXNCD7EJg9pgJRfqcRazjhUZY',
@@ -80,12 +80,12 @@ module.exports = {
             description: 'Useless utility token',
             url: `https://example-${rnd}.com/`,
             totalSupply: 100000000,
-            saleEnd: Date.now() + 160000, // 1 minute
+            saleEnd: Date.now() + 180000, // 1 minute
             frozenAmount: 5,
             frozenDuration: 1,
             trxRatio: 10,
             tokenRatio: 2,
-            saleStart: Date.now() + 800,
+            saleStart: Date.now() + 3000,
             freeBandwidth: 100,
             freeBandwidthLimit: 1000
         }
