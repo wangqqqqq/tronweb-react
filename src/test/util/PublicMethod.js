@@ -317,7 +317,12 @@ const deployTrc20Contract = async () =>{
     console.log("createTxId:"+createTxId)
     assert.equal(createTxId.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(createTxId);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -413,7 +418,12 @@ const deployTrc721Contract = async () =>{
     // console.log("createTx:"+JSON.stringify(createTx))
     assert.equal(createTxId.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.sidechain.mainchain.trx.getTransactionInfo(createTxId);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -482,7 +492,12 @@ const mintTrc721 = async (contractAddress,trc721Id) =>{
     // console.log("mintTx:"+util.inspect(mintTx))
     assert.equal(mintTx.transaction.txID.length, 64);
     let mintInfo;
+    let count =0 ;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         mintInfo = await tronWeb.sidechain.mainchain.trx.getUnconfirmedTransactionInfo(mintTx.transaction.txID);
         if (Object.keys(mintInfo).length === 0) {
             await wait(3);
@@ -516,7 +531,12 @@ const deployContract = async (contract, parametersArray = []) =>{
     console.log("createTxId: "+createTxId)
     assert.equal(createTxId.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.trx.getTransactionInfo(createTxId);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);

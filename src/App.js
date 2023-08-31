@@ -47,23 +47,23 @@ class App extends React.Component {
     /** need SIDE_CHAIN environment
      *  Use react default domain name in the browser
      */
-    // await abiTest.abiTestAll();//yes
-    // await accountsTest.accountsTestAll(); //yes
-    // await bytesTest.bytesTestAll();//yes
-    // await codeTest.codeTestAll();//yes
-    // await contractTypes.contractTypesTestAll();//yes
-    // await eip712Test.eip712TestAll();//yes
-    // await fallbackTest.fallbackTestAll();//yes
-    // await isConstantCall.isConstantCallTestAll(); //yes
-    // await methodTest.methodTestAll();//yes
-    // await multiSignTestMain.multiSignTestAll();//yes
+    // await abiTest.abiTestAll();//Yes
+    // await accountsTest.accountsTestAll(); //Yes
+    // await bytesTest.bytesTestAll();//Yes
+    // await codeTest.codeTestAll();//Yes
+    // await contractTypes.contractTypesTestAll();//Yes
+    // await eip712Test.eip712TestAll();//Yes
+    // await fallbackTest.fallbackTestAll();//Yes
+    // await isConstantCall.isConstantCallTestAll(); //Yes
+    // await methodTest.methodTestAll();//Yes
+    // await multiSignTestMain.multiSignTestAll();//Yes
     // await pluginTest.pluginTestAll();//yes
-    // await providersTest.providersTestAll();//yes
-   // await transactionBuilderTest.transactionBuilderTestAll();//yes
-   //  await trxTestMain.trxTestAll();//yes
-   //  await typedData.typedDataAll();//yes
-   //  await transactionTest.transactionTestAll();//yes
-    await signVisibleTest.signVisibleTestAll();//yes
+    // await providersTest.providersTestAll();//Yes
+    await transactionBuilderTest.transactionBuilderTestAll();//Yes
+    // await trxTestMain.trxTestAll();//Yes
+    // await typedData.typedDataAll();//Yes
+    // await transactionTest.transactionTestAll();//Yes
+    // await signVisibleTest.signVisibleTestAll();//Yes
 
     // await feelimitTest.feelimitTestAll();//yes
     //  await multiSignTestSide.multiSignTestAll();//yes
@@ -75,7 +75,7 @@ class App extends React.Component {
     /** need nile environment
      *  Use react default domain name in the browser
      */
-    // await eventTest.eventTestAll();//yes
+    //await eventTest.eventTestAll();//yes
     // await indexTest.indexTestAll();//yes
 
     /** need fullHost: TEST_TRON_GRID_API environment

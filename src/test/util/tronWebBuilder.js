@@ -1,5 +1,5 @@
 const chalk = require('chalk')
- const TronWeb = require('../../tronweb/dist/TronWeb');
+const TronWeb = require('../../tronweb/dist/TronWeb');
 //const TronWeb = require('tronweb')
 const jlog = require('./jlog')
 const util = require('util');

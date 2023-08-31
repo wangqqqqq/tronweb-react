@@ -29,9 +29,14 @@ async function oldVersion(){
     let createTx = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction);
     assert.equal(createTx.transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
         createInfo = await tronWeb.trx.getTransactionInfo(createTx.transaction.txID);
         if (Object.keys(createInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -48,9 +53,14 @@ async function oldVersion(){
     createTx = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction);
     assert.equal(createTx.transaction.txID.length, 64);
     createInfo;
+    count =0;
     while (true) {
         createInfo = await tronWeb.trx.getTransactionInfo(createTx.transaction.txID);
         if (Object.keys(createInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -76,9 +86,14 @@ async function oldVersion(){
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
     let triggerInfo;
+    count =0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -99,9 +114,14 @@ async function oldVersion(){
     triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
     console.log("Second triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
+    count =0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -148,12 +168,17 @@ async function fallbackUpgradeBeofre(){
     let createInfo;
     let createInfo2;
     let createInfo3;
+    let count =0;
     while (true) {
         createInfo0 = await tronWeb.trx.getTransactionInfo(createTx0.transaction.txID);
         createInfo = await tronWeb.trx.getTransactionInfo(createTx.transaction.txID);
         createInfo2 = await tronWeb.trx.getTransactionInfo(createTx2.transaction.txID);
         createInfo3 = await tronWeb.trx.getTransactionInfo(createTx3.transaction.txID);
         if (Object.keys(createInfo0).length === 0 || Object.keys(createInfo).length === 0 || Object.keys(createInfo2).length === 0 || Object.keys(createInfo3).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -182,9 +207,14 @@ async function noFallbackAndNoReceive() {
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
     let triggerInfo;
+    let count = 0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -199,9 +229,14 @@ async function noFallbackAndNoReceive() {
     triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
+    count = 0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -226,9 +261,14 @@ async function noCalldataAndNoCallvalue() {
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
     let triggerInfo;
+    count = 0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -244,9 +284,14 @@ async function noCalldataAndNoCallvalue() {
     triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
+    count = 0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -262,9 +307,14 @@ async function noCalldataAndNoCallvalue() {
     triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
+    let count = 0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -303,9 +353,14 @@ async function noCalldataAndHasCallvalue() {
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
     let triggerInfo;
+    let count = 0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -329,9 +384,14 @@ async function noCalldataAndHasCallvalue() {
     triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
+    count = 0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -352,9 +412,14 @@ async function noCalldataAndHasCallvalue() {
     triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
+    count = 0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {

@@ -81,9 +81,14 @@ async function createContract(option) {
   const createTx = await broadcaster.broadcaster(null, PRIVATE_KEY, createTransaction);
   assert.equal(createTx.transaction.txID.length, 64);
   let createInfo;
+  count = 0;
   while (true) {
     createInfo = await tronWeb.trx.getTransactionInfo(createTx.transaction.txID);
     if (Object.keys(createInfo).length === 0) {
+      count +=1;
+      if(count > 15){
+        throw Error("time out failed!!");
+      }
       await wait(3);
       continue;
     } else {

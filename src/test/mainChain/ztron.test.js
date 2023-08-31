@@ -62,7 +62,12 @@ async function createMintParams() {
     console.log("createTxId: " + createTxId)
     assert.equal(createTxId.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.trx.getTransactionInfo(
             createTxId);
         if (Object.keys(createInfo).length === 0) {
@@ -92,7 +97,12 @@ async function createMintParamsWithoutAsk() {
     console.log("createTxId1: " + createTxId1)
     assert.equal(createTxId1.length, 64);
     let createInfo1;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo1 = await tronWeb.trx.getTransactionInfo(createTxId1);
         if (Object.keys(createInfo1).length === 0) {
             await wait(3);
@@ -120,7 +130,12 @@ async function createTransferParams() {
     console.log("createTxId: " + createTxId)
     assert.equal(createTxId.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.trx.getTransactionInfo(createTxId);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -147,7 +162,12 @@ async function createTransferParamsWithoutAsk() {
     console.log("createTxId: " + createTxId)
     assert.equal(createTxId.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.trx.getTransactionInfo(createTxId);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -176,7 +196,12 @@ async function createBurnParams() {
     console.log("createTxId: " + createTxId)
     assert.equal(createTxId.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.trx.getTransactionInfo(createTxId);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -204,7 +229,12 @@ async function createBurnParamsWithoutAsk() {
     console.log("createTxId: " + createTxId)
     assert.equal(createTxId.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.trx.getTransactionInfo(createTxId);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);

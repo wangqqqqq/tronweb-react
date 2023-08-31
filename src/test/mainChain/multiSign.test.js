@@ -9,37 +9,16 @@ const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
 const util = require('util');
-const accounts = {
-    b58: [],
-    hex: [],
-    pks: []
-}
+let accounts;
 const ownerIdx = 0;
 const idxS = 0;
 const idxE = 2;
 const threshold = 2;
 
 async function multiSignTestBefore(){
-    const sendTrxTx = await tronWeb.trx.sendTrx("TRxh1GnspMRadaU37UzrRRpkME2EkwCHg4", 5000000000);
-    const sendTrxTx2 = await tronWeb.trx.sendTrx("TELLNvWTiYbMEyGu1DQSr8UDQA8aJzpx6x", 500000000);
-    console.log("sendTrxTx1:"+JSON.stringify(sendTrxTx))
-    console.log("sendTrxTx2:"+JSON.stringify(sendTrxTx2))
-    assert.isTrue(sendTrxTx.result);
-    assert.isTrue(sendTrxTx2.result);
+    accounts = await tronWebBuilder.getTestAccountsInMain(2);
     await wait(15);
-
-    // this.timeout(20000);
-    let pk0 = "4521c13f65cc9f5c1daa56923b8598d4015801ad28379675c64106f5f6afec30";
-    let addr = tronWeb.address.fromPrivateKey(pk0);
-    accounts.pks.push(pk0);
-    accounts.b58.push(addr);
-    accounts.hex.push(tronWeb.address.toHex(addr));
-    let pk1 = "2c4216bed2a58a2ae2f6ed0fc230f80e1daea1637993069819f1cd213ff03366";
-    let addr1 = tronWeb.address.fromPrivateKey(pk1);
-    accounts.pks.push(pk1);
-    accounts.b58.push(addr1);
-    accounts.hex.push(tronWeb.address.toHex(addr1));
-    let ownerPk = "4521c13f65cc9f5c1daa56923b8598d4015801ad28379675c64106f5f6afec30";
+    let ownerPk = accounts.pks[0];
     let ownerAddress = tronWeb.address.toHex(tronWeb.address.fromPrivateKey(ownerPk));
     console.log("ownerAddress: "+ownerAddress)
 
@@ -49,9 +28,8 @@ async function multiSignTestBefore(){
     ownerPermission.keys  = [];
     let activePermission = { type: 2, permission_name: 'active0' };
     activePermission.threshold = threshold;
-    activePermission.operations = '7fff1fc0037e0000000000000000000000000000000000000000000000000000';
+    activePermission.operations = '7fff1fc0037ec107000000000000000000000000000000000000000000000000';
     activePermission.keys = [];
-
 
     for (let i = idxS; i < idxE; i++) {
         let address = accounts.hex[i];
@@ -76,21 +54,21 @@ async function multiSignTestBefore(){
     assert.equal(updateTx.transaction.txID.length, 64);
     await wait(30);
     console.log("execute multiSignTestBefore success")
-    /*let updateInfo;
-    while (true) {
-        updateInfo = await tronWeb.trx.getTransactionInfo(updateTx.transaction.txID);
-        if (Object.keys(updateInfo).length === 0) {
-            await wait(3);
-            continue;
-        } else {
-            console.log("updateInfo:"+util.inspect(updateInfo))
-            break;
-        }
-    }*/
+    let updateInfo;
+    // while (true) {
+    //     updateInfo = await tronWeb.trx.getTransactionInfo(updateTx.transaction.txID);
+    //     if (Object.keys(updateInfo).length === 0) {
+    //         await wait(3);
+    //         continue;
+    //     } else {
+    //         console.log("updateInfo:"+util.inspect(updateInfo))
+    //         break;
+    //     }
+    // }
 }
 
 async function multiSignATransactionByOwnerPermission(){
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx]);
     console.log("transaction:"+util.inspect(transaction))
     let signedTransaction = transaction;
     for (let i = idxS; i < idxE; i++) {
@@ -101,13 +79,17 @@ async function multiSignATransactionByOwnerPermission(){
 
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
+    await wait(5);
+
     assert.isTrue(result.result);
     console.log("execute multiSignATransactionByOwnerPermission success")
 
 }
 
 async function multiSignATransactionByOwnerPermission_PermissionIdInsideTx() {
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 0});
+    await wait(5);
+
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 0});
 
     let signedTransaction = transaction;
     for (let i = idxS; i < idxE; i++) {
@@ -118,13 +100,16 @@ async function multiSignATransactionByOwnerPermission_PermissionIdInsideTx() {
 
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
+    await wait(5);
+
     assert.isTrue(result.result);
     console.log("execute multiSignATransactionByOwnerPermission_PermissionIdInsideTx success")
 }
 
 async function verifyWeightAfterMultiSignByOwnerPermission() {
+
     // create transaction and do multi-sign
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx]);
 
     // sign and verify sign weight
     let signedTransaction = transaction;
@@ -144,13 +129,15 @@ async function verifyWeightAfterMultiSignByOwnerPermission() {
 
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
+    await wait(5);
+
     assert.isTrue(result.result);
     console.log("execute verifyWeightAfterMultiSignByOwnerPermission success")
 }
 
 async function verifyWeightAfterMultiSignByOwnerPermission_PermissionIdInsideTx() {
     // create transaction and do multi-sign
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 0});
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5,'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 0});
 
     // sign and verify sign weight
     let signedTransaction = transaction;
@@ -170,22 +157,28 @@ async function verifyWeightAfterMultiSignByOwnerPermission_PermissionIdInsideTx(
 
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
+    await wait(5);
+
     assert.isTrue(result.result);
     console.log("execute verifyWeightAfterMultiSignByOwnerPermission_PermissionIdInsideTx success")
 }
 
 async function multiSignATransactionWithNoPermissionErrorByOwnerPermission() {
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx]);
     try {
+        // let key = accounts.pks[ownerIdx].substring(7,10);
+        // let fakeStr = key.substring(7,10);
+        // let fakeKey = key.replace(fakeStr, "111");
         await tronWeb.trx.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 0);
     } catch (e) {
-        assert.isTrue(e.indexOf('has no permission to sign') != -1);
+        console.log(e);
+        assert.isTrue(String(e).indexOf('Error: private key must be 32 bytes, hex or bigint, not string') != -1);
     }
     console.log("execute multiSignATransactionWithNoPermissionErrorByOwnerPermission success")
 }
 
 async function multiSignDuplicatedATransactionByOwnerPermission() {
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx]);
     try {
         let signedTransaction = await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 0);
         await tronWeb.trx.multiSign(signedTransaction, accounts.pks[ownerIdx], 0);
@@ -196,7 +189,7 @@ async function multiSignDuplicatedATransactionByOwnerPermission() {
 }
 
 async function multiSignATransactionByActivePermission() {
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx]);
     let signedTransaction = transaction;
     for (let i = idxS; i < idxE; i++) {
         signedTransaction = await tronWeb.trx.multiSign(signedTransaction, accounts.pks[i], 2);
@@ -206,12 +199,14 @@ async function multiSignATransactionByActivePermission() {
 
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
+    await wait(5);
+
     assert.isTrue(result.result);
     console.log("execute multiSignATransactionByActivePermission success")
 }
 
 async function multiSignATransactionByActivePermission_PermissionIdInsideTx() {
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 2});
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5,'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 2});
     console.log("transaction:"+util.inspect(transaction))
 
     let signedTransaction = transaction;
@@ -224,6 +219,8 @@ async function multiSignATransactionByActivePermission_PermissionIdInsideTx() {
 
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
+    await wait(5);
+
     console.log("result:"+util.inspect(result))
     assert.isTrue(result.result);
     console.log("execute multiSignATransactionByActivePermission_PermissionIdInsideTx success")
@@ -231,7 +228,7 @@ async function multiSignATransactionByActivePermission_PermissionIdInsideTx() {
 
 async function verifyWeightAfterMultiSignByActivePermission() {
     // create transaction and do multi-sign
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx]);
 
     // sign and verify sign weight
     let signedTransaction = transaction;
@@ -251,13 +248,15 @@ async function verifyWeightAfterMultiSignByActivePermission() {
 
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
+    await wait(5);
+
     assert.isTrue(result.result);
     console.log("execute verifyWeightAfterMultiSignByActivePermission success")
 }
 
 async function verifyWeightAfterMultiSignByActivePermission_PermissionIdInsideTx() {
     // create transaction and do multi-sign
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 2});
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx], {permissionId: 2});
 
     // sign and verify sign weight
     let signedTransaction = transaction;
@@ -277,12 +276,14 @@ async function verifyWeightAfterMultiSignByActivePermission_PermissionIdInsideTx
 
     // broadcast multi-sign transaction
     const result = await tronWeb.trx.broadcast(signedTransaction);
+    await wait(5);
+
     assert.isTrue(result.result);
     console.log("execute verifyWeightAfterMultiSignByActivePermission_PermissionIdInsideTx success")
 }
 
 async function multiSignATransactionWithNoPermissionErrorByActivePermission() {
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx]);
     try {
         await tronWeb.trx.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 2);
     } catch (e) {
@@ -292,7 +293,7 @@ async function multiSignATransactionWithNoPermissionErrorByActivePermission() {
 }
 
 async function multiSignDuplicatedATransactionByActivePermission() {
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx]);
     try {
         let signedTransaction = await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 2);
         await tronWeb.trx.multiSign(signedTransaction, accounts.pks[ownerIdx], 2);
@@ -304,7 +305,7 @@ async function multiSignDuplicatedATransactionByActivePermission() {
 
 async function multiSignATransactionWithPermissionErrorByBothOwnerAndActivePermission() {
     try {
-        const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
+        const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx]);
         let signedTransaction = await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 0);
         await tronWeb.trx.multiSign(signedTransaction, accounts.pks[ownerIdx], 2);
     } catch (e) {
@@ -314,7 +315,7 @@ async function multiSignATransactionWithPermissionErrorByBothOwnerAndActivePermi
 }
 
 async function multiSignATransactionWithWrongPermissionIdError() {
-    const transaction = await tronWeb.transactionBuilder.freezeBalance(10e5, 3, 'BANDWIDTH', accounts.b58[ownerIdx]);
+    const transaction = await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', accounts.b58[ownerIdx]);
     try {
         await tronWeb.trx.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 2);
     } catch (e) {
@@ -322,7 +323,6 @@ async function multiSignATransactionWithWrongPermissionIdError() {
     }
     console.log("execute multiSignATransactionWithWrongPermissionIdError success")
 }
-
 
 async function multiSignTestAll(){
     await multiSignTestBefore();

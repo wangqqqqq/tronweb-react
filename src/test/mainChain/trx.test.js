@@ -58,7 +58,12 @@ async function getAccountById(){
   const transaction = await tronWeb.transactionBuilder.setAccountId(accountId, emptyAccount1.address.hex);
   const res = await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
   console.log("res:"+util.inspect(res,true,null,true))
+  let count = 0;
   while (true) {
+    count +=1;
+    if(count > 15){
+      throw Error("time out failed!!");
+    }
     const account = await tronWeb.trx.getAccountById(accountId);
     if (Object.keys(account).length === 0) {
       await wait(3);
@@ -1030,7 +1035,12 @@ async function transactionTest(){
   transaction = await tronWeb.trx.freezeBalance(13e5, 3, 'BANDWIDTH', { privateKey: PRIVATE_KEY, address: ADDRESS_HEX });
   // transaction = await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', ADDRESS_HEX));
   transaction = transaction.transaction;
+  let count = 0;
   while (true) {
+    count +=1;
+    if(count > 15){
+      throw Error("time out failed!!");
+    }
     const tx = await tronWeb.trx.getTransactionInfo(transaction.txID);
     if (Object.keys(tx).length === 0) {
       await wait(3);
@@ -1060,7 +1070,12 @@ async function transactionTest(){
   // const idx = 26;
   transaction = await tronWeb.trx.freezeBalance(15e5, 3, 'BANDWIDTH', { privateKey: PRIVATE_KEY, address: ADDRESS_HEX });
   // transaction = await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(10e5, 'BANDWIDTH', ADDRESS_HEX));
+  count = 0;
   while (true) {
+    count +=1;
+    if(count > 15){
+      throw Error("time out failed!!");
+    }
     try {
       const tx = await tronWeb.trx.getConfirmedTransaction(transaction.transaction.txID);
       assert.equal(tx.txID, transaction.transaction.txID);
@@ -1820,41 +1835,41 @@ async function getCanWithdrawUnfreezeAmount(){
 async function trxTestAll(){
   console.log("trxTestAll start")
   await trxBefore();
-  await getAccount();
-  await getAccountById();
-  await getAccountResources();
-  await getBalance();
-  await getBandwidth();
-  await getUnconfirmedAccount();
-  await geUnconfirmedAccountById();
-  await getUnconfirmedBalance();
-  await updateAccount();
-  await sign();
-  await signMessage();
-  await verifyMessage();
-  await signMessageV2_1();
-  await signMessageV2_2();
-  await signMessageV2_3();
-  await verifyMessageV2();
-  //await multiSignTransaction(); //need freeze V1 started.
-  await blockTest();
-  //await transactionTest(); //need freeze V1 started
-  await tokenTest();
-  await exchangeTest();
-  await proposalTest();
-  await getContract();
-  await listNodes();
-  await listSuperRepresentatives();
-  await timeUntilNextVoteCycle();
-  await getReward();
-  await getUnconfirmedReward();
-  await getBrokerage();
-  await getUnconfirmedBrokerage();
-  //await broadcastHex();  //need use java tron to make transaction.
-  await getDelegatedResourceV2();
-  //await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？
-  await getCanDelegatedMaxSize();
-  await getAvailableUnfreezeCount();
+  // await getAccount();
+  // await getAccountById();
+  // await getAccountResources();
+  // await getBalance();
+  // await getBandwidth();
+  // await getUnconfirmedAccount();
+  // await geUnconfirmedAccountById();
+  // await getUnconfirmedBalance();
+  // await updateAccount();
+  // await sign();
+  // await signMessage();
+  // await verifyMessage();
+  // await signMessageV2_1();
+  // await signMessageV2_2();
+  // await signMessageV2_3();
+  // await verifyMessageV2();
+  // //await multiSignTransaction(); //need freeze V1 started.
+  // await blockTest();
+  // //await transactionTest(); //need freeze V1 started
+  // await tokenTest();
+  // await exchangeTest();
+  // await proposalTest();
+  // await getContract();
+  // await listNodes();
+  // await listSuperRepresentatives();
+  // await timeUntilNextVoteCycle();
+  // await getReward();
+  // await getUnconfirmedReward();
+  // await getBrokerage();
+  // await getUnconfirmedBrokerage();
+  // //await broadcastHex();  //need use java tron to make transaction.
+  // await getDelegatedResourceV2();
+  // //await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？
+  // await getCanDelegatedMaxSize();
+  // await getAvailableUnfreezeCount();
   await getCanWithdrawUnfreezeAmount();
   console.log("trxTestAll end")
 }

@@ -148,11 +148,16 @@ async function getEventsByTransactionIDWithUnconfirmed(){
   console.log("txId:"+txId)
   eventLength++
   let events
+  let count=0
   while(true) {
     events = await tronWeb.event.getEventsByTransactionID(txId)
     if (events.length) {
       console.log("events:"+util.inspect(events,true,null,true))
       break
+    }
+    count++
+    if(count>50){
+      throw Error("time out failed!!")
     }
     await wait(0.5)
   }
@@ -183,10 +188,16 @@ async function getEventsByTransactionIDWithConfirmation(){
   await wait(90)
 
   let events
+  let count=0
+
   while(true) {
     events = await tronWeb.event.getEventsByTransactionID(txId)
     if (events.length) {
       break
+    }
+    count++
+    if(count>50){
+      throw Error("time out failed!!")
     }
     await wait(0.5)
   }
@@ -208,7 +219,9 @@ async function getEventsByContractAddress(){
   let txId = output.id
   console.log("output:"+output)
   eventLength++
+
   let events
+  let count = 0
   while(true) {
     events = await tronWeb.event.getEventsByContractAddress(contractAddress, {
       eventName: 'SomeEvent',
@@ -216,6 +229,10 @@ async function getEventsByContractAddress(){
     })
     if (events.length === eventLength) {
       break
+    }
+    count++
+    if(count>50){
+      throw Error("time out failed!!")
     }
     await wait(0.5)
   }

@@ -6,7 +6,8 @@ const ethersWallet = tronWeb.utils.ethersUtils.ethersWallet;
 const chai = require('chai');
 const assert = chai.assert;
 const util = require('util');
-const wordlist = 'en';
+const wordlists = tronWeb.utils.ethersUtils.wordlists;
+const wordlist = wordlists.en;
 
 async function encode58(){
     const tronWeb = tronWebBuilder.createInstance();
@@ -78,10 +79,10 @@ async function generateRandomWhenParam_bigParantheses(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, "m/44'/195'/0'/0/0");
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, "m/44'/195'/0'/0/0");
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
 }
 
@@ -97,10 +98,10 @@ async function generateRandomWhenParam_null(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
 }
 
@@ -117,10 +118,10 @@ async function generateRandomWhenPath_allNull(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
 }
 
@@ -137,10 +138,10 @@ async function generateRandomWhenPath_chainAndIndexNull(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
 }
 
@@ -157,10 +158,10 @@ async function generateRandomWhenPath_indexNull(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
 }
 
@@ -177,10 +178,10 @@ async function generateRandomWhenPath_accountIs0AndIndexIs13(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
 }
 
@@ -197,10 +198,10 @@ async function generateRandomWhenPath_accountIs3AndIndexIs99(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
 }
 
@@ -243,10 +244,10 @@ async function generateRandomWhenWordlist_zh_cn(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
     console.log("generateRandomWhenWordlist_zh_cn end")
 }
@@ -266,10 +267,10 @@ async function generateRandomWhenWordlist_zh_tw(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
     console.log("generateRandomWhenWordlist_zh_tw end")
 }
@@ -288,10 +289,10 @@ async function generateRandomWhenWordlist_ko(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
 }
 
 async function generateRandomWhenWordlist_ja(){
@@ -308,10 +309,10 @@ async function generateRandomWhenWordlist_ja(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(newAccount.mnemonic.phrase+", "+newAccount.mnemonic.path+", "+newAccount.mnemonic.locale+", "+newAccount.privateKey+", "+newAccount.address)
 }
 
@@ -329,10 +330,10 @@ async function generateRandomWhenWordlist_it(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
 }
 
 async function generateRandomWhenWordlist_nonexistent(){
@@ -346,6 +347,7 @@ async function generateRandomWhenWordlist_nonexistent(){
         await tronWeb.createRandom(options)
     } catch (err) {
         let errMsg = err.message
+        console.log(errMsg);
         assert.notEqual(errMsg.indexOf('unknown locale (argument="wordlist", value="itsf"'), -1)
     }
 }
@@ -371,14 +373,14 @@ async function generateAccountWithMnemonic_withCorrectPath(){
     const options = { path: path };
     const newAccount = await tronWeb.createRandom(options);
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path);
 
     const tronAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path);
 
     assert.equal(tronAccount.mnemonic.phrase, ethAccount.mnemonic.phrase);
     assert.equal(tronAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(tronAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(tronAccount.mnemonic.phrase+", "+tronAccount.mnemonic.path+", "+tronAccount.mnemonic.locale+", "+tronAccount.privateKey+", "+tronAccount.address)
 }
 
@@ -389,14 +391,14 @@ async function generateAccountWithMnemonic_withTruncatedPath(){
     const options = { path: path };
     const newAccount = await tronWeb.utils.accounts.generateRandom(options);
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path);
 
     const tronAccount = await tronWeb.utils.accounts.generateAccountWithMnemonic(newAccount.mnemonic.phrase, path);
 
     assert.equal(tronAccount.mnemonic.phrase, ethAccount.mnemonic.phrase);
     assert.equal(tronAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(tronAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(tronAccount.mnemonic.phrase+", "+tronAccount.mnemonic.path+", "+tronAccount.mnemonic.locale+", "+tronAccount.privateKey+", "+tronAccount.address)
 }
 
@@ -407,7 +409,7 @@ async function generateAccountWithMnemonic_withPathIsNotSame(){
     const options = { path: path };
     const newAccount = await tronWeb.createRandom(options);
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path);
 
     const tronAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, "m/44'/195'/0'/1");
 
@@ -426,14 +428,14 @@ async function generateAccountWithMnemonic_withPathIsNull(){
     const options = { path: path };
     const newAccount = await tronWeb.utils.accounts.generateRandom(options);
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path);
 
     const tronAccount = await tronWeb.utils.accounts.generateAccountWithMnemonic(newAccount.mnemonic.phrase);
 
     assert.equal(tronAccount.mnemonic.phrase, ethAccount.mnemonic.phrase);
     assert.equal(tronAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(tronAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(tronAccount.mnemonic.phrase+", "+tronAccount.mnemonic.path+", "+tronAccount.mnemonic.locale+", "+tronAccount.privateKey+", "+tronAccount.address)
 
     console.log("execute generateAccountWithMnemonic_withPathIsNull success")
@@ -463,14 +465,14 @@ async function generateAccountWithMnemonicWordlist_zh_cn(){
     const options = { path: path, locale: wordlist};
     const newAccount = await tronWeb.utils.accounts.generateRandom(options);
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
     const tronAccount = await tronWeb.utils.accounts.generateAccountWithMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
     assert.equal(tronAccount.mnemonic.phrase, ethAccount.mnemonic.phrase);
     assert.equal(tronAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(tronAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(tronAccount.mnemonic.phrase+", "+tronAccount.mnemonic.path+", "+tronAccount.mnemonic.locale+", "+tronAccount.privateKey+", "+tronAccount.address)
 
     console.log("execute generateAccountWithMnemonicWordlist_zh_cn success")
@@ -484,14 +486,14 @@ async function generateAccountWithMnemonicWordlist_zh_tw(){
     const options = { path: path, locale: wordlist};
     const newAccount = await tronWeb.createRandom(options);
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
     const tronAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
     assert.equal(tronAccount.mnemonic.phrase, ethAccount.mnemonic.phrase);
     assert.equal(tronAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(tronAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(tronAccount.mnemonic.phrase+", "+tronAccount.mnemonic.path+", "+tronAccount.mnemonic.locale+", "+tronAccount.privateKey+", "+tronAccount.address)
 
     console.log("execute generateAccountWithMnemonicWordlist_zh_tw success")
@@ -505,14 +507,14 @@ async function generateAccountWithMnemonicWordlist_ko(){
     const options = { path: path, locale: wordlist};
     const newAccount = await tronWeb.utils.accounts.generateRandom(options);
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
     const tronAccount = await tronWeb.utils.accounts.generateAccountWithMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
     assert.equal(tronAccount.mnemonic.phrase, ethAccount.mnemonic.phrase);
     assert.equal(tronAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(tronAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
 }
 
 async function generateAccountWithMnemonicWordlist_ja(){
@@ -523,14 +525,14 @@ async function generateAccountWithMnemonicWordlist_ja(){
     const options = { path: path, locale: wordlist};
     const newAccount = await tronWeb.createRandom(options);
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
     const tronAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
     assert.equal(tronAccount.mnemonic.phrase, ethAccount.mnemonic.phrase);
     assert.equal(tronAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(tronAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
     console.log(tronAccount.mnemonic.phrase+", "+tronAccount.mnemonic.path+", "+tronAccount.mnemonic.locale+", "+tronAccount.privateKey+", "+tronAccount.address)
 }
 
@@ -542,14 +544,14 @@ async function generateAccountWithMnemonicWordlist_it(){
     const options = { path: path, locale: wordlist};
     const newAccount = await tronWeb.utils.accounts.generateRandom(options);
 
-    const ethAccount = await ethersWallet.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
     const tronAccount = await tronWeb.utils.accounts.generateAccountWithMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
     assert.equal(tronAccount.mnemonic.phrase, ethAccount.mnemonic.phrase);
     assert.equal(tronAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(tronAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
-    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), ethAccount.address.substring(2));
+    publicMethod.equalIgnoreCase(tronWeb.address.toHex(tronAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
 }
 
 async function generateAccountWithMnemonicWordlist_unmatch(){
@@ -579,7 +581,7 @@ async function generateAccountWithMnemonicWordlist_nonexistent(){
         await tronWeb.utils.accounts.generateAccountWithMnemonic(newAccount.mnemonic.phrase, path, "jwerfa")
     } catch (err) {
         let errMsg = err.message
-        assert.notEqual(errMsg.indexOf('unknown locale (argument="wordlist", value="jwerfa"'), -1)
+        assert.notEqual(errMsg.indexOf('invalid mnemonic length (argument="mnemonic", value="[ REDACTED ]"'), -1)
     }
 }
 

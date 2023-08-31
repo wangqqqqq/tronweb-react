@@ -9,8 +9,8 @@ const broadcaster = require('../util/broadcaster');
 const wait = require('../util/wait');
 const waitChainData = require('../util/waitChainData');
 const { testRevert, testConstant } = require('../util/contracts');
-const ethers = require('ethers');
-const AbiCoder = ethers.utils.AbiCoder;
+const AbiCoder = require('@ethersproject/abi');
+
 const util = require('util');
 // const assert = require('assert');
 const assert = chai.assert;
@@ -259,9 +259,14 @@ async function txCheck_TriggerSmartContract(){
         feeLimit: 9e7,
     }, ADDRESS_HEX);
     await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
+    let count = 0;
     while (true) {
         const tx = await tronWeb.trx.getTransactionInfo(transaction.txID);
         if (Object.keys(tx).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -1758,9 +1763,14 @@ async function txCheck_UpdateSettingContract(){
         bytecode: testConstant.bytecode
     }, accounts.hex[3]);
     await broadcaster.broadcaster(null, accounts.pks[3], transaction);
+    let count =0;
     while (true) {
         const tx = await tronWeb.trx.getTransactionInfo(transaction.txID);
         if (Object.keys(tx).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -1807,9 +1817,14 @@ async function txCheck_UpdateEnergyLimitContract(){
         bytecode: testConstant.bytecode
     }, accounts.hex[3]);
     await broadcaster.broadcaster(null, accounts.pks[3], transaction);
+    let count =0;
     while (true) {
         const tx = await tronWeb.trx.getTransactionInfo(transaction.txID);
         if (Object.keys(tx).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -1854,9 +1869,14 @@ async function txCheck_AccountPermissionUpdateContract(){
     await broadcaster.broadcaster(tronWeb.transactionBuilder.sendTrx(accounts.b58[6], 10000e6), PRIVATE_KEY);
     const transaction = await tronWeb.transactionBuilder.applyForSR(accounts.b58[6], 'url.tron.network');
     await broadcaster.broadcaster(transaction, accounts.pks[6]);
+    let count =0;
     while (true) {
         const tx = await tronWeb.trx.getTransactionInfo(transaction.txID);
         if (Object.keys(tx).length === 0) {
+            count +=1;
+            if(count > 15){
+              throw Error("time out failed!!");
+            }
             await wait(3);
             continue;
         } else {
@@ -2236,7 +2256,6 @@ async function txCheckWithArgs_TriggerSmartContract(){
         };
 
         let parameters = param[3];
-        const abiCoder = new AbiCoder();
         let types = [];
         const values = [];
         for (let i = 0; i < parameters.length; i++) {
@@ -2254,6 +2273,7 @@ async function txCheckWithArgs_TriggerSmartContract(){
             }
             return type
         })
+        const abiCoder = AbiCoder.defaultAbiCoder;
         parameters = abiCoder.encode(types, values).replace(/^0x/, '');
         args.function_selector = param[1].replace('/\s+/g', '');
         args.parameter = parameters;

@@ -15,7 +15,12 @@ async function mainBefore(){
     await tronWeb.trx.freezeBalance(1e6, 3, 'BANDWIDTH', {}, ADDRESS_BASE58)
     // await broadcaster.broadcaster(null, PRIVATE_KEY, await tronWeb.transactionBuilder.freezeBalanceV2(1e6, 'BANDWIDTH', ADDRESS_BASE58));
     await wait(60);
+    let count = 0 ;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         let accountBalanceBefore2 = await tronWeb.trx.getBalance(ADDRESS_BASE58);
         console.log('accountBalanceBefore2: ' + accountBalanceBefore2);
         if (accountBalanceBefore1 == accountBalanceBefore2) {
@@ -34,7 +39,12 @@ async function sideBefore(){
     console.log('accountBalanceBefore1: ' + accountBalanceBefore1);
     await tronWeb.sidechain.sidechain.trx.freezeBalance(1e6, 3, 'BANDWIDTH', {}, ADDRESS_BASE58);
     await wait(60);
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         let accountBalanceBefore2 = await tronWeb.sidechain.sidechain.trx.getBalance(ADDRESS_BASE58);
         console.log('accountBalanceBefore2: ' + accountBalanceBefore2);
         if (accountBalanceBefore1 == accountBalanceBefore2) {
@@ -65,7 +75,12 @@ async function mainDefaultFeelimitWithCreate() {
     console.log("transaction.txID:"+transaction.txID)
     assert.equal(transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.trx.getTransactionInfo(transaction.txID);
         if (Object.keys(createInfo).length === 0) {
             console.log('accountBalanceBeforexxx: ' + await tronWeb.trx.getBalance(ADDRESS_BASE58));
@@ -107,7 +122,12 @@ async function mainDefaultFeelimitWithTrigger() {
     console.log("createTx.transaction.txID:"+createTx.transaction.txID)
     assert.equal(createTx.transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.trx.getTransactionInfo(createTx.transaction.txID);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -132,7 +152,12 @@ async function mainDefaultFeelimitWithTrigger() {
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
     let triggerInfo;
+    count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
             await wait(3);
@@ -177,7 +202,12 @@ async function mainCustomizedFeelimitWithCreate() {
     console.log("transaction.txID:"+transaction.txID)
     assert.equal(transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.trx.getTransactionInfo(transaction.txID);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -219,7 +249,12 @@ async function mainCustomizedFeelimitWithTrigger() {
     console.log("createTx.transaction.txID:"+createTx.transaction.txID)
     assert.equal(createTx.transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.trx.getTransactionInfo(createTx.transaction.txID);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -247,7 +282,12 @@ async function mainCustomizedFeelimitWithTrigger() {
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
     let triggerInfo;
+    count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
             await wait(3);
@@ -293,7 +333,12 @@ async function sideDefaultFeelimitWithCreate() {
     console.log("transaction.txID:"+transaction.txID)
     assert.equal(transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.sidechain.sidechain.trx.getTransactionInfo(transaction.txID);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -336,7 +381,12 @@ async function sideDefaultFeelimitWithTrigger() {
     console.log("createTx.transaction.txID:"+createTx.transaction.txID)
     assert.equal(createTx.transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.sidechain.sidechain.trx.getTransactionInfo(createTx.transaction.txID);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -361,7 +411,12 @@ async function sideDefaultFeelimitWithTrigger() {
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
     let triggerInfo;
+    count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         triggerInfo = await tronWeb.sidechain.sidechain.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
             await wait(3);
@@ -408,7 +463,12 @@ async function sideCustomizedFeelimitWithCreate() {
     console.log("transaction.txID:"+transaction.txID)
     assert.equal(transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.sidechain.sidechain.trx.getTransactionInfo(transaction.txID);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -452,7 +512,12 @@ async function sideCustomizedFeelimitWithTrigger() {
     console.log("createTx.transaction.txID:"+createTx.transaction.txID)
     assert.equal(createTx.transaction.txID.length, 64);
     let createInfo;
+    let count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         createInfo = await tronWeb.sidechain.sidechain.trx.getTransactionInfo(createTx.transaction.txID);
         if (Object.keys(createInfo).length === 0) {
             await wait(3);
@@ -480,7 +545,12 @@ async function sideCustomizedFeelimitWithTrigger() {
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
     let triggerInfo;
+    count = 0;
     while (true) {
+        count +=1;
+        if(count > 15){
+          throw Error("time out failed!!");
+        }
         triggerInfo = await tronWeb.sidechain.sidechain.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
             await wait(3);
