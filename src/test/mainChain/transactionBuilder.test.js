@@ -22,8 +22,8 @@ let emptyAccount6;
 let accounts;
 let TOKEN_ID = require('../util/config');
 const ethers = require('ethers');
-const AbiCoder = ethers.utils.AbiCoder;
-const keccak256 = ethers.utils.keccak256;
+console.log(tronWebBuilder.utils.ethersUtils);
+const { AbiCoder, keccak256 } = tronWebBuilder.utils.ethersUtils;
 async function transactionBuilderBefore() {
   console.log("start...");
   tronWeb = tronWebBuilder.createInstance();

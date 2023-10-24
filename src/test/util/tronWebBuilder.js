@@ -1,9 +1,8 @@
 const chalk = require('chalk')
-const TronWeb = require('../../tronweb/dist/TronWeb');
-//const TronWeb = require('tronweb')
+// const TronWeb = require('../../tronweb');
+const { TronWeb, providers, utils } = require('tronweb')
 const jlog = require('./jlog')
 const util = require('util');
-
 
 const {FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SUN_NETWORK, SIDE_CHAIN, TEST_TRON_GRID_API} = require('./config')
 
@@ -109,6 +108,8 @@ module.exports = {
     newTestAccounts,
     getTestAccounts,
     getTestAccountsInMain,
-    TronWeb
+    TronWeb,
+    providers,
+    utils,
 }
 

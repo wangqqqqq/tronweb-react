@@ -3,7 +3,7 @@ const {ADDRESS_HEX, ADDRESS_BASE58, FULL_NODE_API, SOLIDITY_NODE_API, PRIVATE_KE
 const tronWebBuilder = require('../util/tronWebBuilder');
 const broadcaster = require('../util/broadcaster');
 const TronWeb = tronWebBuilder.TronWeb;
-const HttpProvider = TronWeb.providers.HttpProvider;
+const HttpProvider = tronWebBuilder.providers.HttpProvider;
 const jwt = require('jsonwebtoken');
 const {
   TEST_TRON_GRID_API,

@@ -4,8 +4,8 @@ import './App.css';
 
 
 // import TronWeb from './tronweb/src/index.js'
-// const TronWeb = require('tronweb')
-const TronWeb = require('./tronweb/dist/TronWeb.node');
+const TronWeb = require('tronweb')
+// const TronWeb = require('./tronweb/dist/TronWeb.node');
 const abiTest = require('./test/mainChain/abi.test');
 const accountsTest = require('./test/mainChain/accounts.test');
 const bytesTest = require('./test/mainChain/bytes.test');

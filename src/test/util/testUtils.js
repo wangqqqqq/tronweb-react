@@ -1,7 +1,7 @@
 const TronWeb = require('./tronWebBuilder').createInstance();
 const ethers = require('ethers');
-
-const bnify = ethers.BigNumber.from;
+const { BigNumber } = require('@ethersproject/bignumber');
+const bnify = BigNumber.from;
 
 const getValues = (object, named) => {
   if (Array.isArray(object)) {
