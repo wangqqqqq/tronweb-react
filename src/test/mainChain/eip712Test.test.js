@@ -12,6 +12,7 @@ let tronWeb;
 const {typedDataTest1,typedDataTest2,typedDataTest3,typedDataTest4,typedDataTest5 } = require('../util/contracts');
 import {eip712json} from '../util/eip712'
 tronWeb = tronWebBuilder.createInstance();
+const utils = tronWebBuilder.utils;
 let contractAddress;
 let domain;
 let domain2;
@@ -947,7 +948,7 @@ async function consistentWithContractTest5() {
   };
   //should be the correct hash
   assert.equal(
-      TronWeb.utils._TypedDataEncoder.hash(domain5, types5, value5),
+      utils._TypedDataEncoder.hash(domain5, types5, value5),
       '0xaae24ca6a59355c6acd89093fda364f247433f338cde1f51cc35b714cfd6c880'
   );
 

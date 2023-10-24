@@ -6,12 +6,13 @@ import {json2} from "../util/contract-interface-abi2";
 const assert = chai.assert;
 const {ADDRESS_BASE58,PRIVATE_KEY} = require('../util/config');
 const TronWeb = tronWebBuilder.TronWeb;
+const utils = tronWebBuilder.utils;
 
 
 async function typedDataEncoder(){
     eip712json.forEach((test) => {
         let {domain, primaryType, data, encoded,types,digest } = test;
-        const encoder = TronWeb.utils._TypedDataEncoder.from(types);
+        const encoder = utils._TypedDataEncoder.from(types);
         assert.equal(
             encoder.primaryType,
             primaryType,
@@ -23,12 +24,12 @@ async function typedDataEncoder(){
             'instance.encode()'
         );
         assert.equal(
-            TronWeb.utils._TypedDataEncoder.getPrimaryType(types),
+            utils._TypedDataEncoder.getPrimaryType(types),
             primaryType,
             'getPrimaryType'
         );
         assert.equal(
-            TronWeb.utils._TypedDataEncoder.hash(
+            utils._TypedDataEncoder.hash(
                 domain,
                 types,
                 data),
@@ -100,11 +101,11 @@ async function typedDataEncoderwithTrcToken(){
             trcTokenArr: ['1002000', '1002000'],
         };
         assert.equal(
-            TronWeb.utils._TypedDataEncoder.hashDomain(domain),
+            utils._TypedDataEncoder.hashDomain(domain),
             '0x386c29f5a78395fbf19723fa491bd1a28ea8d1036d653c28cb49563ffca3ec00'
         );
         assert.equal(
-            TronWeb.utils._TypedDataEncoder.hashStruct(
+            utils._TypedDataEncoder.hashStruct(
                 'FromPerson',
                 types,
                 value.from
@@ -112,7 +113,7 @@ async function typedDataEncoderwithTrcToken(){
             '0x73b79ecc2530586800050c46ee7361ed28c013dfa3d062ed216295cbd5e6a55d'
         );
         assert.equal(
-            TronWeb.utils._TypedDataEncoder.hashStruct(
+            utils._TypedDataEncoder.hashStruct(
                 'ToPerson',
                 types,
                 value.to
@@ -120,11 +121,11 @@ async function typedDataEncoderwithTrcToken(){
             '0xcf70da7edc68556245231d76401fdbc5622e3388466e0a088e668766879f2404'
         );
         assert.equal(
-            TronWeb.utils._TypedDataEncoder.hashStruct('Mail', types, value),
+            utils._TypedDataEncoder.hashStruct('Mail', types, value),
             '0x5f3caedfeb1e096d359db31f0924f23acdfc72f21e5f3c59af3eec03cdf2a5f7'
         );
         assert.equal(
-            TronWeb.utils._TypedDataEncoder.hash(domain, types, value),
+            utils._TypedDataEncoder.hash(domain, types, value),
             '0x659ab4906c8bff9cb393df578d620fb8cd7a2b6544e861896a3da5cff7a73548'
         );
         const value1 = {
@@ -147,7 +148,7 @@ async function typedDataEncoderwithTrcToken(){
             trcTokenArr: ['1002000', '1002000'],
         };
         assert.equal(
-            TronWeb.utils._TypedDataEncoder.hash(domain, types, value1),
+            utils._TypedDataEncoder.hash(domain, types, value1),
             '0xb3857c4712b229ead81002827194dc5070036238a338d679972e5c3aef687d51'
         );
 }

@@ -1303,7 +1303,7 @@ async function voteProposal() {
   for (let param of params) {
     const transaction = await tronWeb.transactionBuilder.voteProposal(...param)
     const authResult =
-      TronWeb.utils.transaction.txCheck(transaction);
+      utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
   console.log("voteProposal excute success")
@@ -1439,7 +1439,7 @@ async function unfreezeBalance() {
   for (let param of params) {
     const transaction = await tronWeb.transactionBuilder.unfreezeBalance(...param)
     const authResult =
-      TronWeb.utils.transaction.txCheck(transaction);
+      utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
   console.log("unfreezeBalance excute success")
@@ -2810,7 +2810,7 @@ async function withdrawBalance() {
       ...param
     );
     const authResult =
-      TronWeb.utils.transaction.txCheck(transaction);
+      utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
 
   }
@@ -4284,7 +4284,7 @@ async function injectExchangeTokens() {
       ...param
     );
     const authResult =
-      TronWeb.utils.transaction.txCheck(transaction);
+      utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
   console.log("injectExchangeTokens success")
@@ -4324,7 +4324,7 @@ async function withdrawExchangeTokens() {
 
   transaction.raw_data_hex = transaction.raw_data_hex + '00';
   const authResult2 =
-    TronWeb.utils.transaction.txCheck(transaction);
+    utils.transaction.txCheck(transaction);
   assert.equal(authResult2, false);
 
   const params = [
@@ -4336,7 +4336,7 @@ async function withdrawExchangeTokens() {
       ...param
     );
     const authResult =
-      TronWeb.utils.transaction.txCheck(transaction);
+      utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
   console.log("withdrawExchangeTokens excute success");
@@ -4384,17 +4384,17 @@ async function tradeExchangeTokens() {
       ...param
     );
     const authResult =
-      TronWeb.utils.transaction.txCheck(transaction);
+      utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
 
     transaction.raw_data_hex = transaction.raw_data_hex + '00';
     const authResult2 =
-      TronWeb.utils.transaction.txCheck(transaction);
+      utils.transaction.txCheck(transaction);
     assert.equal(authResult2, false);
 
     transaction.txID = transaction.txID + '00'
     const authResult3 =
-      TronWeb.utils.transaction.txCheck(transaction);
+      utils.transaction.txCheck(transaction);
     assert.equal(authResult3, false);
   }
   console.log("tradeExchangeTokens excute success");
@@ -4431,7 +4431,7 @@ async function updateSetting() {
       ...param
     );
     const authResult =
-      TronWeb.utils.transaction.txCheck(transaction);
+      utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
   console.log("updateSetting excute success");
@@ -4468,7 +4468,7 @@ async function updateEnergyLimit() {
       ...param
     );
     const authResult =
-      TronWeb.utils.transaction.txCheck(transaction);
+      utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
   }
   console.log("updateEnergyLimit excute success");

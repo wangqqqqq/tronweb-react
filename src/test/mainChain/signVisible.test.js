@@ -13,6 +13,7 @@ const {
 } = require('../util/config');
 const tronWebBuilder = require('../util/tronWebBuilder');
 const tronWeb = tronWebBuilder.createInstance();
+const utils = tronWebBuilder.utils;
 const wait = require('../util/wait');
 const assert = require('assert');
 const util = require('util');
