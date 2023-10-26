@@ -11,6 +11,7 @@ const assertThrow = require('../util/assertThrow');
 const broadcaster = require('../util/broadcaster');
 const txPars = require('../util/txPars');
 const TronWeb = tronWebBuilder.TronWeb;
+const TransactionBuilder = tronWebBuilder.TransactionBuilder;
 const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
@@ -33,7 +34,7 @@ async function transactionBuilderBefore() {
   emptyAccount6 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount6.address.hex, 5000000000, { privateKey: PRIVATE_KEY })
 
-  assert.instanceOf(tronWeb.transactionBuilder, TronWeb.TransactionBuilder);
+  assert.instanceOf(tronWeb.transactionBuilder, TransactionBuilder);
   accounts = await tronWebBuilder.getTestAccountsInMain(29);
   await beforeTestIssueToken(); //Issue new TRC10 Token
   console.log("transactionBuilderBefore excute success");
@@ -5752,7 +5753,9 @@ async function beforeTestIssueToken() {
     precision: 6,//发行token的精度
     permission_id: 1//可选用于多重签名
   }
+  console.log("wqqdebug1");
   const transaction = await tronWeb.transactionBuilder.createToken(trc_options, tokenAccount.b58[0]);
+  console.log("transaction: ",transaction);
   const signedTransaction = await tronWeb.trx.sign(transaction, tokenAccount.pks[0]);
   const receipt = await tronWeb.trx.sendRawTransaction(signedTransaction);
   console.log(receipt);
