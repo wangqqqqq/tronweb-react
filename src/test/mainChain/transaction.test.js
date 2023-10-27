@@ -5,6 +5,7 @@ const {ADDRESS_HEX, FEE_LIMIT, TOKEN_ID} = require('../util/config');
 const publicMethod = require('../util/PublicMethod');
 const tronWebBuilder = require('../util/tronWebBuilder');
 const TronWeb = tronWebBuilder.TronWeb;
+const utils = tronWebBuilder.utils;
 const broadcaster = require('../util/broadcaster');
 const wait = require('../util/wait');
 const waitChainData = require('../util/waitChainData');
@@ -98,7 +99,7 @@ async function txCheck_commonAssertFalsePb(transaction){
 async function txCheck_TransferContract(){
     console.log("txCheck_TransferContract start")
     params = [
-        [accounts.b58[1], 10, { permissionId: 2 }],
+        [accounts.b58[1], 10,ADDRESS_BASE58, { permissionId: 2 }],
         [accounts.b58[1], 10]
     ];
 
@@ -150,7 +151,7 @@ async function txCheck_TransferAssetContract(){
     console.log("tokenID:"+tokenID)
 
     const params = [
-        [accounts.b58[1], 5, tokenID, accounts.b58[3], { permissionId: 2 }],
+        [accounts.b58[1], 5, tokenID, accounts.b58[3],ADDRESS_BASE58, { permissionId: 2 }],
         [accounts.b58[1], 5, tokenID, accounts.b58[3]]
     ];
     for (let param of params) {
@@ -347,11 +348,11 @@ async function txCheck_TriggerSmartContract(){
 
 async function txCheck_FreezeBalanceContract(){
     const params1 = [
-        [100e6, 3, 'BANDWIDTH', accounts.b58[1], { permissionId: 2 }],
+        [100e6, 3, 'BANDWIDTH', accounts.b58[1],false,0, { permissionId: 2 }],
         [100e6, 3, 'ENERGY', accounts.b58[1]]
     ];
     const params2 = [
-        [100e6, 3, 'ENERGY', accounts.b58[1], accounts.b58[2], { permissionId: 2 }],
+        [100e6, 3, 'ENERGY', accounts.b58[1], accounts.b58[2],false,0, { permissionId: 2 }],
         [100e6, 3, 'BANDWIDTH', accounts.b58[1], accounts.b58[2],]
     ];
 
@@ -447,7 +448,7 @@ async function txCheck_UnfreezeBalanceContract(){
         ['BANDWIDTH', accounts.b58[1], accounts.b58[2]]
     ];
     const params2 = [
-        ['BANDWIDTH', accounts.b58[1], { permissionId: 2 }],
+        ['BANDWIDTH', accounts.b58[1],accounts.b58[1], { permissionId: 2 }],
         ['ENERGY', accounts.b58[1]]
     ];
 
@@ -592,7 +593,7 @@ async function txCheck_UnfreezeBalanceV2Contract(){
 
 async function txCheck_DelegateResourceContract(){
     let params = [
-        [10e6, accounts.b58[2], 'ENERGY', accounts.b58[1], true, { permissionId: 2 }],
+        [10e6, accounts.b58[2], 'ENERGY', accounts.b58[1], true,3, { permissionId: 2 }],
         [10e6, accounts.b58[2], 'BANDWIDTH', accounts.b58[1], false]
     ];
     await broadcaster.broadcaster(null, accounts.pks[1], await tronWeb.transactionBuilder.freezeBalanceV2(20e6, 'BANDWIDTH', accounts.b58[1]));
@@ -761,7 +762,7 @@ async function txCheck_WitnessCreateContract(){
     let url = 'https://xtron.network';
 
     const params = [
-        [accounts.b58[1], url, { permissionId: 2 }],
+        [accounts.b58[1], url,ADDRESS_BASE58, { permissionId: 2 }],
         [accounts.b58[1], url]
     ];
 
@@ -1568,7 +1569,7 @@ async function txCheck_ExchangeInjectContract(){
     exchangeId = receipt.exchange_id;
 
     const params = [
-        [exchangeId, tokenNames[0], 10, { permissionId: 2 }],
+        [exchangeId, tokenNames[0], 10,ADDRESS_BASE58, { permissionId: 2 }],
         [exchangeId, tokenNames[0], 10]
     ];
     for (let param of params) {
@@ -1643,7 +1644,7 @@ async function txCheck_ExchangeWithdrawContract(){
     assert.equal(authResult2, false);
 
     const params = [
-        [exchangeId, tokenNames[0], 10, { permissionId: 2 }],
+        [exchangeId, tokenNames[0], 10,ADDRESS_BASE58, { permissionId: 2 }],
         [exchangeId, tokenNames[0], 10]
     ];
     for (let param of params) {
@@ -1713,7 +1714,7 @@ async function txCheck_ExchangeTransactionContract(){
     exchangeId = receipt.exchange_id;
 
     const params = [
-        [exchangeId, tokenNames[0], 10, 5, { permissionId: 2 }],
+        [exchangeId, tokenNames[0], 10, 5,ADDRESS_BASE58, { permissionId: 2 }],
         [exchangeId, tokenNames[0], 10, 5]
     ];
     for (let param of params) {
@@ -2069,12 +2070,12 @@ async function txCheckWithArgs_TransferContract(){
             to_address: TronWeb.address.toHex(param[0]),
             owner_address: tronWeb.defaultAddress.hex,
             amount: param[1],
-            Permission_id: param[2]?.permissionId,
+            Permission_id: param[3]?.permissionId,
         };
     }
 
     params = [
-        [accounts.b58[1], 10, { permissionId: 2 }],
+        [accounts.b58[1], 10, ADDRESS_BASE58,{ permissionId: 2 }],
         [accounts.b58[1], 10]
     ];
 
@@ -2420,11 +2421,11 @@ async function txCheckWithArgs_FreezeBalanceContract(){
     };
 
     params = [
-        [100e6, 3, 'ENERGY', accounts.b58[1], { permissionId: 2 }],
+        [100e6, 3, 'ENERGY', accounts.b58[1],ADDRESS_BASE58, { permissionId: 2 }],
         [100e6, 3, 'BANDWIDTH', accounts.b58[1]]
     ];
     params2 = [
-        [100e6, 3, 'ENERGY', accounts.b58[1], accounts.b58[2], { permissionId: 2 }],
+        [100e6, 3, 'ENERGY', accounts.b58[1], accounts.b58[2],ADDRESS_BASE58, { permissionId: 2 }],
         [100e6, 3, 'BANDWIDTH', accounts.b58[1], accounts.b58[2]],
     ];
 
@@ -2529,7 +2530,7 @@ async function txCheckWithArgs_UnfreezeBalanceContract(){
     await waitChainData('tx', transaction4.txID);
 
     const params = [
-        ['BANDWIDTH', accounts.b58[1], { permissionId: 2 }],
+        ['BANDWIDTH', accounts.b58[1],accounts.b58[1], { permissionId: 2 }],
         ['ENERGY', accounts.b58[2]]
     ];
 
@@ -2621,7 +2622,7 @@ async function txCheckWithArgs_FreezeBalanceV2Contract(){
         };
     };
     params.push(...[
-        [10e7, 'ENERGY', accounts.b58[1], { permissionId: 2 }],
+        [10e7, 'ENERGY', accounts.b58[1],accounts.b58[1], { permissionId: 2 }],
         [10e7, 'BANDWIDTH', accounts.b58[1]]
     ]);
 
@@ -2668,7 +2669,7 @@ async function txCheckWithArgs_UnfreezeBalanceV2Contract(){
     await wait(40);
     params.push(...[
         [10e6, 'BANDWIDTH', accounts.b58[1]],
-        [10e6, 'ENERGY', accounts.b58[2], { permissionId: 2 }],
+        [10e6, 'ENERGY', accounts.b58[2],accounts.b58[2], { permissionId: 2 }],
     ]);
 
     for (let param of params) {
@@ -2723,9 +2724,9 @@ async function txCheckWithArgs_DelegateResourceContract(){
         };
     };
     params.push(...[
-        [10e6, accounts.b58[2], 'BANDWIDTH', accounts.b58[1], false, { permissionId: 2 }],
+        [10e6, accounts.b58[2], 'BANDWIDTH', accounts.b58[1], false,0, { permissionId: 2 }],
         [10e6, accounts.b58[2], 'ENERGY', accounts.b58[1], false],
-        [10e6, accounts.b58[2], 'ENERGY', accounts.b58[1], true, { permissionId: 2 }],
+        [10e6, accounts.b58[2], 'ENERGY', accounts.b58[1], true,3, { permissionId: 2 }],
         [10e6, accounts.b58[2], 'BANDWIDTH', accounts.b58[1], true]
     ]);
     await broadcaster.broadcaster(null, accounts.pks[1], await tronWeb.transactionBuilder.freezeBalanceV2(50e6, 'BANDWIDTH', accounts.b58[1]));
@@ -2922,7 +2923,7 @@ async function txCheckWithArgs_WitnessCreateContract(){
     };
 
     params = [
-        [accounts.b58[13], url, { permissionId: 2 }],
+        [accounts.b58[13], url,ADDRESS_BASE58, { permissionId: 2 }],
         [accounts.b58[13], url],
     ];
 
@@ -3849,7 +3850,7 @@ async function txCheckWithArgs_ExchangeInjectContract(){
             exchange_id: parseInt(param[0]),
             token_id: tronWeb.fromUtf8(param[1]),
             quant: parseInt(param[2]),
-            Permission_id: param[3]?.permissionId,
+            Permission_id: param[4]?.permissionId,
         };
     };
 
@@ -3879,7 +3880,7 @@ async function txCheckWithArgs_ExchangeInjectContract(){
     }
     exchangeId = receipt.exchange_id;
     params = [
-        [exchangeId, tokenNames[0], 10, { permissionId: 2 }],
+        [exchangeId, tokenNames[0], 10,ADDRESS_BASE58, { permissionId: 2 }],
         [exchangeId, tokenNames[0], 10]
     ];
 
@@ -3933,7 +3934,7 @@ async function txCheckWithArgs_ExchangeWithdrawContract(){
             exchange_id: parseInt(param[0]),
             token_id: tronWeb.fromUtf8(param[1]),
             quant: parseInt(param[2]),
-            Permission_id: param[3]?.permissionId,
+            Permission_id: param[4]?.permissionId,
         };
     };
 
@@ -3962,7 +3963,7 @@ async function txCheckWithArgs_ExchangeWithdrawContract(){
     }
     exchangeId = receipt.exchange_id;
     params = [
-        [exchangeId, tokenNames[0], 10, { permissionId: 2 }],
+        [exchangeId, tokenNames[0], 10,ADDRESS_BASE58, { permissionId: 2 }],
         [exchangeId, tokenNames[0], 10]
     ];
 
@@ -4017,7 +4018,7 @@ async function txCheckWithArgs_ExchangeTransactionContract(){
             token_id: tronWeb.fromUtf8(param[1]),
             quant: parseInt(param[2]),
             expected: param[3],
-            Permission_id: param[4]?.permissionId,
+            Permission_id: param[5]?.permissionId,
         };
     };
     // create token
@@ -4045,7 +4046,7 @@ async function txCheckWithArgs_ExchangeTransactionContract(){
     }
     exchangeId = receipt.exchange_id;
     params = [
-        [exchangeId, tokenNames[0], 10, 5, { permissionId: 2 }],
+        [exchangeId, tokenNames[0], 10, 5,ADDRESS_BASE58, { permissionId: 2 }],
         [exchangeId, tokenNames[0], 10, 5]
     ];
 
@@ -4458,7 +4459,9 @@ async function transactionTestAll(){
     await txCheck_TriggerSmartContract();
     // Execute this method when Proposition 70 is not enabled
     /*await txCheck_FreezeBalanceContract();
-    await txCheck_UnfreezeBalanceContract();*/
+    await txCheck_UnfreezeBalanceContract();
+    await txCheckWithArgs_FreezeBalanceContract();
+    await txCheckWithArgs_UnfreezeBalanceContract();*/
     // Execute this method when Proposition 70 is enabled
     await txCheck_FreezeBalanceV2Contract();
     await txCheck_UnfreezeBalanceV2Contract();
@@ -4492,16 +4495,11 @@ async function transactionTestAll(){
     await txCheckWithArgs_TransferAssetContract();
     await txCheckWithArgs_ParticipateAssetIssueContract();
     await txCheckWithArgs_TriggerSmartContract();
-    // Execute this method when Proposition 70 is not enabled
-    /*await txCheckWithArgs_FreezeBalanceContract();
-    await txCheckWithArgs_UnfreezeBalanceContract();*/
-    // Execute this method when Proposition 70 is enabled
     await txCheckWithArgs_FreezeBalanceV2Contract();
     await txCheckWithArgs_UnfreezeBalanceV2Contract();
     await txCheckWithArgs_DelegateResourceContract();
     await txCheckWithArgs_UnDelegateResourceContract();
     await txCheckWithArgs_WithdrawExpireUnfreezeContract();
-
     await txCheckWithArgs_WithdrawBalanceContract();
     await txCheckWithArgs_WitnessCreateContract();
     await txCheckWithArgs_VoteWitnessContract();

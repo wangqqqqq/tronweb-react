@@ -112,8 +112,10 @@ module.exports = {
     getTestAccounts,
     getTestAccountsInMain,
     TronWeb,
+    Plugin,
     providers,
     utils,
+    Trx,
     TransactionBuilder
 }
 

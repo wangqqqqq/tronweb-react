@@ -12,6 +12,8 @@ const util = require('util');
 import {json} from '../util/contract-interface'
 import {json2} from '../util/contract-interface-abi2'
 
+const utils = tronWebBuilder.utils
+
 async function decodeParams1(){
 
   const tronWeb = tronWebBuilder.createInstance();
@@ -25,7 +27,6 @@ async function decodeParams1(){
     '0xdc03b7993bad736ad595eb9e3ba51877ac17ecc31d2355f8f270125b9427ece7',
     0
   ];
-
 
   const result = tronWeb.utils.abi.decodeParams(types, output);
 

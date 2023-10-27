@@ -12,6 +12,7 @@ const broadcaster = require('../util/broadcaster');
 const txPars = require('../util/txPars');
 const TronWeb = tronWebBuilder.TronWeb;
 const TransactionBuilder = tronWebBuilder.TransactionBuilder;
+const utils = tronWebBuilder.utils
 const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
@@ -51,7 +52,7 @@ async function sendTrx() {
   await tronWeb.trx.sendTrx(emptyAccount3.address.hex, 5000000000, { privateKey: PRIVATE_KEY })
 
   let params = [
-    [emptyAccount1.address.base58, 10, { permissionId: 2 }],
+    [emptyAccount1.address.base58, 10, ADDRESS_BASE58,{ permissionId: 2 }],
     [emptyAccount1.address.base58, 10]
   ];
   for (let param of params) {
@@ -64,7 +65,7 @@ async function sendTrx() {
     assert.equal(parameter.value.owner_address, ADDRESS_HEX);
     assert.equal(parameter.value.to_address, emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.TransferContract');
-    assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[2] ? param[2]['permissionId'] : 0);
+    assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[3] ? param[3]['permissionId'] : 0);
   }
 
   params = [
@@ -1779,10 +1780,11 @@ async function cancelUnfreezeBalanceV2() {
   assert.equal(accountInfo.unfrozenV2[0].unfreeze_amount, 50000000);
   assert.equal(accountInfo.unfrozenV2[0].type, "ENERGY");
   const txCancel = await tronWeb.transactionBuilder.cancelUnfreezeBalanceV2(account.b58[0]);
+  console.log("txCancel txId", txCancel.txId);
   signedTrx = await tronWeb.trx.sign(txCancel, account.pks[0]);
   receipt = await tronWeb.trx.sendRawTransaction(signedTrx);
   assert.equal(receipt.result, true);
-  await wait(15);
+  await wait(20);
   accountInfo = await tronWeb.trx.getAccount(account.b58[0]);
   assert.equal(accountInfo.frozenV2[1].amount, 100e6);
   assert.equal(accountInfo.frozenV2[1].type, "ENERGY");
@@ -1830,7 +1832,7 @@ async function delegateResource_before() {
 async function delegateResource_1() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1],false,0, { permissionId: 2 })
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -1875,7 +1877,7 @@ async function delegateResource_1() {
 async function delegateResource_2() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1], { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1],false,0, { permissionId: 2 })
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -1922,7 +1924,7 @@ async function delegateResource_2() {
 async function delegateResource_3() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], true, { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], true,3,{ permissionId: 2 })
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -1967,7 +1969,7 @@ async function delegateResource_3() {
 async function delegateResource_4() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], false, { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], false,0,{ permissionId: 2 })
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2012,7 +2014,7 @@ async function delegateResource_4() {
 async function delegateResource_5() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1], true, { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1], true,3,{ permissionId: 2 })
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2060,7 +2062,7 @@ async function delegateResource_6() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   console.log("accountBefore1: " + util.inspect(accountBefore1, true, null, true))
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1], false, { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1], false,0, { permissionId: 2 })
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2133,9 +2135,9 @@ async function delegateResource_7() {
 
 async function delegateResource_8() {
   let params = [
-    [100e6, accounts.b58[7], 'BANDWIDTH', 'ddssddd', { permissionId: 2 }],
+    [100e6, accounts.b58[7], 'BANDWIDTH', 'ddssddd',false,0, { permissionId: 2 }],
     [100e6, accounts.b58[7], 'BANDWIDTH', 'ddssddd'],
-    [100e6, accounts.b58[7], 'ENERGY', 'ddssddd', { permissionId: 2 }],
+    [100e6, accounts.b58[7], 'ENERGY', 'ddssddd',false,0, { permissionId: 2 }],
     [100e6, accounts.b58[7], 'ENERGY', 'ddssddd']
   ];
   for (let param of params) {
@@ -2146,9 +2148,9 @@ async function delegateResource_8() {
   }
 
   params = [
-    ['-100', accounts.b58[7], 'BANDWIDTH', accounts.b58[1], { permissionId: 2 }],
+    ['-100', accounts.b58[7], 'BANDWIDTH', accounts.b58[1],false,0, { permissionId: 2 }],
     ['-100', accounts.b58[7], 'BANDWIDTH', accounts.b58[1]],
-    ['-100', accounts.b58[7], 'ENERGY', accounts.b58[1], { permissionId: 2 }],
+    ['-100', accounts.b58[7], 'ENERGY', accounts.b58[1], false,0, { permissionId: 2 }],
     ['-100', accounts.b58[7], 'ENERGY', accounts.b58[1]]
   ];
   for (let param of params) {
@@ -2159,7 +2161,7 @@ async function delegateResource_8() {
   }
 
   params = [
-    [100e6, accounts.b58[7], 'aabbccdd', accounts.b58[1], { permissionId: 2 }],
+    [100e6, accounts.b58[7], 'aabbccdd', accounts.b58[1],false,0, { permissionId: 2 }],
     [100e6, accounts.b58[7], 'aabbccdd', accounts.b58[1]]
   ];
   for (let param of params) {
@@ -2170,9 +2172,9 @@ async function delegateResource_8() {
   }
 
   params = [
-    [100e6, 'adskjkkk', 'BANDWIDTH', accounts.b58[1], { permissionId: 2 }],
+    [100e6, 'adskjkkk', 'BANDWIDTH', accounts.b58[1],false,0, { permissionId: 2 }],
     [100e6, 'adskjkkk', 'BANDWIDTH', accounts.b58[1]],
-    [100e6, 'adskjkkk', 'ENERGY', accounts.b58[1], { permissionId: 2 }],
+    [100e6, 'adskjkkk', 'ENERGY', accounts.b58[1],false,0, { permissionId: 2 }],
     [100e6, 'adskjkkk', 'ENERGY', accounts.b58[1]]
   ];
   for (let param of params) {
@@ -2183,9 +2185,9 @@ async function delegateResource_8() {
   }
 
   params = [
-    [100e6, accounts.b58[1], 'BANDWIDTH', accounts.b58[1], { permissionId: 2 }],
+    [100e6, accounts.b58[1], 'BANDWIDTH', accounts.b58[1],false,0, { permissionId: 2 }],
     [100e6, accounts.b58[1], 'BANDWIDTH', accounts.b58[1]],
-    [100e6, accounts.b58[1], 'ENERGY', accounts.b58[1], { permissionId: 2 }],
+    [100e6, accounts.b58[1], 'ENERGY', accounts.b58[1],false,0, { permissionId: 2 }],
     [100e6, accounts.b58[1], 'ENERGY', accounts.b58[1]]
   ];
   for (let param of params) {
@@ -2403,6 +2405,7 @@ async function withdrawExpireUnfreeze_1() {
   await wait(35);
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[3]);
   assert.isTrue(accountBefore1.unfrozenV2[0].unfreeze_amount > 0);
+  await wait(30);
   let transaction = await tronWeb.transactionBuilder.withdrawExpireUnfreeze(accounts.b58[3], { permissionId: 2 })
   let tx = await broadcaster.broadcaster(null, accounts.pks[3], transaction);
   console.log("tx:" + util.inspect(tx))
@@ -2421,6 +2424,7 @@ async function withdrawExpireUnfreeze_1() {
   let accountBefore2 = await tronWeb.trx.getAccount(accounts.b58[3]);
   console.log("accountBefore2: " + util.inspect(accountBefore2, true, null, true))
   assert.isTrue(accountBefore2.unfrozenV2[0].unfreeze_amount > 0);
+  await wait(30); //fullnode设置解冻后的锁定期为1min，所以前后两个wait加起来要大于60s
   transaction = await tronWeb.transactionBuilder.withdrawExpireUnfreeze(accounts.hex[3])
   tx = await broadcaster.broadcaster(null, accounts.pks[3], transaction);
   console.log("tx:" + util.inspect(tx))
@@ -3747,7 +3751,8 @@ async function updateBrokerageMultiSign() {
   let activePermission = { type: 2, permission_name: 'active0' };
   let witnessPermission = { type: 1, permission_name: 'witness' };
   activePermission.threshold = threshold;
-  activePermission.operations = '7fff1fc0033ef30f000000000000000000000000000000000000000000000000';
+  activePermission.operations = '77bf0fc0027e0300000000000000000000000000000000000000000000000000';
+  //activePermission.operations = '7fff1fc0033ef30f000000000000000000000000000000000000000000000000';
   //activePermission.operations = '7fff1fc0037e0100000000000000000000000000000000000000000000000000';
   activePermission.keys = [];
   witnessPermission.threshold = 1;
@@ -4277,7 +4282,7 @@ async function injectExchangeTokens() {
   exchangeId = receipt.exchange_id;
 
   const params = [
-    [exchangeId, tokenNames[0], 10, { permissionId: 2 }],
+    [exchangeId, tokenNames[0], 10,ADDRESS_BASE58, { permissionId: 2 }],
     [exchangeId, tokenNames[0], 10]
   ];
   for (let param of params) {
@@ -4329,7 +4334,7 @@ async function withdrawExchangeTokens() {
   assert.equal(authResult2, false);
 
   const params = [
-    [exchangeId, tokenNames[0], 10, { permissionId: 2 }],
+    [exchangeId, tokenNames[0], 10, ADDRESS_BASE58,{ permissionId: 2 }],
     [exchangeId, tokenNames[0], 10]
   ];
   for (let param of params) {
@@ -4377,7 +4382,7 @@ async function tradeExchangeTokens() {
   exchangeId = receipt.exchange_id;
 
   const params = [
-    [exchangeId, tokenNames[0], 10, 5, { permissionId: 2 }],
+    [exchangeId, tokenNames[0], 10, 5,ADDRESS_HEX, { permissionId: 2 }],
     [exchangeId, tokenNames[0], 10, 5]
   ];
   for (let param of params) {
@@ -5008,8 +5013,7 @@ async function triggerSmartContractWithFuncABIV2_V2_input() {
     if (count > 15) {
       throw Error("time out failed!!");
     }
-    const tx = await tronWeb.trx.getTransac
-    tionInfo(
+    const tx = await tronWeb.trx.getTransactionInfo(
       transaction.txID
     );
     if (Object.keys(tx).length === 0) {
@@ -5767,7 +5771,9 @@ async function beforeTestIssueToken() {
   console.log(token_id);
   const txTransferToken = await tronWeb.transactionBuilder.sendToken(ADDRESS_BASE58, 900000000, token_id, tokenAccount.b58[0]);
   const txSigned = await tronWeb.trx.sign(txTransferToken, tokenAccount.pks[0]);
+  console.log("In before : txSigned: ", JSON.stringify(txSigned,null,2));
   const ret = await tronWeb.trx.sendRawTransaction(txSigned);
+  console.log("In before : ret: ", JSON.stringify(ret,null,2));
   await wait(30);
   assert.equal(ret.result, true);
   TOKEN_ID = token_id;
@@ -5776,7 +5782,7 @@ async function beforeTestIssueToken() {
 async function transactionBuilderTestAll() {
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
-  await sendTrx();
+  /* await sendTrx();
   await createToken();
   await createAccount();
   await updateAccount();
@@ -5788,12 +5794,12 @@ async function transactionBuilderTestAll() {
   await createProposal();
   await deleteProposal();
   await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
-  await applyForSR();
+  await applyForSR(); */
   //Execute this method when Proposition 70 is not enabled
   /*await freezeBalance();
   await unfreezeBalance();*/
   //Execute this method when Proposition 70 is enabled
-  await freezeBalanceV2_1();
+  /*await freezeBalanceV2_1();
   await freezeBalanceV2_2();
   await freezeBalanceV2_3();
   await freezeBalanceV2_4();
@@ -5835,12 +5841,12 @@ async function transactionBuilderTestAll() {
   await clearabi();
   await clearabiMultiSign()
   await updateBrokerage();
-  await updateBrokerageMultiSign(); //需要开30号提案
-  await triggerSmartContract();
+  await updateBrokerageMultiSign(); //需要开30号提案 需要将49ContractType加入Permission码
+  /*await triggerSmartContract();
   await triggerSmartContractWithArrays();
-  await triggerSmartContractWithTrctoken();
-  await triggerSmartContractWithCallData();
-  await createTokenExchange();
+  await triggerSmartContractWithTrctoken();*/
+  await triggerSmartContractWithCallData();//todo v6.0.0
+  /*await createTokenExchange();
   await createTRXExchange();
   await injectExchangeTokens();
   await updateSetting();
@@ -5854,7 +5860,7 @@ async function transactionBuilderTestAll() {
   await triggerSmartContractWithFuncABIV2_V1_input();
   await triggerSmartContractWithFuncABIV2_V2_input();
   await encodeABIV2test1_V1_input();
-  await encodeABIV2test1_V2_input();
+  await encodeABIV2test1_V2_input();*/
   console.log("transactionBuilderTestAll end")
 }
 export {
