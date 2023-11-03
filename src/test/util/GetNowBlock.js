@@ -10,15 +10,20 @@ class GetNowBlock {
         this.tronWeb = tronWeb;
     }
 
-    async someMethod(callback = false) {
+    async someMethod() {
 
-        if(!callback)
+        /*if(!callback)
             return this.injectPromise(this.getCurrentBlock);
 
         this.tronWeb.fullNode.request('wallet/getnowblock').then(block => {
             block.fromPlugin = true
             callback(null, block);
-        }).catch(err => callback(err));
+        }).catch(err => callback(err));*/
+
+        return this.tronWeb.fullNode.request('wallet/getnowblock').then(block => {
+                    block.fromPlugin = true
+                    return block;
+                })
     }
 
     getSomeParameter() {
@@ -30,7 +35,7 @@ class GetNowBlock {
             someParameter = options.someParameter
         }
         return {
-            requires: '^5.0.0',
+            requires: '^6.0.0',
             components: {
                 trx: {
                     // will be overridden

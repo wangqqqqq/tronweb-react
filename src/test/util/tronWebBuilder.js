@@ -116,6 +116,7 @@ module.exports = {
     providers,
     utils,
     Trx,
-    TransactionBuilder
+    TransactionBuilder,
+    Event
 }
 

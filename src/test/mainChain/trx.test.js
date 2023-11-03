@@ -3,6 +3,8 @@ const {FULL_NODE_API} = require('../util/config');
 const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, WITNESS_ACCOUNT2, WITNESS_KEY2, getTokenOptions, isProposalApproved} = require('../util/config');
 const {testRevert, testConstant, arrayParam} = require('../util/contracts');
 const tronWebBuilder = require('../util/tronWebBuilder');
+const ethers = require('ethers');
+import { verifyMessage } from 'ethers';
 const broadcaster = require('../util/broadcaster');
 const assertEqualHex = require('../util/assertEqualHex');
 const waitChainData = require('../util/waitChainData');
@@ -17,7 +19,6 @@ const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
 const util = require('util');
-const ethers = require('ethers');
 let tronWeb;
 let emptyAccounts;
 let isAllowSameTokenNameApproved;
@@ -25,9 +26,9 @@ let accounts;
 
 async function trxBefore(){
   tronWeb = tronWebBuilder.createInstance();
-  emptyAccounts = await TronWeb.createAccount();
-  isAllowSameTokenNameApproved = await isProposalApproved(tronWeb, 'getAllowSameTokenName')
-  accounts = await tronWebBuilder.getTestAccountsInMain(43);
+  // emptyAccounts = await TronWeb.createAccount();
+  // isAllowSameTokenNameApproved = await isProposalApproved(tronWeb, 'getAllowSameTokenName')
+  // accounts = await tronWebBuilder.getTestAccountsInMain(43);
   assert.instanceOf(tronWeb.trx, Trx);
 }
 
@@ -259,7 +260,7 @@ async function signMessage(){
   console.log("signMessage success");
 }
 
-async function verifyMessage(){
+async function verifyMessageTestCase(){
   console.log("verifyMessage excute start");
   const emptyAccount1 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount1.address.hex,10000000,{privateKey: PRIVATE_KEY})
@@ -484,9 +485,9 @@ async function verifyMessageV2(){
   console.log("signAddress:"+signAddress)
   assert.isTrue(tronAccount.address != signAddress);
 
-  // TODO string.length is 225, tron failed, eth succeed
+  // TODO string.length is 225, tron failed, eth succeed  #modified either.verifyMessage import way.
   msg = 'skdhfoshofoshdkfjhakKJHKhsdkfhkahskfhozcvuu203840802sd8w3rhkjha98du921oieksjkfdhHKHDHHD(*UHKHIUY*HUhkjsdhkjfhusyfihskdhfkjshi8w34h2498s9dfhihsfkhs8dfu89we5h8s7fdhskfdh98ahfdjkashfkkjhkjsfd8w528947923hkhd97kakfspal;afha8yr82hscw34h2498s9dfhihsfkhs8dfu89we5h8s7fdhskfdh98ahfdjkashfkkjhkjsfd8w528947923hkhd97kakfspal;afha8yr82hsc';
-  signAddress = await ethers.utils.verifyMessage(msg, "0xa0f6e01dfe7e8f256458163779bc947e434449ac95957d50fa7c926a9d9733f70326f3560878a08a8ef621f906d98d401ff57f72b778f089a98aa98a0d13f46d00");
+  signAddress = await verifyMessage(msg, "0xa0f6e01dfe7e8f256458163779bc947e434449ac95957d50fa7c926a9d9733f70326f3560878a08a8ef621f906d98d401ff57f72b778f089a98aa98a0d13f46d00");
   console.log("signAddress:"+signAddress)
   assert.equal("0xAB8deb75f43b5928161b33348EDD91FAdac24615", signAddress);
 
@@ -1565,10 +1566,13 @@ async function getUnconfirmedBrokerage(){
 
 /**
  * Need to execute java-tron2.HttpTestMutiSign001.test3Broadcasthex() to get transactionHex
+ * /Users/wqq/Src/java-tron/framework/src/test/java/stest/tron/wallet/dailybuild/trctoken/ContractTrcToken001.java  makeTransactionHex 
+ * 为了防止交易过期，要将testBefore中的创建用户注释掉。只保留tronewb instance的初始化。
  */
 async function broadcastHex(){
   console.log("broadcastHex start")
-  const transactionHex = "0a84010a02d3cd2208ea9a7c42a222810e4088a697f8d2305a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541959972f4d54d0c030247cafdf6ec7ab4e66fceda18e80770afdd93f8d23012416fa0f530f1d1822727de97baa204cf88f830b42b2ed5edd2e2be4bd4b47747627a760fca43b3b6b5bdf1b5044966ece9615422863ec2fb4063b5d2db3c1c592201"
+  //const transactionHex = "0a84010a02d3cd2208ea9a7c42a222810e4088a697f8d2305a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541959972f4d54d0c030247cafdf6ec7ab4e66fceda18e80770afdd93f8d23012416fa0f530f1d1822727de97baa204cf88f830b42b2ed5edd2e2be4bd4b47747627a760fca43b3b6b5bdf1b5044966ece9615422863ec2fb4063b5d2db3c1c592201"
+  const transactionHex = "0a84010a0254432208f39d932a278ba45b40b0c1c497b9315a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b1215414891b65d0333bac7d2320efeda87168930004fc018e807709780c197b9311241458cf3fe26078b2832e7f85330bcd14148ab78cbc94ce97007aef78cc24b0e1103cc59de59f631a2bb4ad93cc5c5ee486c782cdff59025afcfd3fb5df054b8cf00"
   let result = await tronWeb.trx.broadcastHex(transactionHex);
   console.log("result1: "+util.inspect(result,true,null,true))
   assert.isTrue(result.result);
@@ -1847,11 +1851,11 @@ async function trxTestAll(){
   await updateAccount();
   await sign();
   await signMessage();
-  await verifyMessage();
+  await verifyMessageTestCase();
   await signMessageV2_1();
   await signMessageV2_2();
-  await signMessageV2_3();*/
-  await verifyMessageV2();                  //todo6.0.0
+  await signMessageV2_3();
+  await verifyMessageV2();*/
   //Execute this method when Proposition 70 is not enabled
   /*await multiSignTransaction(); //need freeze V1 started.
   await transactionTest(); */ //need freeze V1 started

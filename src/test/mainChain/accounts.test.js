@@ -71,7 +71,7 @@ async function generateRandomWhenParam_bigParantheses(){
     const tronWeb = tronWebBuilder.createInstance();
 
     const options = {};
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom();
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase));
@@ -79,7 +79,8 @@ async function generateRandomWhenParam_bigParantheses(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, "m/44'/195'/0'/0/0");
+    //const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, "m/44'/195'/0'/0/0");
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
     publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
@@ -110,7 +111,7 @@ async function generateRandomWhenPath_allNull(){
 
     const path = "m/44'/195'";
     const options = { path: path };
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",path,wordlist);
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase));
@@ -118,7 +119,7 @@ async function generateRandomWhenPath_allNull(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path,"", wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
     publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
@@ -130,7 +131,7 @@ async function generateRandomWhenPath_chainAndIndexNull(){
 
     const path = "m/44'/195'/0'";
     const options = { path: path };
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("",path,wordlist);
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase));
@@ -138,7 +139,7 @@ async function generateRandomWhenPath_chainAndIndexNull(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path,"", wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
     publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
@@ -150,7 +151,7 @@ async function generateRandomWhenPath_indexNull(){
 
     const path = "m/44'/195'/0'/1";
     const options = { path: path };
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",path,wordlist);
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase));
@@ -158,7 +159,7 @@ async function generateRandomWhenPath_indexNull(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path,"", wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
     publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
@@ -170,7 +171,7 @@ async function generateRandomWhenPath_accountIs0AndIndexIs13(){
 
     const path = "m/44'/195'/0'/0/13";
     const options = { path: path };
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("",path);
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase));
@@ -178,7 +179,7 @@ async function generateRandomWhenPath_accountIs0AndIndexIs13(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path,"", wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
     publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));
@@ -190,7 +191,7 @@ async function generateRandomWhenPath_accountIs3AndIndexIs99(){
 
     const path = "m/44'/195'/3'/0/99";
     const options = { path: path };
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",path);
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase));
@@ -198,7 +199,7 @@ async function generateRandomWhenPath_accountIs3AndIndexIs99(){
     assert.equal(address, newAccount.address);
     assert.equal(tronWeb.address.toHex(address), tronWeb.address.toHex(newAccount.address));
 
-    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
+    const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, "",wordlist);
     assert.equal(newAccount.privateKey.substring(2), ethAccount.privateKey.substring(2));
     assert.equal(newAccount.publicKey.substring(2), ethAccount.publicKey.substring(2));
     publicMethod.equalIgnoreCase(tronWeb.address.toHex(newAccount.address).substring(2), tronWeb.address.toHex(ethAccount.address).substring(2));

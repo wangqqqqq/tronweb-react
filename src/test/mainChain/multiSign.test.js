@@ -287,7 +287,7 @@ async function multiSignATransactionWithNoPermissionErrorByActivePermission() {
     try {
         await tronWeb.trx.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 2);
     } catch (e) {
-        assert.isTrue(e.indexOf('has no permission to sign') != -1);
+        assert.isTrue(e.message.indexOf('has no permission to sign') != -1);
     }
     console.log("execute multiSignATransactionWithNoPermissionErrorByActivePermission success")
 }
@@ -298,7 +298,7 @@ async function multiSignDuplicatedATransactionByActivePermission() {
         let signedTransaction = await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 2);
         await tronWeb.trx.multiSign(signedTransaction, accounts.pks[ownerIdx], 2);
     } catch (e) {
-        assert.isTrue(e.indexOf('already sign transaction') != -1);
+        assert.isTrue(e.meesage.indexOf('already sign transaction') != -1);
     }
     console.log("execute multiSignDuplicatedATransactionByActivePermission success")
 }
@@ -309,7 +309,7 @@ async function multiSignATransactionWithPermissionErrorByBothOwnerAndActivePermi
         let signedTransaction = await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 0);
         await tronWeb.trx.multiSign(signedTransaction, accounts.pks[ownerIdx], 2);
     } catch (e) {
-        assert.isTrue(e.indexOf('not contained of permission') != -1);
+        assert.isTrue(e.message.indexOf('not contained of permission') != -1);
     }
     console.log("execute multiSignATransactionWithPermissionErrorByBothOwnerAndActivePermission success")
 }
@@ -319,7 +319,7 @@ async function multiSignATransactionWithWrongPermissionIdError() {
     try {
         await tronWeb.trx.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 2);
     } catch (e) {
-        assert.isTrue(e.indexOf('has no permission to sign') != -1);
+        assert.isTrue(e.message.indexOf('has no permission to sign') != -1);
     }
     console.log("execute multiSignATransactionWithWrongPermissionIdError success")
 }
@@ -334,7 +334,7 @@ async function multiSignTestAll(){
     await multiSignDuplicatedATransactionByOwnerPermission();
     await multiSignATransactionByActivePermission();
     await multiSignATransactionByActivePermission_PermissionIdInsideTx();
-    await verifyWeightAfterMultiSignByActivePermission();
+    await verifyWeightAfterMultiSignByActivePermission(); //广播消息第一次返回undefined，第二次执行成功。
     await verifyWeightAfterMultiSignByActivePermission_PermissionIdInsideTx();
     await multiSignATransactionWithNoPermissionErrorByActivePermission();
     await multiSignDuplicatedATransactionByActivePermission();

@@ -16,10 +16,10 @@ async function byte2hexStr(){
     assert.equal(tronWeb.utils.bytes.byte2hexStr(78), '4E');
     assert.equal(tronWeb.utils.bytes.byte2hexStr(156), '9C');
     assert.equal(tronWeb.utils.bytes.byte2hexStr(200), 'C8');
-
-    assert.throws(() => {
+    //parameter type not check any more from 6.0.0
+    /*assert.throws(() => {
         tronWeb.utils.bytes.byte2hexStr('15')
-    }, 'Input must be a number');
+    }, 'Input must be a number');*/
 
     assert.throws(() => {
         tronWeb.utils.bytes.byte2hexStr(-15)
@@ -37,9 +37,9 @@ async function bytesToString(){
 
     assert.equal(tronWeb.utils.bytes.bytesToString([1178, 2112, 1087, 969]), 'Қࡀпω');
 
-    assert.equal(tronWeb.utils.bytes.bytesToString('NpWEcA'), 'NpWEcA');
-
-    assert.equal(tronWeb.utils.bytes.bytesToString('Қࡀпω'), 'Қࡀпω');
+    //from 6.0.0, bytesToString not support string as parameter
+    /*assert.equal(tronWeb.utils.bytes.bytesToString('NpWEcA'), 'NpWEcA');
+    assert.equal(tronWeb.utils.bytes.bytesToString('Қࡀпω'), 'Қࡀпω');*/
 }
 
 async function hextoString(){

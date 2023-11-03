@@ -5782,7 +5782,7 @@ async function beforeTestIssueToken() {
 async function transactionBuilderTestAll() {
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
-  /* await sendTrx();
+  await sendTrx();
   await createToken();
   await createAccount();
   await updateAccount();
@@ -5794,12 +5794,12 @@ async function transactionBuilderTestAll() {
   await createProposal();
   await deleteProposal();
   await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
-  await applyForSR(); */
+  await applyForSR();
   //Execute this method when Proposition 70 is not enabled
   /*await freezeBalance();
   await unfreezeBalance();*/
   //Execute this method when Proposition 70 is enabled
-  /*await freezeBalanceV2_1();
+  await freezeBalanceV2_1();
   await freezeBalanceV2_2();
   await freezeBalanceV2_3();
   await freezeBalanceV2_4();
@@ -5842,11 +5842,11 @@ async function transactionBuilderTestAll() {
   await clearabiMultiSign()
   await updateBrokerage();
   await updateBrokerageMultiSign(); //需要开30号提案 需要将49ContractType加入Permission码
-  /*await triggerSmartContract();
+  await triggerSmartContract();
   await triggerSmartContractWithArrays();
-  await triggerSmartContractWithTrctoken();*/
-  await triggerSmartContractWithCallData();//todo v6.0.0
-  /*await createTokenExchange();
+  await triggerSmartContractWithTrctoken();
+  await triggerSmartContractWithCallData();//TRNWB-61
+  await createTokenExchange();
   await createTRXExchange();
   await injectExchangeTokens();
   await updateSetting();
@@ -5860,7 +5860,7 @@ async function transactionBuilderTestAll() {
   await triggerSmartContractWithFuncABIV2_V1_input();
   await triggerSmartContractWithFuncABIV2_V2_input();
   await encodeABIV2test1_V1_input();
-  await encodeABIV2test1_V2_input();*/
+  await encodeABIV2test1_V2_input();
   console.log("transactionBuilderTestAll end")
 }
 export {

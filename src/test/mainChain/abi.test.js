@@ -28,7 +28,7 @@ async function decodeParams1(){
     0
   ];
 
-  const result = tronWeb.utils.abi.decodeParams(types, output);
+  const result = tronWeb.utils.abi.decodeParams([],types, output);
 
   for(let i = 0; i < expected.length; i++) {
     assert.equal(result[i], expected[i]);
@@ -62,7 +62,7 @@ async function decodeParams3(){
   let output =
       '00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000012dc03b7993bad736ad595eb9e3ba51877ac17ecc31d2355f8f270125b9427ece700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011506920446179204e30306220546f6b656e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000035049450000000000000000000000000000000000000000000000000000000000';
   assert.throws(() => {
-    tronWeb.utils.abi.decodeParams(types, output)
+    tronWeb.utils.abi.decodeParams([], types, output)
   }, 'invalid arrayify value');
 
   tronWeb = tronWebBuilder.createInstance();
@@ -70,7 +70,7 @@ async function decodeParams3(){
   output = '0x00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000012dc03b7993bad736ad595eb9e3ba51877ac17ecc31d2355f8f270125b9427ece700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011506920446179204e30306220546f6b656e0000000000000000000000000000005049450000000000000000000000000000000000000000000000000000000000';
 
   assert.throws(() => {
-    tronWeb.utils.abi.decodeParams(types, output)
+    tronWeb.utils.abi.decodeParams([], types, output)
   }, 'overflow');
 
   tronWeb = tronWebBuilder.createInstance();
@@ -78,14 +78,14 @@ async function decodeParams3(){
   output = '0x6630f88f000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000046173646600000000000000000000000000000000000000000000000000000000';
 
   assert.throws(() => {
-    tronWeb.utils.abi.decodeParams(types, output)
+    tronWeb.utils.abi.decodeParams([],types, output)
   }, 'The encoded string is not valid. Its length must be a multiple of 64.');
 
   tronWeb = tronWebBuilder.createInstance();
   types = ['string'];
   output = '0x6630f88f000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000046173646600000000000000000000000000000000000000000000000000000000';
 
-  const result = tronWeb.utils.abi.decodeParams(types, output, true)
+  const result = tronWeb.utils.abi.decodeParams([],types, output, true)
   assert.equal(result, 'asdf')
 }
 
@@ -139,6 +139,7 @@ async function encodeParamsV2ByABI_v1_input() {
     funcABI[0].inputs = funcABI[0].outputs;
     let title = test.name + ' => (' + test.types + ') = (' + test.normalizedValues + ')';
     const encoded = coder.encodeParamsV2ByABI(funcABI[0], inputValues);
+    console.log("encoded: ",encoded)
     assert.ok(equals(encoded, result), 'encoded data - ' + title);
   });
 }

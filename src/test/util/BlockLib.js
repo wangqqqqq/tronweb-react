@@ -1,5 +1,5 @@
 
-const injectPromise = require('injectpromise')
+//const injectPromise = require('injectpromise')
 
 class BlockLib {
 
@@ -7,10 +7,10 @@ class BlockLib {
         if (!tronWeb)
             throw new Error('Expected instances of TronWeb and utils');
         this.tronWeb = tronWeb;
-        this.injectPromise = injectPromise(this);
+        //this.injectPromise = injectPromise(this);
     }
 
-    async getCurrent(callback = false) {
+    /*async getCurrent(callback = false) {
 
         if (!callback)
             return this.injectPromise(this.getCurrent);
@@ -19,11 +19,18 @@ class BlockLib {
             block.fromPlugin = true
             callback(null, block);
         }).catch(err => callback(err));
+    }*/
+
+    async getCurrent() {
+            return this.tronWeb.fullNode.request('wallet/getnowblock').then(block => {
+                block.fromPlugin = true
+                return block;
+            });
     }
 
     pluginInterface() {
         return {
-            requires: '^5.0.0',
+            requires: '^6.0.0',
             fullClass: true
         }
     }

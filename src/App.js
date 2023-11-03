@@ -47,35 +47,36 @@ class App extends React.Component {
     /** need SIDE_CHAIN environment
      *  Use react default domain name in the browser
      */
-    // await abiTest.abiTestAll();//Yes
-    // await accountsTest.accountsTestAll(); //Yes
-    // await bytesTest.bytesTestAll();//Yes
-    // await codeTest.codeTestAll();//Yes
-    // await contractTypes.contractTypesTestAll();//Yes
-    // await eip712Test.eip712TestAll();//Yes
-    // await fallbackTest.fallbackTestAll();//Yes
-    // await isConstantCall.isConstantCallTestAll(); //Yes
-    // await methodTest.methodTestAll();//Yes
-    // await multiSignTestMain.multiSignTestAll();//Yes
-    // await pluginTest.pluginTestAll();//yes
-    // await providersTest.providersTestAll();//Yes
-    await transactionBuilderTest.transactionBuilderTestAll();//Yes
-    // await trxTestMain.trxTestAll();//Yes
-    // await typedData.typedDataAll();//Yes
-    // await transactionTest.transactionTestAll();//Yes
-    // await signVisibleTest.signVisibleTestAll();//Yes
+    // await abiTest.abiTestAll();//Yes 6.0.0 done
+    // await accountsTest.accountsTestAll(); //Yes 6.0.0 done 需要学习
+    // await bytesTest.bytesTestAll();//Yes 6.0.0 done
+    // await codeTest.codeTestAll();//Yes   6.0.0:传错参数类型期待报错，但是没有报错
+    // await contractTypes.contractTypesTestAll();//Yes  6.0.0 done
+    // await eip712Test.eip712TestAll();//Yes  6.0.0 done
+    // await fallbackTest.fallbackTestAll();//Yes  6.0.0 done
+    // await isConstantCall.isConstantCallTestAll(); //Yes 6.0.0 done
+    // await methodTest.methodTestAll();//Yes 6.0.0 done
+    // await multiSignTestMain.multiSignTestAll();//Yes  6.0.0 done
+    // await pluginTest.pluginTestAll();//yes  pulgin 6.0.0 done 还需要研究学习
+    // await providersTest.providersTestAll();//Yes 6.0.0 done
+    // await transactionBuilderTest.transactionBuilderTestAll(); //6.0.0 done
+     await trxTestMain.trxTestAll();  //6.0.0 left await broadcastHex()
+    // await typedData.typedDataAll();//Yes  6.0.0 done
+    // await transactionTest.transactionTestAll();  //6.0.0 done
+    // await signVisibleTest.signVisibleTestAll();//Yes 6.0.0 done
 
-    // await feelimitTest.feelimitTestAll();//yes
-    //  await multiSignTestSide.multiSignTestAll();//yes
-    // await trc721Test.trc721TestAll();// yes
-    // await trc20Test.trc20TestAll();//
-    // await trc10Test.trc10TestAll();// 
-    // await trxTestSide.trxTestAll();// 
+    //sideChain cases
+    /* await feelimitTest.feelimitTestAll();//yes
+       await multiSignTestSide.multiSignTestAll();//yes
+       await trc721Test.trc721TestAll();// yes
+       await trc20Test.trc20TestAll();//
+       await trc10Test.trc10TestAll();//
+       await trxTestSide.trxTestAll(); */
 
     /** need nile environment
      *  Use react default domain name in the browser
      */
-    //await eventTest.eventTestAll();//yes
+    // await eventTest.eventTestAll();//yes
     // await indexTest.indexTestAll();//yes
 
     /** need fullHost: TEST_TRON_GRID_API environment

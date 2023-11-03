@@ -1,5 +1,8 @@
 const TronWeb = require('./tronWebBuilder').createInstance();
 const ethers = require('ethers');
+import { isHexString } from 'ethers';
+const tronWebBuilder = require('./tronWebBuilder');
+const utils = tronWebBuilder.utils
 const { BigNumber } = require('@ethersproject/bignumber');
 const bnify = BigNumber.from;
 
@@ -21,7 +24,7 @@ const getValues = (object, named) => {
           return object.value;
 
       case 'buffer':
-          return ethers.utils.arrayify(object.value);
+          return utils.ethersUtils.arrayify(object.value);
 
       case 'tuple':
           let result = getValues(object.value, named);
@@ -66,8 +69,8 @@ const equals = (actual, expected) => {
 
   // Uint8Array
   if (expected.buffer) {
-      if (!ethers.utils.isHexString(actual)) { return false; }
-      actual = ethers.utils.arrayify(actual);
+      if (!isHexString(actual)) { return false; }
+      actual = utils.ethersUtils.arrayify(actual);
 
       if (!actual.buffer || actual.length !== expected.length) { return false; }
       for (let i = 0; i < actual.length; i++) {

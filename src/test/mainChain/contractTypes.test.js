@@ -706,6 +706,7 @@ async function callsendchangeString() {
 
     const dataAfter = await contractInstance.getString().call();
     assert.equal(dataAfter, val);
+    console.log("callsendchangeString execute success")
 };
 
 async function callsendActionChoices() {
@@ -726,6 +727,7 @@ async function callsendActionChoices() {
 
     const dataAfter = await contractInstance.getActionChoices().call();
     assert.equal(dataAfter, val);
+    console.log("callsendActionChoices execute success")
 };
 
 async function callsendint64Array() {
@@ -750,6 +752,8 @@ async function callsendint64Array() {
     const dataAfter = await contractInstance.getInt64NegativeArray().call();
     assert.equal(parseInt(dataAfter[0]._hex, 16), val[0]);
     assert.equal(parseInt(dataAfter[1]._hex, 16), val[1]);
+    console.log("callsendint64Array execute success")
+
 };
 
 async function callsenduint32Array() {
@@ -781,6 +785,7 @@ async function callsenduint32Array() {
     assert.equal(dataAfter[0][1], val[0][1]);
     assert.equal(dataAfter[1][0], val[1][0]);
     assert.equal(dataAfter[1][1], val[1][1]);
+    console.log("callsenduint32Array execute success")
 };
 
 async function callsenduint256Array() {
@@ -810,6 +815,7 @@ async function callsenduint256Array() {
     assert.equal(dataAfter[0][1], val[0][1]);
     assert.equal(dataAfter[1][0], val[1][0]);
     assert.equal(dataAfter[1][1], val[1][1]);
+    console.log("callsenduint256Array execute success")
 };
 
 async function callsendsetMappinga() {
@@ -830,6 +836,7 @@ async function callsendsetMappinga() {
 
     const dataAfter = await contractInstance.getMappinga(address).call();
     assert.equal(dataAfter, val);
+    console.log("callsendsetMappinga execute success")
 };
 
 
