@@ -26,9 +26,9 @@ let accounts;
 
 async function trxBefore(){
   tronWeb = tronWebBuilder.createInstance();
-  // emptyAccounts = await TronWeb.createAccount();
-  // isAllowSameTokenNameApproved = await isProposalApproved(tronWeb, 'getAllowSameTokenName')
-  // accounts = await tronWebBuilder.getTestAccountsInMain(43);
+  emptyAccounts = await TronWeb.createAccount();
+  isAllowSameTokenNameApproved = await isProposalApproved(tronWeb, 'getAllowSameTokenName')
+  accounts = await tronWebBuilder.getTestAccountsInMain(43);
   assert.instanceOf(tronWeb.trx, Trx);
 }
 
@@ -1107,10 +1107,15 @@ async function tokenTest(){
   options.saleEnd = Date.now() + 2500000;
   options.saleStart = Date.now() + 100000;
   let transaction = await tronWeb.transactionBuilder.createToken(options, emptyAccount1.address.hex);
-  await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
-  console.log("555")
+  const receipt = await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
+  console.log("receipt: ",JSON.stringify(receipt,null,2));
   await waitChainData('token', emptyAccount1.address.hex);
   token = await tronWeb.trx.getTokensIssuedByAddress(emptyAccount1.address.hex);
+  console.log("token: ",token)
+  console.log("waiting for fullnode API get assetV2")
+  await wait(70)
+  const accountinfo = await tronWeb.trx.getUnconfirmedAccount(emptyAccount2.address.hex)
+  console.log("accountinfo: ",JSON.stringify(accountinfo,null,2));
   let assetBefore = (await tronWeb.trx.getUnconfirmedAccount(emptyAccount2.address.hex)).assetV2;
   await waitChainData('tokenById', token[Object.keys(token)[0]]['id']);
   console.log("555！！！")
@@ -1840,8 +1845,8 @@ async function getCanWithdrawUnfreezeAmount(){
 async function trxTestAll(){
   console.log("trxTestAll start")
   await trxBefore();
-  /*await getAccount();
-  await getAccountById();
+  await getAccount();
+  /*await getAccountById();
   await getAccountResources();
   await getBalance();
   await getBandwidth();
@@ -1870,13 +1875,13 @@ async function trxTestAll(){
   await getReward();
   await getUnconfirmedReward();
   await getBrokerage();
-  await getUnconfirmedBrokerage();*/
-  await broadcastHex();                        //todo6.0.0 need use java tron to make transaction.
-  /*await getDelegatedResourceV2();
-  await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？
+  await getUnconfirmedBrokerage();
+  await broadcastHex();                        //todo6.0.0 need use java tron to make transaction. */
+  await getDelegatedResourceV2();  
+  await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？  
   await getCanDelegatedMaxSize();
   await getAvailableUnfreezeCount();
-  await getCanWithdrawUnfreezeAmount()*/;
+  await getCanWithdrawUnfreezeAmount();
   console.log("trxTestAll end")
 }
 

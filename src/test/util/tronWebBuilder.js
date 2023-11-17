@@ -93,7 +93,7 @@ const getTestAccountsInMain = async (amount) => {
     const tronWeb = createInstance();
     for (let i = 0; i < amount; i++) {
         const emptyAccount = await TronWeb.createAccount();
-        await tronWeb.trx.sendTrx(emptyAccount.address.hex,5000000000,{privateKey: PRIVATE_KEY})
+        await tronWeb.trx.sendTrx(emptyAccount.address.hex,10000000000,{privateKey: PRIVATE_KEY})
 
         accounts.pks.push(emptyAccount.privateKey);
         accounts.b58.push(emptyAccount.address.base58);

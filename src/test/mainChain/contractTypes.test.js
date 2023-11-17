@@ -30,6 +30,8 @@ async function before() {
         bytecode: funcContractTypesCall.bytecode,
         parameters: [account0.address.hex,1000001,['1'],["0xdCad3a6d3569DF655070DEd0"]],feeLimit:1000e6
     }, ADDRESS_HEX,), PRIVATE_KEY);
+    console.log("===========")
+    console.log("tx: ",JSON.stringify(tx,null,2));
     assert.equal(tx.transaction.txID.length, 64);
     let createInfo;
     let count = 0;

@@ -1798,6 +1798,7 @@ async function delegateResourcePeriod() {
   console.log(txFreeze);
   let signedTrx = await tronWeb.trx.sign(txFreeze, account.pks[0]);
   let receipt = await tronWeb.trx.sendRawTransaction(signedTrx);
+  console.log("receipt: ",JSON.stringify(receipt,null,2));
   assert.equal(receipt.result, true);
   await wait(15);
   const txDelegate = await tronWeb.transactionBuilder.delegateResource(
@@ -1806,10 +1807,11 @@ async function delegateResourcePeriod() {
     "ENERGY",
     account.b58[0],
     true,
-    1000
+    1
   );
   signedTrx = await tronWeb.trx.sign(txDelegate, account.pks[0]);
   receipt = await tronWeb.trx.sendRawTransaction(signedTrx);
+  console.log("receipt: ",JSON.stringify(receipt,null,2));
   await wait(15);
   let delegateInfo = await tronWeb.trx.getDelegatedResourceV2(account.b58[0], ADDRESS_BASE58, []);
   console.log(delegateInfo);
@@ -1923,6 +1925,7 @@ async function delegateResource_2() {
 
 async function delegateResource_3() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
+  console.log("accountBefore1: " + util.inspect(accountBefore1, true, null, true))
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
   let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], true,3,{ permissionId: 2 })
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);

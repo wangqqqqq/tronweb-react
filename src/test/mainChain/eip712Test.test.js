@@ -85,6 +85,8 @@ async function createContract(option) {
   assert.equal(createTx.transaction.txID.length, 64);
   let createInfo;
   count = 0;
+  console.log("=======")
+  console.log("createTx: ",JSON.stringify(createTx,null,2));
   while (true) {
     createInfo = await tronWeb.trx.getTransactionInfo(createTx.transaction.txID);
     if (Object.keys(createInfo).length === 0) {
@@ -190,7 +192,7 @@ async function consistentWithContractTest1() {
     abi: typedDataTest1.abi,
     bytecode: typedDataTest1.bytecode,
     parameters: [],
-    feeLimit: 1000e6
+    feeLimit: 1500e6
   };
   contractAddress = await createContract(option)
   console.log("contractAddress:" + contractAddress);
@@ -465,7 +467,7 @@ async function consistentWithContractTest2() {
     abi: typedDataTest2.abi,
     bytecode: typedDataTest2.bytecode,
     parameters: [],
-    feeLimit: 1000e6
+    feeLimit: 1500e6
   };
   contractAddress = await createContract(option2);
   console.log("contractAddress:" + contractAddress);
@@ -604,7 +606,7 @@ async function consistentWithContractTest3() {
     abi: typedDataTest3.abi,
     bytecode: typedDataTest3.bytecode,
     parameters: [],
-    feeLimit: 1000e6
+    feeLimit: 1500e6
   };
   contractAddress = await createContract(option3);
   console.log("contractAddress3:" + contractAddress);
@@ -748,7 +750,7 @@ async function consistentWithContractTest4() {
     abi: typedDataTest4.abi,
     bytecode: typedDataTest4.bytecode,
     parameters: [],
-    feeLimit: 1000e6
+    feeLimit: 1500e6
   };
   contractAddress = await createContract(option4);
   console.log("contractAddress4:" + contractAddress);
@@ -889,7 +891,7 @@ async function consistentWithContractTest5() {
   const option5 = {
     abi: typedDataTest5.abi,
     bytecode: typedDataTest5.bytecode,
-    parameters: [], feeLimit: 1000e6
+    parameters: [], feeLimit: 1500e6
   };
   contractAddress = await createContract(option5);
   console.log("contractAddress5:" + contractAddress);

@@ -102,9 +102,9 @@ module.exports = {
     },
     SUN_NETWORK: process.env.SUN_NETWORK,
     SIDE_CHAIN: {
-        fullNode: 'http://mainevent.myservice.com',
-        solidityNode: 'http://mainevent.myservice.com',
-        eventServer: 'http://mainevent.myservice.com',
+        fullNode: 'http://main.myservice.com',
+        solidityNode: 'http://main.myservice.com',
+        eventServer: 'http://main.myservice.com',
         // fullNode: 'http://39.107.81.225:9193',
         // solidityNode: 'http://39.107.81.225:9197',
         // eventServer: 'http://39.107.81.225:9190',
