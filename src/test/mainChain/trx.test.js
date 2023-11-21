@@ -1846,7 +1846,7 @@ async function trxTestAll(){
   console.log("trxTestAll start")
   await trxBefore();
   await getAccount();
-  /*await getAccountById();
+  await getAccountById();
   await getAccountResources();
   await getBalance();
   await getBandwidth();
@@ -1860,11 +1860,11 @@ async function trxTestAll(){
   await signMessageV2_1();
   await signMessageV2_2();
   await signMessageV2_3();
-  await verifyMessageV2();*/
+  await verifyMessageV2();
   //Execute this method when Proposition 70 is not enabled
   /*await multiSignTransaction(); //need freeze V1 started.
   await transactionTest(); */ //need freeze V1 started
-  /*await blockTest();
+  await blockTest();
   await tokenTest();
   await exchangeTest();
   await proposalTest();
@@ -1876,7 +1876,7 @@ async function trxTestAll(){
   await getUnconfirmedReward();
   await getBrokerage();
   await getUnconfirmedBrokerage();
-  await broadcastHex();                        //todo6.0.0 need use java tron to make transaction. */
+  /*await broadcastHex();                        //todo6.0.0 need use java tron to make transaction. */
   await getDelegatedResourceV2();  
   await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？  
   await getCanDelegatedMaxSize();
