@@ -30,7 +30,8 @@ class BlockLib {
 
     pluginInterface() {
         return {
-            requires: '^6.0.0',
+            //requires: '^6.0.0',
+            requires: '^6.0.0-beta.0',
             fullClass: true
         }
     }

@@ -2012,6 +2012,8 @@ async function txCheckWithArgs_commonAssertPbWithArgs(transaction, args, options
 
 async function txCheckWithArgs_commonAssertFalsePbWithArgs(transaction, data, param){
     console.log("transaction:"+util.inspect(transaction,true,null,true))
+    console.log(`data: ${JSON.stringify(data,null,2)}`)
+    console.log(`param: ${JSON.stringify(param,null,2)}`)
     const authResult = utils.transaction.txCheckWithArgs(transaction, data, param[3] || {});
     assert.equal(authResult, true);
     await txCheckWithArgs_commonAssertPbWithArgs(transaction, data, param[3] || {});
