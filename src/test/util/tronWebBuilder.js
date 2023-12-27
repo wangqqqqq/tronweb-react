@@ -1,8 +1,5 @@
 const chalk = require('chalk')
-// const TronWeb = require('../../tronweb');
-
-//tronweb作为包安装在了本目录nodeModules
-const { TronWeb, Plugin, providers, utils, Trx, Event, TransactionBuilder } = require('tronweb');
+const TronWeb = require('tronweb');
 
 const jlog = require('./jlog')
 const util = require('util');
@@ -111,12 +108,6 @@ module.exports = {
     newTestAccounts,
     getTestAccounts,
     getTestAccountsInMain,
-    TronWeb,
-    Plugin,
-    providers,
-    utils,
-    Trx,
-    TransactionBuilder,
-    Event
+    TronWeb
 }
 

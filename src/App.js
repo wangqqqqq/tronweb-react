@@ -47,7 +47,7 @@ class App extends React.Component {
     /** need SIDE_CHAIN environment
      *  Use react default domain name in the browser
      */
-    // await abiTest.abiTestAll();//Yes 6.0.0 done
+     await abiTest.abiTestAll();//Yes 6.0.0 done
     // await accountsTest.accountsTestAll(); //Yes 6.0.0 done 需要学习
     // await bytesTest.bytesTestAll();//Yes 6.0.0 done
     // await codeTest.codeTestAll();//Yes   6.0.0:传错参数类型期待报错，但是没有报错
@@ -60,7 +60,7 @@ class App extends React.Component {
     // await pluginTest.pluginTestAll();//yes  pulgin 6.0.0 done 还需要研究学习
     // await providersTest.providersTestAll();//Yes 6.0.0 done
     // await transactionBuilderTest.transactionBuilderTestAll(); //6.0.0 done
-     await trxTestMain.trxTestAll();  //6.0.0 left await broadcastHex()
+    // await trxTestMain.trxTestAll();  //6.0.0 left await broadcastHex()
     // await typedData.typedDataAll();//Yes  6.0.0 done
     // await transactionTest.transactionTestAll();  //6.0.0 done
     // await signVisibleTest.signVisibleTestAll();//Yes 6.0.0 done
