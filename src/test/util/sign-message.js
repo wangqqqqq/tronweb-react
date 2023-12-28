@@ -1,6 +1,6 @@
 const tronWebBuilder = require('./tronWebBuilder');
 const TronWeb = tronWebBuilder.TronWeb;
-const utils = tronWebBuilder.utils;
+const utils = TronWeb.utils;
 
 const tests = [
     // message is string

@@ -7,7 +7,7 @@ const BlockLib = require('../util/BlockLib');
 const broadcaster = require('../util/broadcaster');
 const wait = require('../util/wait');
 const TronWeb = tronWebBuilder.TronWeb;
-const Plugin = tronWebBuilder.Plugin;
+const Plugin = TronWeb.Plugin;
 
 const util = require('util');
 const chai = require('chai');

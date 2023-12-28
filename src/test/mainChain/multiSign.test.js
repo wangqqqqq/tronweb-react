@@ -287,7 +287,7 @@ async function multiSignATransactionWithNoPermissionErrorByActivePermission() {
     try {
         await tronWeb.trx.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 2);
     } catch (e) {
-        assert.isTrue(e.message.indexOf('has no permission to sign') != -1);
+        assert.isTrue(e.indexOf('has no permission to sign') != -1);
     }
     console.log("execute multiSignATransactionWithNoPermissionErrorByActivePermission success")
 }
@@ -309,7 +309,7 @@ async function multiSignATransactionWithPermissionErrorByBothOwnerAndActivePermi
         let signedTransaction = await tronWeb.trx.multiSign(transaction, accounts.pks[ownerIdx], 0);
         await tronWeb.trx.multiSign(signedTransaction, accounts.pks[ownerIdx], 2);
     } catch (e) {
-        assert.isTrue(e.message.indexOf('not contained of permission') != -1);
+        assert.isTrue(e.indexOf('not contained of permission') != -1);
     }
     console.log("execute multiSignATransactionWithPermissionErrorByBothOwnerAndActivePermission success")
 }
@@ -319,7 +319,7 @@ async function multiSignATransactionWithWrongPermissionIdError() {
     try {
         await tronWeb.trx.multiSign(transaction, (accounts.pks[ownerIdx] + '123'), 2);
     } catch (e) {
-        assert.isTrue(e.message.indexOf('has no permission to sign') != -1);
+        assert.isTrue(e.indexOf('has no permission to sign') != -1);
     }
     console.log("execute multiSignATransactionWithWrongPermissionIdError success")
 }

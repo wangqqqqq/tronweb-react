@@ -6,7 +6,7 @@ import {json2} from "../util/contract-interface-abi2";
 const assert = chai.assert;
 const {ADDRESS_BASE58,PRIVATE_KEY} = require('../util/config');
 const TronWeb = tronWebBuilder.TronWeb;
-const utils = tronWebBuilder.utils;
+const utils = TronWeb.utils;
 
 
 async function typedDataEncoder(){
@@ -40,12 +40,16 @@ async function typedDataEncoder(){
 }
 
 async function SignatureAndVerification(){
-    tronWeb = tronWebBuilder.createInstance();
+    let tronWeb = tronWebBuilder.createInstance();
     eip712json.forEach(async (test) => {
         let {domain, primaryType, data, encoded,types,digest } = test;
+        console.log(`domain: ${JSON.stringify(domain)}`)
+        console.log(`types: ${JSON.stringify(types)}`)
+        console.log(`data: ${JSON.stringify(data)}`)
         const signature = await tronWeb.trx._signTypedData(domain, types, data, PRIVATE_KEY);
         const result = await tronWeb.trx.verifyTypedData(domain, types, data, signature,ADDRESS_BASE58);
         assert.isTrue(signature.startsWith('0x'));
+        console.log(`result: ${JSON.stringify(result)}`)
         assert.isTrue(result);
     });
 }
@@ -155,9 +159,9 @@ async function typedDataEncoderwithTrcToken(){
 
 async function typedDataAll() {
     console.log("typedDataAll start")
-    await typedDataEncoder();
+    //await typedDataEncoder();
     await SignatureAndVerification();
-    await typedDataEncoderwithTrcToken();
+    //await typedDataEncoderwithTrcToken();
     console.log("typedDataAll end")
 }
 

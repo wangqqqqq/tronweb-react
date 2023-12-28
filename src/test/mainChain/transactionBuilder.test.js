@@ -11,8 +11,8 @@ const assertThrow = require('../util/assertThrow');
 const broadcaster = require('../util/broadcaster');
 const txPars = require('../util/txPars');
 const TronWeb = tronWebBuilder.TronWeb;
-const TransactionBuilder = tronWebBuilder.TransactionBuilder;
-const utils = tronWebBuilder.utils
+const TransactionBuilder = TronWeb.TransactionBuilder;
+const utils = TronWeb.utils
 const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
@@ -24,8 +24,8 @@ let emptyAccount6;
 let accounts;
 let TOKEN_ID = require('../util/config');
 const ethers = require('ethers');
-console.log(tronWebBuilder.utils.ethersUtils);
-const { AbiCoder, keccak256 } = tronWebBuilder.utils.ethersUtils;
+console.log(TronWeb.utils.ethersUtils);
+const { AbiCoder, keccak256 } = TronWeb.utils.ethersUtils;
 async function transactionBuilderBefore() {
   console.log("start...");
   tronWeb = tronWebBuilder.createInstance();

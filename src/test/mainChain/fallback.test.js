@@ -261,7 +261,7 @@ async function noCalldataAndNoCallvalue() {
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
     let triggerInfo;
-    count = 0;
+    let count = 0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {
@@ -307,7 +307,7 @@ async function noCalldataAndNoCallvalue() {
     triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
     console.log("triggerTx:"+util.inspect(triggerTx))
     assert.equal(triggerTx.transaction.txID.length, 64);
-    let count = 0;
+    count = 0;
     while (true) {
         triggerInfo = await tronWeb.trx.getTransactionInfo(triggerTx.transaction.txID);
         if (Object.keys(triggerInfo).length === 0) {

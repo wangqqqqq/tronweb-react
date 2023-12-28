@@ -2,7 +2,7 @@ const TronWeb = require('./tronWebBuilder').createInstance();
 const ethers = require('ethers');
 import { isHexString } from 'ethers';
 const tronWebBuilder = require('./tronWebBuilder');
-const utils = tronWebBuilder.utils
+const utils = tronWebBuilder.TronWeb.utils
 const { BigNumber } = require('@ethersproject/bignumber');
 const bnify = BigNumber.from;
 

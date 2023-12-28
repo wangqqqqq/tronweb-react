@@ -47,23 +47,23 @@ class App extends React.Component {
     /** need SIDE_CHAIN environment
      *  Use react default domain name in the browser
      */
-     await abiTest.abiTestAll();//Yes 6.0.0 done
-    // await accountsTest.accountsTestAll(); //Yes 6.0.0 done 需要学习
-    // await bytesTest.bytesTestAll();//Yes 6.0.0 done
-    // await codeTest.codeTestAll();//Yes   6.0.0:传错参数类型期待报错，但是没有报错
-    // await contractTypes.contractTypesTestAll();//Yes  6.0.0 done
-    // await eip712Test.eip712TestAll();//Yes  6.0.0 done
-    // await fallbackTest.fallbackTestAll();//Yes  6.0.0 done
-    // await isConstantCall.isConstantCallTestAll(); //Yes 6.0.0 done
-    // await methodTest.methodTestAll();//Yes 6.0.0 done
-    // await multiSignTestMain.multiSignTestAll();//Yes  6.0.0 done
-    // await pluginTest.pluginTestAll();//yes  pulgin 6.0.0 done 还需要研究学习
-    // await providersTest.providersTestAll();//Yes 6.0.0 done
-    // await transactionBuilderTest.transactionBuilderTestAll(); //6.0.0 done
-    // await trxTestMain.trxTestAll();  //6.0.0 left await broadcastHex()
-    // await typedData.typedDataAll();//Yes  6.0.0 done
-    // await transactionTest.transactionTestAll();  //6.0.0 done
-    // await signVisibleTest.signVisibleTestAll();//Yes 6.0.0 done
+    // await abiTest.abiTestAll();
+    // await accountsTest.accountsTestAll(); //todo: fromHex undifined
+    // await bytesTest.bytesTestAll();
+    // await codeTest.codeTestAll();
+    // await contractTypes.contractTypesTestAll();
+    // await eip712Test.eip712TestAll(); //todo: _signTypedData, vr.signSync is not a function
+    // await fallbackTest.fallbackTestAll();
+    // await isConstantCall.isConstantCallTestAll(); 
+    // await methodTest.methodTestAll();
+    // await multiSignTestMain.multiSignTestAll();
+    // await pluginTest.pluginTestAll();
+    // await providersTest.providersTestAll();
+    // await transactionBuilderTest.transactionBuilderTestAll();
+    // await trxTestMain.trxTestAll(); //vr.signSync is not a function
+     await typedData.typedDataAll();  //todo: _signTypedData
+    // await transactionTest.transactionTestAll(); 
+    // await signVisibleTest.signVisibleTestAll();
 
     //sideChain cases
     /* await feelimitTest.feelimitTestAll();//yes

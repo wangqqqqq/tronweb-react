@@ -43,7 +43,7 @@ async function stringToBytes(){
 
   assert.throws(() => {
     tronWeb.utils.code.stringToBytes([210, 154, 224, 161, 128, 208, 191, 207, 137])
-  }, 'str.charCodeAt is not a function');
+  }, 'The passed string is not a string');
 
   /*assert.throws(() => {
     tronWeb.utils.code.stringToBytes(356253)
@@ -87,10 +87,9 @@ async function hexStr2byteArray(){
     tronWeb.utils.code.hexStr2byteArray('ZASSyue')
   }, 'The passed hex char is not a valid hex string');
 
-  console.log("debug90: ",tronWeb.utils.code.hexStr2byteArray(123))
-  /*assert.throws(() => {
+  assert.throws(() => {
     tronWeb.utils.code.hexStr2byteArray(123)
-  }, 'The passed string is not a string');*/
+  }, 'The passed string is not a string');
 }
 
 async function strToDate(){
