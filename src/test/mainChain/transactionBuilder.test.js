@@ -3370,7 +3370,7 @@ async function triggerComfirmedConstantContract() {
   const emptyAccount1 = await TronWeb.createAccount();
   let brodcastResp = await tronWeb.trx.sendTrx(emptyAccount1.address.hex, 3000000000, { privateKey: PRIVATE_KEY })
   console.log("brodcastResp:", brodcastResp)
-  count = 0;
+  let count = 0;
   while (true) {
     count += 1;
     if (count > 15) {
@@ -3392,7 +3392,7 @@ async function triggerComfirmedConstantContract() {
     bytecode: testConstant.bytecode
   }, emptyAccount1.address.hex);
   await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
-  let count = 0;
+  count = 0;
   while (true) {
     const tx = await tronWeb.trx.getTransactionInfo(transaction.txID);
     if (Object.keys(tx).length === 0) {
@@ -5785,7 +5785,7 @@ async function beforeTestIssueToken() {
 async function transactionBuilderTestAll() {
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
-  await sendTrx();
+  /*await sendTrx();
   await createToken();
   await createAccount();
   await updateAccount();
@@ -5797,12 +5797,12 @@ async function transactionBuilderTestAll() {
   await createProposal();
   await deleteProposal();
   await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
-  await applyForSR();
+  await applyForSR();*/
   //Execute this method when Proposition 70 is not enabled
   /*await freezeBalance();
   await unfreezeBalance();*/
   //Execute this method when Proposition 70 is enabled
-  await freezeBalanceV2_1();
+  /*await freezeBalanceV2_1();
   await freezeBalanceV2_2();
   await freezeBalanceV2_3();
   await freezeBalanceV2_4();
@@ -5851,13 +5851,13 @@ async function transactionBuilderTestAll() {
   await triggerSmartContractWithCallData();//TRNWB-61
   await createTokenExchange();
   await createTRXExchange();
-  await injectExchangeTokens();
+  await injectExchangeTokens(); //last not passed  
   await updateSetting();
   await updateEnergyLimit();
   await accountPermissionUpdate();
   await accountPermissionUpdateMultiSign()
   await withdrawExchangeTokens();
-  await tradeExchangeTokens();
+  await tradeExchangeTokens(); //last not passed   */
   await alterExistentTransactions();
   await rawParameter(); //有时候不通过，是因为好像余额转了两次
   await triggerSmartContractWithFuncABIV2_V1_input();

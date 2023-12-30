@@ -5,7 +5,7 @@ const {ADDRESS_HEX, FEE_LIMIT, TOKEN_ID} = require('../util/config');
 const publicMethod = require('../util/PublicMethod');
 const tronWebBuilder = require('../util/tronWebBuilder');
 const TronWeb = tronWebBuilder.TronWeb;
-const utils = tronWebBuilder.utils;
+const utils = TronWeb.utils;
 const broadcaster = require('../util/broadcaster');
 const wait = require('../util/wait');
 const waitChainData = require('../util/waitChainData');
@@ -151,13 +151,15 @@ async function txCheck_TransferAssetContract(){
     console.log("tokenID:"+tokenID)
 
     const params = [
-        [accounts.b58[1], 5, tokenID, accounts.b58[3],ADDRESS_BASE58, { permissionId: 2 }],
+        [accounts.b58[1], 5, tokenID, accounts.b58[3], { permissionId: 2 }],
         [accounts.b58[1], 5, tokenID, accounts.b58[3]]
     ];
     for (let param of params) {
-        const transaction = await tronWeb.transactionBuilder.sendToken(
-            ...param
-        );
+        param: ["TYADG3moXrFSYDqu4YRemFwrftNuo6kmYy",5,"1000886","TLU81F4JfECS15Vx3aajRg9BXhdqzKcPRF","THph9K2M2nLvkianrMGswRhz5hjSA9fuH7",{"permissionId":2}]
+        console.log(`param: ${JSON.stringify(param)}`)
+        console.log(`mytransaction: ${await tronWeb.transactionBuilder.sendToken(...param)}`)
+        const transaction = await tronWeb.transactionBuilder.sendToken(...param);
+        console.log(`transaction: ${JSON.stringify(transaction)}`)
         await txCheck_commonAssertFalsePb(transaction);
 
         const cop8 = JSON.parse(JSON.stringify(transaction))
@@ -762,7 +764,7 @@ async function txCheck_WitnessCreateContract(){
     let url = 'https://xtron.network';
 
     const params = [
-        [accounts.b58[1], url,ADDRESS_BASE58, { permissionId: 2 }],
+        [accounts.b58[1], url, { permissionId: 2 }],
         [accounts.b58[1], url]
     ];
 
@@ -2427,7 +2429,7 @@ async function txCheckWithArgs_FreezeBalanceContract(){
         [100e6, 3, 'BANDWIDTH', accounts.b58[1]]
     ];
     params2 = [
-        [100e6, 3, 'ENERGY', accounts.b58[1], accounts.b58[2],ADDRESS_BASE58, { permissionId: 2 }],
+        [100e6, 3, 'ENERGY', accounts.b58[1], accounts.b58[2],{ permissionId: 2 }],
         [100e6, 3, 'BANDWIDTH', accounts.b58[1], accounts.b58[2]],
     ];
 
@@ -2624,7 +2626,7 @@ async function txCheckWithArgs_FreezeBalanceV2Contract(){
         };
     };
     params.push(...[
-        [10e7, 'ENERGY', accounts.b58[1],accounts.b58[1], { permissionId: 2 }],
+        [10e7, 'ENERGY', accounts.b58[1], { permissionId: 2 }],
         [10e7, 'BANDWIDTH', accounts.b58[1]]
     ]);
 
@@ -2671,7 +2673,7 @@ async function txCheckWithArgs_UnfreezeBalanceV2Contract(){
     await wait(40);
     params.push(...[
         [10e6, 'BANDWIDTH', accounts.b58[1]],
-        [10e6, 'ENERGY', accounts.b58[2],accounts.b58[2], { permissionId: 2 }],
+        [10e6, 'ENERGY', accounts.b58[2], { permissionId: 2 }],
     ]);
 
     for (let param of params) {
@@ -2925,7 +2927,7 @@ async function txCheckWithArgs_WitnessCreateContract(){
     };
 
     params = [
-        [accounts.b58[13], url,ADDRESS_BASE58, { permissionId: 2 }],
+        [accounts.b58[13], url, { permissionId: 2 }],
         [accounts.b58[13], url],
     ];
 

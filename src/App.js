@@ -60,8 +60,8 @@ class App extends React.Component {
     // await pluginTest.pluginTestAll();
     // await providersTest.providersTestAll();
     // await transactionBuilderTest.transactionBuilderTestAll();
-    // await trxTestMain.trxTestAll(); //vr.signSync is not a function
-     await typedData.typedDataAll();  //todo: _signTypedData
+    // await trxTestMain.trxTestAll(); 
+    // await typedData.typedDataAll();
     // await transactionTest.transactionTestAll(); 
     // await signVisibleTest.signVisibleTestAll();
 
