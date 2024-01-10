@@ -1842,6 +1842,20 @@ async function getCanWithdrawUnfreezeAmount(){
   );
 }
 
+async function getBandwidthPrices() {
+      const res = await tronWeb.trx.getBandwidthPrices();
+      console.log(res);
+      assert.isTrue(res.includes(":"))
+      console.log(`getBandwidthPrices excute success`)
+  }
+
+async function getEnergyPrices () {
+      const res = await tronWeb.trx.getEnergyPrices();
+      console.log(res);
+      assert.isTrue(res.includes(":"))
+      console.log(`getEnergyPrices excute success`) 
+}
+
 async function trxTestAll(){
   console.log("trxTestAll start")
   await trxBefore();
@@ -1882,6 +1896,8 @@ async function trxTestAll(){
   await getCanDelegatedMaxSize();
   await getAvailableUnfreezeCount();
   await getCanWithdrawUnfreezeAmount();
+  await getBandwidthPrices();
+  await getEnergyPrices();
   console.log("trxTestAll end")
 }
 
