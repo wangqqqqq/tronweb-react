@@ -1,16 +1,15 @@
 import React from 'react';
-const {FULL_NODE_API, PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58} = require('../util/config');
-const testRevertContract = require('../util/contracts').testRevert;
-const testSetValContract = require('../util/contracts').testSetVal;
-const testEmptyAbi = require('../util/contracts').testEmptyAbi;
-const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../util/assertThrow');
-const broadcaster = require('../util/broadcaster');
-const wait = require('../util/wait');
+import Config from '../util/config.js'
+const {FULL_NODE_API, PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58} = Config;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import assertThrow from '../util/assertThrow.js';
+import broadcaster from '../util/broadcaster.js';
+import wait from '../util/wait.js';
+import { assert } from 'chai';
+import util from 'util';
+
 const TronWeb = tronWebBuilder.TronWeb;
-const util = require('util');
-const chai = require('chai');
-const assert = chai.assert;
+
 let tronWeb = tronWebBuilder.createInstance();
 
 async function constructor() {

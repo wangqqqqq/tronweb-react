@@ -1,5 +1,4 @@
 import tronWebBuilder from './tronWebBuilder.js';
-const tronWeb = tronWebBuilder.createInstance();
 import wait from './wait.js';
 import util from 'util';
 import chalk from 'chalk';
@@ -10,6 +9,7 @@ function log(x) {
 }
 
 module.exports = async function (type, ...params) {
+    const tronWeb = tronWebBuilder.createInstance();
     let startTimestamp = Date.now();
     let timeLimit = 45000;
     do {

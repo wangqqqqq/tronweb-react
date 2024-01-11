@@ -1,23 +1,22 @@
 import React from 'react';
-const {FULL_NODE_API} = require('../util/config');
-const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, WITNESS_ACCOUNT2, WITNESS_KEY2, getTokenOptions, isProposalApproved} = require('../util/config');
-const {testRevert, testConstant, arrayParam} = require('../util/contracts');
-const tronWebBuilder = require('../util/tronWebBuilder');
-const ethers = require('ethers');
-import { verifyMessage } from 'ethers';
-const broadcaster = require('../util/broadcaster');
-const assertEqualHex = require('../util/assertEqualHex');
-const waitChainData = require('../util/waitChainData');
-const pollAccountFor = require('../util/pollAccountFor');
-const assertThrow = require('../util/assertThrow');
-const messageCases = require('../util/sign-message');
-const tests = messageCases.tests;
-const txPars = require('../util/txPars');
+import Config from '../util/config.js'
+const {FULL_NODE_API, ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, WITNESS_ACCOUNT2, WITNESS_KEY2, getTokenOptions, isProposalApproved} = Config;
+import Contracts from '../util/contracts.js';
+const {testRevert, testConstant, arrayParam} = Contracts;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import {ethers, verifyMessage} from 'ethers';
+import broadcaster from '../util/broadcaster.js';
+import assertEqualHex from '../util/assertEqualHex.js';
+import waitChainData from '../util/waitChainData.js';
+import pollAccountFor from '../util/pollAccountFor';
+import assertThrow from '../util/assertThrow.js';
+import Signmessage from '../../testcases/src/sign-message.js'
+const {tests} = Signmessage
 const TronWeb = tronWebBuilder.TronWeb;
 const Trx = tronWebBuilder.Trx;
-const wait = require('../util/wait');
-const chai = require('chai');
+import chai from 'chai';
 const assert = chai.assert;
+import wait from '../util/wait.js';
 const util = require('util');
 let tronWeb;
 let emptyAccounts;

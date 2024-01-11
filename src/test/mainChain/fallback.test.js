@@ -1,17 +1,14 @@
 import React from 'react';
-const {ADDRESS_BASE58,PRIVATE_KEY, FEE_LIMIT} = require('../util/config');
-const testFallbackOldVersion = require('../util/contracts').fallbackOldVersionTest;
-const fallbackOldversionCall = require('../util/contracts').fallbackOldversionCall;
-const Test0 = require('../util/contracts').Test0;
-const Test1 = require('../util/contracts').Test1;
-const Test2 = require('../util/contracts').Test2;
-const TestPayable = require('../util/contracts').TestPayable;
-const tronWebBuilder = require('../util/tronWebBuilder');
-const broadcaster = require('../util/broadcaster');
-const wait = require('../util/wait');
-const chai = require('chai');
-const assert = chai.assert;
-const util = require('util');
+import Config from '../util/config.js'
+const {ADDRESS_BASE58,PRIVATE_KEY, FEE_LIMIT} = Config;
+import Contract from '../util/contracts.js'
+const {testFallbackOldVersion, fallbackOldversionCall, Test0, Test1,Test2,TestPayable} = Contract;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import broadcaster from '../util/broadcaster.js';
+import wait from '../util/wait.js';
+import { assert } from 'chai';
+import util from 'util';
+
 const tronWeb = tronWebBuilder.createInstance();
 let contractAddressTest0;
 let contractAddressTest1;

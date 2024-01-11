@@ -1,7 +1,12 @@
 const { addBabelPlugins, override, addDecoratorsLegacy, disableEsLint, overrideDevServer, watchAll } = require('customize-cra');
+const path = require('path')
 
 const rewiredMap = () => config => {
   config.devtool = config.mode === 'development' ? 'cheap-module-source-map' : false;
+  // config.resolve.alias = {
+  //   ...config.resolve.alias || {},
+  //   tronweb: path.resolve(__dirname, './node_modules/tronweb/lib/esm/index.js')
+  // }
   return config;
 };
 

@@ -1,14 +1,13 @@
 import React from 'react';
-const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN} = require('../util/config');
-const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../util/assertThrow');
-const publicMethod = require('../util/PublicMethod');
-const broadcaster = require('../util/broadcaster');
+import Config from '../util/config.js'
+const {DEPOSIT_FEE, WITHDRAW_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN} = Config;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import broadcaster from '../util/broadcaster.js';
 const tronWeb = tronWebBuilder.createInstance();
-const wait = require('../util/wait');
-const chai = require('chai');
-const assert = chai.assert;
-const util = require('util');
+import wait from '../util/wait.js';
+import { assert } from 'chai';
+import util from 'util';
+
 let accounts;
 const ownerIdx = 0;
 const idxS = 0;

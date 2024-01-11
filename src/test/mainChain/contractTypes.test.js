@@ -1,10 +1,12 @@
 import React from 'react';
-const {PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58} = require('../util/config');
-const funcContractTypesCall= require('../util/contracts').funcContractTypesCall;
-const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../util/assertThrow');
-const broadcaster = require('../util/broadcaster');
-const publicMethod = require('../util/PublicMethod');
+import Config from '../util/config.js'
+const {PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58} = Config;
+import Contract from '../util/contracts.js'
+const {funcContractTypesCall} = Contract;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import assertThrow from '../util/assertThrow.js';
+import broadcaster from '../util/broadcaster.js';
+import publicMethod from '../util/PublicMethod.js';
 const wait = require('../util/wait');
 const chai = require('chai');
 const util = require('util');

@@ -1,13 +1,15 @@
 import React from 'react';
-const {PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58} = require('../util/config');
-const testDeploy = require('../util/contracts').trc20Contract;
-const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../util/assertThrow');
-const broadcaster = require('../util/broadcaster');
-const wait = require('../util/wait');
-const chai = require('chai');
-const util = require('util');
-const assert = chai.assert;
+import Config from '../util/config.js'
+const {PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58} = Config;
+import Contract from '../util/contracts.js'
+const {trc20Contract} = require('../util/contracts').trc20Contract;
+const testDeploy = trc20Contract
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import assertThrow from '../util/assertThrow.js';
+import broadcaster from '../util/broadcaster.js';
+import wait from '../util/wait.js';
+import { assert } from 'chai';
+import util from 'util';
 let tronWeb = tronWebBuilder.createInstance();
 let contractAddress;
 

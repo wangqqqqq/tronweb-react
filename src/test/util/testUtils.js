@@ -1,4 +1,4 @@
-import tronWebBuilder from '../util/tronWebBuilder.js';
+import tronWebBuilder from './tronWebBuilder.js';
 import {ethers,isHexString} from 'ethers';
 const utils = tronWebBuilder.utils
 import { BigNumber } from '@ethersproject/bignumber';

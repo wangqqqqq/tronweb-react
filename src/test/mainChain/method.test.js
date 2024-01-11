@@ -1,24 +1,18 @@
 import React from 'react';
-const {PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58,FEE_LIMIT, TOKEN_ID,getTokenOptions} = require('../util/config');
-const TestCustomError = require('../util/contracts').TestCustomError;
-const testRevertContract = require('../util/contracts').testRevert;
-const testSetValContract = require('../util/contracts').testSetVal;
-const testEmptyAbi = require('../util/contracts').testEmptyAbi;
-const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../util/assertThrow');
-const broadcaster = require('../util/broadcaster');
-const publicMethod = require('../util/PublicMethod');
-const txPars = require('../util/txPars');
-const testConstantParameters = require('../util/contracts').testConstantParameters;
-const outputNameTest1 = require('../util/contracts').outputNameTest1;
-const outputNameTest2 = require('../util/contracts').outputNameTest2;
-const waitChainData = require('../util/waitChainData');
-const { equals, getValues } = require('../util/testUtils');
-const wait = require('../util/wait');
+import Config from '../util/config.js'
+const {PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58,FEE_LIMIT, TOKEN_ID,getTokenOptions} = Config;
+import Contract from '../util/contracts.js'
+const {TestCustomError, testRevertContract, testSetValContract,testEmptyAbi, outputNameTest1, outputNameTest2, testConstantParameters } = Contract;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import assertThrow from '../util/assertThrow.js';
+import broadcaster from '../util/broadcaster.js';
+import publicMethod from '../util/PublicMethod.js';
+import waitChainData from '../util/waitChainData.js';
+const { equals, getValues } = TestUtils;
+import wait from '../util/wait.js';
 const TronWeb = tronWebBuilder.TronWeb;
-const chai = require('chai');
-const util = require('util');
-const assert = chai.assert;
+import { assert } from 'chai';
+import util from 'util';
 let tronWeb = tronWebBuilder.createInstance();
 let contractAddress1;
 let contractAddress2;

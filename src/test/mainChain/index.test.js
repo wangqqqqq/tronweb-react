@@ -1,18 +1,14 @@
 import React from 'react';
-const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY,FULL_NODE_API,SOLIDITY_NODE_API,EVENT_API,SIDE_CHAIN,FEE_LIMIT,SUN_NETWORK} = require('../util/config');
-const testDeployRevert = require('../util/contracts').testDeployRevert;
-const testTriggerError = require('../util/contracts').testTriggerError;
-const trc20Contract = require('../util/contracts').trc20Contract;
-const tronWebBuilder = require('../util/tronWebBuilder');
-const abiV2Test2t= require('../util/contracts').abiV2Test2;
+import Config from '../util/config.js'
+const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY,FULL_NODE_API,SOLIDITY_NODE_API,EVENT_API,SIDE_CHAIN,FEE_LIMIT,SUN_NETWORK} = Config;
+import Contract from '../util/contracts.js'
+const {testDeployRevert, testTriggerError,trc20Contract,abiV2Test2t } = Contract;
+import tronWebBuilder from '../util/tronWebBuilder.js';
 const TronWeb = tronWebBuilder.TronWeb;
 const HttpProvider = tronWebBuilder.providers.HttpProvider;
-const {BigNumber} = require('bignumber.js');
-const wait = require('../util/wait');
-const chai = require('chai');
-const assert = chai.assert;
-const util = require('util');
-
+import BigNumber from 'bignumber.js';
+import { assert } from 'chai';
+import util from 'util';
 
 async function constructor(){
   const tronWeb = tronWebBuilder.createInstance();

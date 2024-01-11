@@ -1,17 +1,14 @@
 import React from 'react';
-const {PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58} = require('../util/config');
-const tronWebBuilder = require('../util/tronWebBuilder');
-const assertThrow = require('../util/assertThrow');
-const GetNowBlock = require('../util/GetNowBlock');
-const BlockLib = require('../util/BlockLib');
-const broadcaster = require('../util/broadcaster');
-const wait = require('../util/wait');
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import GetNowBlock from '../util/GetNowBlock.js';
+import BlockLib from '../util/BlockLib.js';
+
 const TronWeb = tronWebBuilder.TronWeb;
 const Plugin = tronWebBuilder.Plugin;
 
-const util = require('util');
-const chai = require('chai');
-const assert = chai.assert;
+import wait from '../util/wait.js';
+import { assert } from 'chai';
+import util from 'util';
 let tronWeb = tronWebBuilder.createInstance();
 
 async function pluginGetNowBlock() {

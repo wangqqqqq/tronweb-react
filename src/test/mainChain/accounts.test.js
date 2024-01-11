@@ -1,11 +1,11 @@
 import React from 'react';
-const tronWebBuilder = require('../util/tronWebBuilder');
-const publicMethod = require('../util/PublicMethod');
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import publicMethod from '../util/PublicMethod.js';
+
 const tronWeb = tronWebBuilder.createInstance();
 const ethersWallet = tronWeb.utils.ethersUtils.ethersWallet;
-const chai = require('chai');
-const assert = chai.assert;
-const util = require('util');
+import {assert} from 'chai';
+import util from 'util';
 const wordlists = tronWeb.utils.ethersUtils.wordlists;
 const wordlist = wordlists.en;
 

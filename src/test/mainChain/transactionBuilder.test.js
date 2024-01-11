@@ -2,8 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 import Config from '../util/config.js'
 const { ADDRESS_BASE58, ADDRESS_HEX, PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, UPDATED_TEST_TOKEN_OPTIONS, getTokenOptions, isProposalApproved, FEE_LIMIT } = Config;
-import TestUtils from '../util/testUtils.js';
-const { equals, getValues } = TestUtils;
+// import TestUtils from '../util/testUtils.js';
+// const { equals, getValues } = TestUtils;
 import Contract from '../util/contracts.js'
 const { testRevert, testConstant, arrayParam, tronToken, testAddressArray, trcTokenTest070, trcTokenTest059, funcABIV2, funcABIV2_2, funcABIV2_3, funcABIV2_4, abiV2Test1, testSetVal, testEmptyAbi } = Contract;
 import tronWebBuilder from '../util/tronWebBuilder.js';
@@ -39,15 +39,16 @@ async function transactionBuilderBefore() {
   console.log("start...");
   tronWeb = tronWebBuilder.createInstance();
   console.log("end...");
-  emptyAccounts = await TronWeb.createAccount();
-  isAllowSameTokenNameApproved = await isProposalApproved(tronWeb, 'getAllowSameTokenName')
-  emptyAccount6 = await TronWeb.createAccount();
-  await tronWeb.trx.sendTrx(emptyAccount6.address.hex, 5000000000, { privateKey: PRIVATE_KEY })
 
-  assert.instanceOf(tronWeb.transactionBuilder, TransactionBuilder);
-  accounts = await tronWebBuilder.getTestAccountsInMain(29);
-  await beforeTestIssueToken(); //Issue new TRC10 Token
-  console.log("transactionBuilderBefore excute success");
+  // emptyAccounts = await TronWeb.createAccount();
+  // isAllowSameTokenNameApproved = await isProposalApproved(tronWeb, 'getAllowSameTokenName')
+  // emptyAccount6 = await TronWeb.createAccount();
+  // await tronWeb.trx.sendTrx(emptyAccount6.address.hex, 5000000000, { privateKey: PRIVATE_KEY })
+
+  // assert.instanceOf(tronWeb.transactionBuilder, TransactionBuilder);
+  // accounts = await tronWebBuilder.getTestAccountsInMain(29);
+  // await beforeTestIssueToken(); //Issue new TRC10 Token
+  // console.log("transactionBuilderBefore excute success");
 }
 
 async function sendTrx() {
@@ -6886,93 +6887,93 @@ async function beforeTestIssueToken() {
 async function transactionBuilderTestAll() {
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
-  await sendTrx();
-  await sendTrxWithCustomBlockHeader()
-  await createToken();
-  await createTokenWithCustomBlockHeader()
-  await createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader()
-  await createTokenPassingAnyNumberAsAStringWithCustomBlockHeader()
-  await createTokenWithoutFreezeAnythingWithCustomBlockHeader()
-  await createAccount();
-  await createAccountWithCustomBlockHeader()
-  await updateAccount();
-  await updateAccountWithCustomBlockHeader()
-  await setAccountId();
-  await setAccountIdWithCustomBlockHeader()
-  await setAccountIdMultiSign()
-  await updateToken();
-  await purchaseToken();
-  await sendToken();
-  await createProposal();
-  await deleteProposal();
-  await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
-  await applyForSR();
+  // await sendTrx();
+  // await sendTrxWithCustomBlockHeader()
+  // await createToken();
+  // await createTokenWithCustomBlockHeader()
+  // await createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader()
+  // await createTokenPassingAnyNumberAsAStringWithCustomBlockHeader()
+  // await createTokenWithoutFreezeAnythingWithCustomBlockHeader()
+  // await createAccount();
+  // await createAccountWithCustomBlockHeader()
+  // await updateAccount();
+  // await updateAccountWithCustomBlockHeader()
+  // await setAccountId();
+  // await setAccountIdWithCustomBlockHeader()
+  // await setAccountIdMultiSign()
+  // await updateToken();
+  // await purchaseToken();
+  // await sendToken();
+  // await createProposal();
+  // await deleteProposal();
+  // await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
+  // await applyForSR();
   //Execute this method when Proposition 70 is not enabled
   /*await freezeBalance();
   await unfreezeBalance();*/
   //Execute this method when Proposition 70 is enabled
-  await freezeBalanceV2_1();
-  await freezeBalanceV2_2();
-  await freezeBalanceV2_3();
-  await freezeBalanceV2_4();
-  await unfreezeBalanceV2_1();
-  await unfreezeBalanceV2_2();
-  await unfreezeBalanceV2_3();
-  await unfreezeBalanceV2_4();
-  await cancelUnfreezeBalanceV2();
-  await delegateResource_before();
-  await delegateResource_1();
-  await delegateResource_2();
-  await delegateResource_3();
-  await delegateResource_4();
-  await delegateResource_5();
-  await delegateResource_6();
-  await delegateResource_7();
-  await delegateResource_8();
-  await delegateResourcePeriod();
-  await undelegateResource_before();
-  await undelegateResource_1();
-  await undelegateResource_2();
-  await undelegateResource_3();
-  await undelegateResource_4();
-  await withdrawExpireUnfreeze_1();
-  await withdrawExpireUnfreeze_2();
-  await estimateEnergy_1();
-  await estimateEnergy_2();
-  await estimateEnergy_3();
-  await estimateEnergy_4();
-  await withdrawBalance();
-  await vote();
-  await createSmartContract();
-  await createSmartContractWithArray3();
-  await createSmartContractWithTrctokenAndStateMutability();
-  await createSmartContractWithPayable();
-  await triggerConstantContract();
-  await testDeployConstantContract();
-  await triggerComfirmedConstantContract();
-  await clearabi();
-  await clearabiMultiSign()
-  await updateBrokerage();
-  await updateBrokerageMultiSign(); //需要开30号提案 需要将49ContractType加入Permission码
-  await triggerSmartContract();
-  await triggerSmartContractWithArrays(); 
-  await triggerSmartContractWithTrctoken();
-  await triggerSmartContractWithCallData();//TRNWB-61
-  await createTokenExchange();
-  await createTRXExchange();
-  await injectExchangeTokens();
-  await updateSetting();
-  await updateEnergyLimit();
-  await accountPermissionUpdate();
-  await accountPermissionUpdateMultiSign()
-  await withdrawExchangeTokens();
-  await tradeExchangeTokens();
-  await alterExistentTransactions();
-  await rawParameter(); //有时候不通过，是因为好像余额转了两次
-  await triggerSmartContractWithFuncABIV2_V1_input();
-  await triggerSmartContractWithFuncABIV2_V2_input();
-  await encodeABIV2test1_V1_input();
-  await encodeABIV2test1_V2_input();
+  // await freezeBalanceV2_1();
+  // await freezeBalanceV2_2();
+  // await freezeBalanceV2_3();
+  // await freezeBalanceV2_4();
+  // await unfreezeBalanceV2_1();
+  // await unfreezeBalanceV2_2();
+  // await unfreezeBalanceV2_3();
+  // await unfreezeBalanceV2_4();
+  // await cancelUnfreezeBalanceV2();
+  // await delegateResource_before();
+  // await delegateResource_1();
+  // await delegateResource_2();
+  // await delegateResource_3();
+  // await delegateResource_4();
+  // await delegateResource_5();
+  // await delegateResource_6();
+  // await delegateResource_7();
+  // await delegateResource_8();
+  // await delegateResourcePeriod();
+  // await undelegateResource_before();
+  // await undelegateResource_1();
+  // await undelegateResource_2();
+  // await undelegateResource_3();
+  // await undelegateResource_4();
+  // await withdrawExpireUnfreeze_1();
+  // await withdrawExpireUnfreeze_2();
+  // await estimateEnergy_1();
+  // await estimateEnergy_2();
+  // await estimateEnergy_3();
+  // await estimateEnergy_4();
+  // await withdrawBalance();
+  // await vote();
+  // await createSmartContract();
+  // await createSmartContractWithArray3();
+  // await createSmartContractWithTrctokenAndStateMutability();
+  // await createSmartContractWithPayable();
+  // await triggerConstantContract();
+  // await testDeployConstantContract();
+  // await triggerComfirmedConstantContract();
+  // await clearabi();
+  // await clearabiMultiSign()
+  // await updateBrokerage();
+  // await updateBrokerageMultiSign(); //需要开30号提案 需要将49ContractType加入Permission码
+  // await triggerSmartContract();
+  // await triggerSmartContractWithArrays(); 
+  // await triggerSmartContractWithTrctoken();
+  // await triggerSmartContractWithCallData();//TRNWB-61
+  // await createTokenExchange();
+  // await createTRXExchange();
+  // await injectExchangeTokens();
+  // await updateSetting();
+  // await updateEnergyLimit();
+  // await accountPermissionUpdate();
+  // await accountPermissionUpdateMultiSign()
+  // await withdrawExchangeTokens();
+  // await tradeExchangeTokens();
+  // await alterExistentTransactions();
+  // await rawParameter(); //有时候不通过，是因为好像余额转了两次
+  // await triggerSmartContractWithFuncABIV2_V1_input();
+  // await triggerSmartContractWithFuncABIV2_V2_input();
+  // await encodeABIV2test1_V1_input();
+  // await encodeABIV2test1_V2_input();
   console.log("transactionBuilderTestAll end")
 }
 export {

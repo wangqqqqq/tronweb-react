@@ -1,4 +1,5 @@
 import React from 'react';
+import Config from '../util/config.js'
 const {
     ADDRESS_HEX,
     ADDRESS_BASE58,
@@ -10,14 +11,14 @@ const {
     isProposalApproved,
     TOKEN_ID,
     FEE_LIMIT
-} = require('../util/config');
-const tronWebBuilder = require('../util/tronWebBuilder');
+} = Config;
+import tronWebBuilder from '../util/tronWebBuilder.js';
 const tronWeb = tronWebBuilder.createInstance();
-const utils = tronWebBuilder.utils;
-const wait = require('../util/wait');
-const assert = require('assert');
-const util = require('util');
-const {testRevert, testConstant, arrayParam, tronToken, testAddressArray, trcTokenTest070, trcTokenTest059, funcABIV2, funcABIV2_2, funcABIV2_3, funcABIV2_4, abiV2Test1, testSetVal, testEmptyAbi} = require('../util/contracts');
+import wait from '../util/wait.js';
+import { assert } from 'chai';
+import util from 'util';
+import Contract from '../util/contracts.js'
+const {testRevert, testConstant, arrayParam, tronToken, testAddressArray, trcTokenTest070, trcTokenTest059, funcABIV2, funcABIV2_2, funcABIV2_3, funcABIV2_4, abiV2Test1, testSetVal, testEmptyAbi} = Contract;
 
 let contract1;
 let contract2;

@@ -1,12 +1,13 @@
 import React from 'react';
-const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, FEE_LIMIT} = require('../util/config');
-const testDeployRevert = require('../util/contracts').testDeployRevert;
-const testTriggerError = require('../util/contracts').testTriggerError;
+import Config from '../util/config.js'
+const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, FEE_LIMIT} = Config;
+import Contract from '../util/contracts.js'
+const {testDeployRevert,testTriggerError} = Contract;
 const tronWebBuilder = require('../util/tronWebBuilder');
-const broadcaster = require('../util/broadcaster');
-const wait = require('../util/wait');
-const assert = require('assert');
-const util = require('util');
+import broadcaster from '../util/broadcaster.js';
+import wait from '../util/wait.js';
+import { assert } from 'chai';
+import util from 'util';
 
 async function byte2hexStr(){
     const tronWeb = tronWebBuilder.createInstance();

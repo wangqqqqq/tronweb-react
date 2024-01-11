@@ -1,16 +1,10 @@
 import React from 'react';
-const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, FEE_LIMIT} = require('../util/config');
-const testDeployRevert = require('../util/contracts').testDeployRevert;
-const testTriggerError = require('../util/contracts').testTriggerError;
-const trc20Contract = require('../util/contracts').trc20Contract;
-const tronWebBuilder = require('../util/tronWebBuilder');
-const broadcaster = require('../util/broadcaster');
-const publicMethod = require('../util/PublicMethod');
-const TronWeb = tronWebBuilder.TronWeb;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import broadcaster from '../util/broadcaster.js';
+
 const Event = tronWebBuilder.Event;
-const wait = require('../util/wait');
-const chai = require('chai');
-const assert = chai.assert;
+import wait from '../util/wait.js';
+import { assert } from 'chai';
 const util = require('util');
 let accounts;
 let tronWeb;

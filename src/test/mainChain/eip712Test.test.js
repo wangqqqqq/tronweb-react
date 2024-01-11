@@ -1,17 +1,18 @@
 import React from 'react';
-const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY } = require('../util/config');
-const tronWebBuilder = require('../util/tronWebBuilder');
-const broadcaster = require('../util/broadcaster');
+import Config from '../util/config.js'
+const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY } = Config;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import broadcaster from '../util/broadcaster.js';
 const TronWeb = tronWebBuilder.TronWeb;
 const Trx = tronWebBuilder.Trx;
 const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
-const util = require('util');
+import util from 'util';
 let emptyAccount;
 let tronWeb;
-const {typedDataTest1,typedDataTest2,typedDataTest3,typedDataTest4,typedDataTest5 } = require('../util/contracts');
-import {eip712json} from '../util/eip712'
+import Contract from '../util/contracts.js'
+const {typedDataTest1,typedDataTest2,typedDataTest3,typedDataTest4,typedDataTest5 } = Contract;
 tronWeb = tronWebBuilder.createInstance();
 const utils = tronWebBuilder.utils;
 let contractAddress;

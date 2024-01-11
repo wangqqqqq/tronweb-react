@@ -1,20 +1,21 @@
 import React from 'react';
-import chai from "chai";
-import {trcTokenTest070} from "../util/contracts";
-const {ADDRESS_HEX, FEE_LIMIT, TOKEN_ID} = require('../util/config');
-const publicMethod = require('../util/PublicMethod');
-const tronWebBuilder = require('../util/tronWebBuilder');
+import { assert } from 'chai';
+import Contract from '../util/contracts.js'
+const {trcTokenTest070, testRevert, testConstant} = Contract;
+import Config from '../util/config.js'
+const {ADDRESS_HEX, FEE_LIMIT, TOKEN_ID} = Config;
+import publicMethod from '../util/PublicMethod.js';
+import tronWebBuilder from '../util/tronWebBuilder.js';
 const TronWeb = tronWebBuilder.TronWeb;
 const utils = tronWebBuilder.utils;
-const broadcaster = require('../util/broadcaster');
-const wait = require('../util/wait');
-const waitChainData = require('../util/waitChainData');
-const { testRevert, testConstant } = require('../util/contracts');
-const AbiCoder = require('@ethersproject/abi');
+import broadcaster from '../util/broadcaster.js';
+import wait from '../util/wait.js';
+import waitChainData from '../util/waitChainData.js';
+const AbiCoder = tronWebBuilder.utils.ethersUtils.AbiCoder;
 
-const util = require('util');
+import util from 'util';
 // const assert = require('assert');
-const assert = chai.assert;
+
 const {
     ADDRESS_BASE58,
     PRIVATE_KEY,

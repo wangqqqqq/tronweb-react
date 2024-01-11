@@ -1,13 +1,11 @@
 import React from 'react';
-const chai = require('chai');
-const tronWebBuilder = require('../util/tronWebBuilder');
-import {eip712json} from '../util/eip712'
-import {json2} from "../util/contract-interface-abi2";
-const assert = chai.assert;
-const {ADDRESS_BASE58,PRIVATE_KEY} = require('../util/config');
+import { assert } from 'chai';
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import {eip712json} from '../util/eip712.js'
+import Config from '../util/config.js'
+const {ADDRESS_BASE58,PRIVATE_KEY} = Config;
 const TronWeb = tronWebBuilder.TronWeb;
 const utils = tronWebBuilder.utils;
-
 
 async function typedDataEncoder(){
     eip712json.forEach((test) => {
