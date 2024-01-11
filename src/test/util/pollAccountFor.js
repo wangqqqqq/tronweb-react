@@ -1,8 +1,8 @@
-const _ = require('lodash');
-const wait = require('./wait');
-const tronWebBuilder = require('./tronWebBuilder')
+import _ from 'lodash';
+import wait from './wait.js';
+import tronWebBuilder from './tronWebBuilder.js'
 
-module.exports = async function pollAccountFor(address, property, value = false, interval = 3, timeout = 10000) {
+export default async function pollAccountFor(address, property, value = false, interval = 3, timeout = 10000) {
     const tronWeb = tronWebBuilder.createInstance()
     let now = Date.now()
     while (true) {

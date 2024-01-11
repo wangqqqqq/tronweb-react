@@ -4,37 +4,37 @@ import './App.css';
 
 
 // import TronWeb from './tronweb/src/index.js'
-const TronWeb = require('tronweb')
+// import TronWeb from 'tronweb';
 // const TronWeb = require('./tronweb/dist/TronWeb.node');
-const abiTest = require('./test/mainChain/abi.test');
-const accountsTest = require('./test/mainChain/accounts.test');
-const bytesTest = require('./test/mainChain/bytes.test');
-const codeTest = require('./test/mainChain/code.test');
-const eventTest = require('./test/mainChain/event.test');
-const indexTest = require('./test/mainChain/index.test');
-const methodTest = require('./test/mainChain/method.test');
-const pluginTest = require('./test/mainChain/plugin.test');
-const providersTest = require('./test/mainChain/providers.test');
-const transactionBuilderTest = require('./test/mainChain/transactionBuilder.test');
-const trxTestMain = require('./test/mainChain/trx.test');
-const fallbackTest = require('./test/mainChain/fallback.test');
-const ztronTest = require('./test/mainChain/ztron.test');
-const ztron2Test = require('./test/mainChain/ztron2.test');
-const trongridTest = require('./test/mainChain/trongrid.test');
-const multiSignTestMain = require('./test/mainChain/multiSign.test.js');
-const feelimitTest = require('./test/sideChain/feelimit.test');
-const multiSignTestSide = require('./test/sideChain/multiSign.test.js');
-const trc10Test = require('./test/sideChain/trc10.test.js');
-const trc20Test = require('./test/sideChain/trc20.test.js');
-const trc721Test = require('./test/sideChain/trc721.test.js');
-const trxTestSide = require('./test/sideChain/trx.test.js');
-const isConstantCall = require('./test/mainChain/isConstantCall.test.js');
-const contractTypes = require('./test/mainChain/contractTypes.test.js');
-const typedData = require('./test/mainChain/typedData.test.js');
-const eip712Test = require('./test/mainChain/eip712Test.test.js');
-const transactionTest = require('./test/mainChain/transaction.test.js');
-const signVisibleTest = require('./test/mainChain/signVisible.test.js');
-const tronWebBuilder = require('./test/util/tronWebBuilder');
+// import {abiTestAll} from './test/mainChain/abi.test.js';
+// import accountsTest from './test/mainChain/accounts.test';
+// import bytesTest from './test/mainChain/bytes.test';
+// import codeTest from './test/mainChain/code.test';
+// import eventTest from './test/mainChain/event.test';
+// import indexTest from './test/mainChain/index.test';
+// import methodTest from './test/mainChain/method.test';
+// import pluginTest from './test/mainChain/plugin.test';
+// import providersTest from './test/mainChain/providers.test';
+import {transactionBuilderTestAll} from './test/mainChain/transactionBuilder.test.js';
+// import trxTestMain from './test/mainChain/trx.test';
+// import fallbackTest from './test/mainChain/fallback.test';
+// import ztronTest from './test/mainChain/ztron.test';
+// import ztron2Test from './test/mainChain/ztron2.test';
+// import trongridTest from './test/mainChain/trongrid.test';
+// import multiSignTestMain from './test/mainChain/multiSign.test.js';
+// import feelimitTest from './test/sideChain/feelimit.test';
+// import multiSignTestSide from './test/sideChain/multiSign.test.js';
+// import trc10Test from './test/sideChain/trc10.test.js';
+// import trc20Test from './test/sideChain/trc20.test.js';
+// import trc721Test from './test/sideChain/trc721.test.js';
+// import trxTestSide from './test/sideChain/trx.test.js';
+// import isConstantCall from './test/mainChain/isConstantCall.test.js';
+// import contractTypes from './test/mainChain/contractTypes.test.js';
+// import typedData from './test/mainChain/typedData.test.js';
+// import eip712Test from './test/mainChain/eip712Test.test.js';
+// import transactionTest from './test/mainChain/transaction.test.js';
+// import signVisibleTest from './test/mainChain/signVisible.test.js';
+import tronWebBuilder from './test/util/tronWebBuilder.js';
 
 
 class App extends React.Component {
@@ -47,7 +47,7 @@ class App extends React.Component {
     /** need SIDE_CHAIN environment
      *  Use react default domain name in the browser
      */
-    // await abiTest.abiTestAll();//Yes 6.0.0 done
+    // await abiTestAll();//Yes 6.0.0 done
     // await accountsTest.accountsTestAll(); //Yes 6.0.0 done 需要学习
     // await bytesTest.bytesTestAll();//Yes 6.0.0 done
     // await codeTest.codeTestAll();//Yes   6.0.0:传错参数类型期待报错，但是没有报错
@@ -59,8 +59,8 @@ class App extends React.Component {
     // await multiSignTestMain.multiSignTestAll();//Yes  6.0.0 done
     // await pluginTest.pluginTestAll();//yes  pulgin 6.0.0 done 还需要研究学习
     // await providersTest.providersTestAll();//Yes 6.0.0 done
-    // await transactionBuilderTest.transactionBuilderTestAll(); //6.0.0 done
-     await trxTestMain.trxTestAll();  //6.0.0 left await broadcastHex()
+     await transactionBuilderTestAll(); //6.0.0 done
+    // await trxTestMain.trxTestAll();  //6.0.0 left await broadcastHex()
     // await typedData.typedDataAll();//Yes  6.0.0 done
     // await transactionTest.transactionTestAll();  //6.0.0 done
     // await signVisibleTest.signVisibleTestAll();//Yes 6.0.0 done

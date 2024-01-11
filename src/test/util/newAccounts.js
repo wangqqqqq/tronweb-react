@@ -1,4 +1,4 @@
-const publicMethod = require('./PublicMethod');
+import publicMethod from './PublicMethod.js';
 const amount = process.argv[2] || 10;
 
 (async function () {

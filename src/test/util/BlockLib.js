@@ -37,4 +37,4 @@ class BlockLib {
     }
 }
 
-module.exports = BlockLib
+export default BlockLib

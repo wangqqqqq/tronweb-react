@@ -1,6 +1,6 @@
-const assert = require('assert');
+import {assert} from 'chai';
 
-module.exports = async function (func, expectedError, expectedErrorContains) {
+export default async function (func, expectedError, expectedErrorContains) {
     let errMsg;
     try {
         await func

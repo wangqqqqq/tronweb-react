@@ -56,4 +56,4 @@ class GetNowBlock {
     }
 }
 
-module.exports = GetNowBlock
+export default GetNowBlock

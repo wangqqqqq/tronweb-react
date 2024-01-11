@@ -1,9 +1,9 @@
-const tronWebBuilder = require('./tronWebBuilder');
+import tronWebBuilder from './tronWebBuilder.js';
 const tronWeb = tronWebBuilder.createInstance();
-const wait = require('./wait');
-const util = require('util');
-const chalk = require('chalk');
-const jlog = require('./jlog');
+import wait from './wait.js';
+import util from 'util';
+import chalk from 'chalk';
+import jlog from './jlog.js';
 
 function log(x) {
     console.log(x)

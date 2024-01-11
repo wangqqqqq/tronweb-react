@@ -1,6 +1,6 @@
-const tronWebBuilder = require('./tronWebBuilder');
-const wait = require('./wait');
-const util = require('util');
+import tronWebBuilder from './tronWebBuilder.js';
+import wait from './wait.js';
+import util from 'util';
 
 const broadcaster = async (func, pk, transaction) => {
     const tronWeb = tronWebBuilder.createInstance();
@@ -86,7 +86,7 @@ const broadcasterInSideMain = async (func, pk, transaction) =>  {
     return Promise.resolve(result);
 }
 
-module.exports = {
+export default {
     broadcaster,
     broadcasterInSideChain,
     broadcasterInSideMain

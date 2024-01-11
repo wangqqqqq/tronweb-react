@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     testDeployRevert: {
         contractName: "contractUnknownException",
         abi: [

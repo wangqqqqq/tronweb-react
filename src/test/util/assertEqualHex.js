@@ -1,7 +1,7 @@
-const assert = require('chai').assert;
-const tronWebBuilder = require('./tronWebBuilder');
+import {assert} from 'chai';
+import tronWebBuilder from './tronWebBuilder.js';
 
-module.exports = async function (result, string) {
+export default async function (result, string) {
 
     assert.equal(
         result,

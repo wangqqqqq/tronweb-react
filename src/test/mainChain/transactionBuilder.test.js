@@ -1,29 +1,32 @@
 import React from 'react';
-const { ADDRESS_BASE58, ADDRESS_HEX, PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, UPDATED_TEST_TOKEN_OPTIONS, getTokenOptions, isProposalApproved, FEE_LIMIT } = require('../util/config');
-const { equals, getValues } = require('../util/testUtils');
-const { testRevert, testConstant, arrayParam, tronToken, testAddressArray, trcTokenTest070, trcTokenTest059, funcABIV2, funcABIV2_2, funcABIV2_3, funcABIV2_4, abiV2Test1, testSetVal, testEmptyAbi } = require('../util/contracts');
-const tronWebBuilder = require('../util/tronWebBuilder');
-const assertEqualHex = require('../util/assertEqualHex');
-const waitChainData = require('../util/waitChainData');
-const pollAccountFor = require('../util/pollAccountFor');
-const publicMethod = require('../util/PublicMethod');
-const assertThrow = require('../util/assertThrow');
-const broadcaster = require('../util/broadcaster');
-const txPars = require('../util/txPars');
+import _ from 'lodash';
+import Config from '../util/config.js'
+const { ADDRESS_BASE58, ADDRESS_HEX, PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, UPDATED_TEST_TOKEN_OPTIONS, getTokenOptions, isProposalApproved, FEE_LIMIT } = Config;
+import TestUtils from '../util/testUtils.js';
+const { equals, getValues } = TestUtils;
+import Contract from '../util/contracts.js'
+const { testRevert, testConstant, arrayParam, tronToken, testAddressArray, trcTokenTest070, trcTokenTest059, funcABIV2, funcABIV2_2, funcABIV2_3, funcABIV2_4, abiV2Test1, testSetVal, testEmptyAbi } = Contract;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import assertEqualHex from '../util/assertEqualHex.js';
+import waitChainData from '../util/waitChainData.js';
+import publicMethod from '../util/PublicMethod.js';
+import assertThrow from '../util/assertThrow.js';
+import broadcaster from '../util/broadcaster.js';
+import txPars from '../util/txPars.js';
+
 const TronWeb = tronWebBuilder.TronWeb;
 const TransactionBuilder = tronWebBuilder.TransactionBuilder;
 const utils = tronWebBuilder.utils
-const wait = require('../util/wait');
-const chai = require('chai');
-const assert = chai.assert;
-const util = require('util');
+import wait from '../util/wait.js';
+import { assert } from 'chai';
+import util from 'util';
+
 let tronWeb;
 let emptyAccounts;
 let isAllowSameTokenNameApproved
 let emptyAccount6;
 let accounts;
 let TOKEN_ID = require('../util/config');
-const ethers = require('ethers');
 console.log(tronWebBuilder.utils.ethersUtils);
 const { AbiCoder, keccak256 } = tronWebBuilder.utils.ethersUtils;
 
@@ -147,6 +150,7 @@ async function sendTrxWithCustomBlockHeader() {
       console.log(JSON.stringify(transaction2, null, 2));
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
+  console.log(`sendTrxWithCustomBlockHeader execute success`)
 }
 
 async function createToken() {
@@ -539,11 +543,11 @@ async function createTokenWithCustomBlockHeader(){
       let options2 = deepClone(options)
       options2.blockHeader=blockheader_pre
       console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
-      await wait(4); 
       const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[2]);
       console.log(JSON.stringify(transaction2, null, 2));
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
+  console.log(`createTokenWithCustomBlockHeader execute success`)
 }
 
 async function createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader() {
@@ -572,11 +576,11 @@ async function createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader() {
       let options2 = deepClone(options)
       options2.blockHeader=blockheader_pre
       console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
-      await wait(4);
       const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[3 + i]);
       console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
+  console.log(`createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader execute success`)
 };
 
 async function createTokenPassingAnyNumberAsAStringWithCustomBlockHeader(){
@@ -602,12 +606,13 @@ async function createTokenPassingAnyNumberAsAStringWithCustomBlockHeader(){
       let options2 = deepClone(options)
       options2.blockHeader=blockheader_pre
       console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
-      await wait(4);
       const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[25]);
       console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
       assert.isTrue(_.isEqual(transaction1,transaction2));
       
   }
+  console.log(`createTokenPassingAnyNumberAsAStringWithCustomBlockHeader execute success`)
+
 };
 
 async function createTokenWithoutFreezeAnythingWithCustomBlockHeader() {
@@ -633,11 +638,12 @@ async function createTokenWithoutFreezeAnythingWithCustomBlockHeader() {
       let options2 = deepClone(options)
       options2.blockHeader=blockheader_pre
       console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
-      await wait(4);
       const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[1]);
       console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
+  console.log(`createTokenWithoutFreezeAnythingWithCustomBlockHeader execute success`)
+
 };
 
 async function createAccount() {
@@ -719,10 +725,10 @@ async function createAccountWithCustomBlockHeader() {
 
 
   let updateTx = await broadcaster.broadcaster(null, accounts.pks[3], transaction2);
-  tLog("updateTx1.txID:"+updateTx.transaction.txID)
+  console.log("updateTx1.txID:"+updateTx.transaction.txID)
   assert.equal(updateTx.transaction.txID.length, 64);
   await wait(30);
-  tLog("inactiveAccountAddress1:"+inactiveAccountAddress1)
+  console.log("inactiveAccountAddress1:"+inactiveAccountAddress1)
   const in1 = await tronWeb.trx.getAccount(inactiveAccountAddress1);
   assert.equal(in1.address.toLowerCase(), inactiveAccount1.address.hex.toLowerCase());
 
@@ -743,11 +749,13 @@ async function createAccountWithCustomBlockHeader() {
   console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
   assert.isTrue(_.isEqual(transaction1,transaction2));
   updateTx = await broadcaster.broadcaster(null, accounts.pks[3], transaction2);
-  tLog("updateTx2.txID:"+updateTx.transaction.txID)
+  console.log("updateTx2.txID:"+updateTx.transaction.txID)
   assert.equal(updateTx.transaction.txID.length, 64);
   await wait(30);
   const in2 = await tronWeb.trx.getAccount(inactiveAccountAddress2);
   assert.equal(in2.address.toLowerCase(), inactiveAccount2.address.hex.toLowerCase());
+  console.log(`createAccountWithCustomBlockHeader execute success`)
+
 };
 
 async function updateAccount() {
@@ -812,6 +820,8 @@ async function updateAccountWithCustomBlockHeader() {
       console.log(JSON.stringify(transaction2, null, 2));
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
+  console.log(`updateAccountWithCustomBlockHeader execute success`)
+
 };
 
 async function setAccountId() {
@@ -890,7 +900,7 @@ async function setAccountIdWithCustomBlockHeader() {
       console.log(JSON.stringify(transaction2, null, 2));
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
-
+  console.log(`setAccountIdWithCustomBlockHeader execute success`)
 };
 
 function randomString(e) {
@@ -6877,10 +6887,18 @@ async function transactionBuilderTestAll() {
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
   await sendTrx();
+  await sendTrxWithCustomBlockHeader()
   await createToken();
+  await createTokenWithCustomBlockHeader()
+  await createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader()
+  await createTokenPassingAnyNumberAsAStringWithCustomBlockHeader()
+  await createTokenWithoutFreezeAnythingWithCustomBlockHeader()
   await createAccount();
+  await createAccountWithCustomBlockHeader()
   await updateAccount();
+  await updateAccountWithCustomBlockHeader()
   await setAccountId();
+  await setAccountIdWithCustomBlockHeader()
   await setAccountIdMultiSign()
   await updateToken();
   await purchaseToken();

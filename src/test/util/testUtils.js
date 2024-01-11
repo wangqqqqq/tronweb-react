@@ -1,10 +1,10 @@
-const TronWeb = require('./tronWebBuilder').createInstance();
-const ethers = require('ethers');
-import { isHexString } from 'ethers';
-const tronWebBuilder = require('./tronWebBuilder');
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import {ethers,isHexString} from 'ethers';
 const utils = tronWebBuilder.utils
-const { BigNumber } = require('@ethersproject/bignumber');
+import { BigNumber } from '@ethersproject/bignumber';
+
 const bnify = BigNumber.from;
+const TronWeb = tronWebBuilder.createInstance();
 
 const getValues = (object, named) => {
   if (Array.isArray(object)) {
@@ -95,7 +95,7 @@ const equals = (actual, expected) => {
 }
 
 
-module.exports = {
+export default {
   getValues,
   equals
 }

@@ -1,4 +1,4 @@
-const tronWebBuilder = require('./tronWebBuilder');
+import tronWebBuilder from './tronWebBuilder';
 const TronWeb = tronWebBuilder.TronWeb;
 const utils = tronWebBuilder.utils;
 
@@ -31,6 +31,6 @@ const tests = [
     }
 ];
 
-module.exports = {
+export default {
   tests
 }

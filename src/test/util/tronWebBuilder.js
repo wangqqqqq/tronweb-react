@@ -1,13 +1,11 @@
-const chalk = require('chalk')
-// const TronWeb = require('../../tronweb');
-
+import chalk from 'chalk'
 //tronweb作为包安装在了本目录nodeModules
-const { TronWeb, Plugin, providers, utils, Trx, Event, TransactionBuilder } = require('tronweb');
-
-const jlog = require('./jlog')
-const util = require('util');
-
-const {FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SUN_NETWORK, SIDE_CHAIN, TEST_TRON_GRID_API} = require('./config')
+import {TronWeb, Plugin, providers, utils, Trx, Event, TransactionBuilder} from 'tronweb'
+import jLog from './jlog.js'
+const jlog = jLog.jLog
+import util from 'util';
+import Config from './config.js'
+const {FULL_NODE_API, SOLIDITY_NODE_API, EVENT_API, PRIVATE_KEY, SUN_NETWORK, SIDE_CHAIN, TEST_TRON_GRID_API} = Config
 
 
 const createInstanceSide = (extraOptions = {}, sideExtraOptions = {}) => {
@@ -104,7 +102,7 @@ const getTestAccountsInMain = async (amount) => {
    return Promise.resolve(accounts);
 }
 
-module.exports = {
+export default {
     createInstance,
     getInstance,
     createInstanceSide,

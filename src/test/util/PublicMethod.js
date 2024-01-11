@@ -1,14 +1,16 @@
-const {PRIVATE_KEY, TOKEN_ID, DEPOSIT_FEE, WITHDRAW_FEE, MAPPING_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN} = require('./config');
-const trc721Contract = require('./contracts').trc721Contract;
-const trc20Contract = require('./contracts').trc20Contract;
-const tronWebBuilder = require('./tronWebBuilder');
-const broadcaster = require('./broadcaster');
-const jlog = require('./jlog')
-const wait = require('./wait');
-const HashMap = require('hashmap') ;
-const chalk = require('chalk')
-const util = require('util');
-const chai = require('chai');
+import Config from './config.js'
+const {PRIVATE_KEY, TOKEN_ID, DEPOSIT_FEE, WITHDRAW_FEE, MAPPING_FEE, FEE_LIMIT, ADDRESS_BASE58, SIDE_CHAIN} = Config;
+import Contracts from './contracts.js'
+const {trc721Contract,trc20Contract} = Contracts;
+
+import tronWebBuilder from './tronWebBuilder.js';
+import broadcaster from './broadcaster.js';
+import jlog from './jlog.js'
+import wait from './wait.js';
+import HashMap from 'hashmap' ;
+import chalk from 'chalk'
+import util from 'util';
+import chai from 'chai';
 const assert = chai.assert;
 
 const accAdd = async (A, B) => {
@@ -567,7 +569,7 @@ const equalIgnoreCase = async (str1, str2) =>{
     assert.equal(str1.toUpperCase(), str2.toUpperCase());
 }
 
-module.exports = {
+export default {
     reduce,
     sumBigNumber,
     accAdd,

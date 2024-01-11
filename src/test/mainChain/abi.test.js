@@ -1,6 +1,8 @@
 import React from 'react';
-const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, FEE_LIMIT} = require('../util/config');
-const testDeployRevert = require('../util/contracts').testDeployRevert;
+import Config from '../util/config.js'
+const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, FEE_LIMIT} = Config;
+import Contract from '../util/contracts.js'
+const {testDeployRevert} = require('../util/contracts').testDeployRevert;
 const testTriggerError = require('../util/contracts').testTriggerError;
 const tronWebBuilder = require('../util/tronWebBuilder');
 const {equals, getValues} = require('../util/testUtils');
