@@ -147,6 +147,7 @@ async function sendTrxWithCustomBlockHeader() {
       console.log(JSON.stringify(transaction2, null, 2));
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
+  console.log(`sendTrxWithCustomBlockHeader execute success`)
 }
 
 async function createToken() {
@@ -539,11 +540,11 @@ async function createTokenWithCustomBlockHeader(){
       let options2 = deepClone(options)
       options2.blockHeader=blockheader_pre
       console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
-      await wait(4); 
       const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[2]);
       console.log(JSON.stringify(transaction2, null, 2));
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
+  console.log(`createTokenWithCustomBlockHeader execute success`)
 }
 
 async function createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader() {
@@ -572,11 +573,11 @@ async function createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader() {
       let options2 = deepClone(options)
       options2.blockHeader=blockheader_pre
       console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
-      await wait(4);
       const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[3 + i]);
       console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
+  console.log(`createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader execute success`)
 };
 
 async function createTokenPassingAnyNumberAsAStringWithCustomBlockHeader(){
@@ -602,12 +603,11 @@ async function createTokenPassingAnyNumberAsAStringWithCustomBlockHeader(){
       let options2 = deepClone(options)
       options2.blockHeader=blockheader_pre
       console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
-      await wait(4);
       const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[25]);
       console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
       assert.isTrue(_.isEqual(transaction1,transaction2));
-      
   }
+  console.log(`createTokenPassingAnyNumberAsAStringWithCustomBlockHeader execute success`)
 };
 
 async function createTokenWithoutFreezeAnythingWithCustomBlockHeader() {
@@ -633,11 +633,11 @@ async function createTokenWithoutFreezeAnythingWithCustomBlockHeader() {
       let options2 = deepClone(options)
       options2.blockHeader=blockheader_pre
       console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
-      await wait(4);
       const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[1]);
       console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
+  console.log(`createTokenWithoutFreezeAnythingWithCustomBlockHeader execute success`)
 };
 
 async function createAccount() {
@@ -719,10 +719,10 @@ async function createAccountWithCustomBlockHeader() {
 
 
   let updateTx = await broadcaster.broadcaster(null, accounts.pks[3], transaction2);
-  tLog("updateTx1.txID:"+updateTx.transaction.txID)
+  console.log("updateTx1.txID:"+updateTx.transaction.txID)
   assert.equal(updateTx.transaction.txID.length, 64);
   await wait(30);
-  tLog("inactiveAccountAddress1:"+inactiveAccountAddress1)
+  console.log("inactiveAccountAddress1:"+inactiveAccountAddress1)
   const in1 = await tronWeb.trx.getAccount(inactiveAccountAddress1);
   assert.equal(in1.address.toLowerCase(), inactiveAccount1.address.hex.toLowerCase());
 
@@ -743,11 +743,12 @@ async function createAccountWithCustomBlockHeader() {
   console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
   assert.isTrue(_.isEqual(transaction1,transaction2));
   updateTx = await broadcaster.broadcaster(null, accounts.pks[3], transaction2);
-  tLog("updateTx2.txID:"+updateTx.transaction.txID)
+  console.log("updateTx2.txID:"+updateTx.transaction.txID)
   assert.equal(updateTx.transaction.txID.length, 64);
   await wait(30);
   const in2 = await tronWeb.trx.getAccount(inactiveAccountAddress2);
   assert.equal(in2.address.toLowerCase(), inactiveAccount2.address.hex.toLowerCase());
+  console.log(`createAccountWithCustomBlockHeader execute success`)
 };
 
 async function updateAccount() {
@@ -812,6 +813,7 @@ async function updateAccountWithCustomBlockHeader() {
       console.log(JSON.stringify(transaction2, null, 2));
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
+  console.log(`updateAccountWithCustomBlockHeader execute success`)
 };
 
 async function setAccountId() {
@@ -890,7 +892,7 @@ async function setAccountIdWithCustomBlockHeader() {
       console.log(JSON.stringify(transaction2, null, 2));
       assert.isTrue(_.isEqual(transaction1,transaction2));
   }
-
+  console.log(`setAccountIdWithCustomBlockHeader execute success`)
 };
 
 function randomString(e) {
@@ -6877,10 +6879,18 @@ async function transactionBuilderTestAll() {
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
   await sendTrx();
+  await sendTrxWithCustomBlockHeader()
   await createToken();
+  await createTokenWithCustomBlockHeader()
+  await createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader()
+  await createTokenPassingAnyNumberAsAStringWithCustomBlockHeader()
+  await createTokenWithoutFreezeAnythingWithCustomBlockHeader()
   await createAccount();
+  await createAccountWithCustomBlockHeader()
   await updateAccount();
+  await updateAccountWithCustomBlockHeader()
   await setAccountId();
+  await setAccountIdWithCustomBlockHeader()
   await setAccountIdMultiSign()
   await updateToken();
   await purchaseToken();
