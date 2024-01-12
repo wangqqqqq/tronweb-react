@@ -4,7 +4,7 @@ import './App.css';
 
 
 // import TronWeb from './tronweb/src/index.js'
-const TronWeb = require('tronweb')
+// const TronWeb = require('tronweb')
 // const TronWeb = require('./tronweb/dist/TronWeb.node');
 const abiTest = require('./test/mainChain/abi.test');
 const accountsTest = require('./test/mainChain/accounts.test');
@@ -60,7 +60,7 @@ class App extends React.Component {
     // await pluginTest.pluginTestAll();
     // await providersTest.providersTestAll();
     // await transactionBuilderTest.transactionBuilderTestAll();
-    // await trxTestMain.trxTestAll(); 
+     await trxTestMain.trxTestAll(); 
     // await typedData.typedDataAll();
     // await transactionTest.transactionTestAll(); 
     // await signVisibleTest.signVisibleTestAll();

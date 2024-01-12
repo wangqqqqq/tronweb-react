@@ -7,6 +7,10 @@ const rewiredMap = () => config => {
 
 const fix = () => config => {
   // config.bail = true;
+  const oneOf = config.module.rules[1].oneOf;
+  oneOf[2].test = /\.(js|mjs|jsx|ts|tsx|cjs)$/;
+  oneOf[3].test = /\.(js|mjs|cjs)$/;
+  oneOf[8].exclude.push(/\.cjs$/);
   const options = config.module.rules[1].oneOf[2].options
   options.babelrc = true;
   // options.configFile = true;
