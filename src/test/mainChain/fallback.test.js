@@ -2,7 +2,13 @@ import React from 'react';
 import Config from '../util/config.js'
 const {ADDRESS_BASE58,PRIVATE_KEY, FEE_LIMIT} = Config;
 import Contract from '../util/contracts.js'
-const {testFallbackOldVersion, fallbackOldversionCall, Test0, Test1,Test2,TestPayable} = Contract;
+import contracts from '../util/contracts.js'
+const testFallbackOldVersion = contracts.fallbackOldVersionTest;
+const fallbackOldversionCall = contracts.fallbackOldversionCall;
+const TestPayable = contracts.TestPayable;
+const Test0 = contracts.Test0
+const Test1 = contracts.Test1
+const Test2 = contracts.Test2
 import tronWebBuilder from '../util/tronWebBuilder.js';
 import broadcaster from '../util/broadcaster.js';
 import wait from '../util/wait.js';

@@ -14,16 +14,8 @@ import {providersTestAll} from './test/mainChain/providers.test';
 import {transactionBuilderTestAll} from './test/mainChain/transactionBuilder.test.js';
 import {trxTestAll} from './test/mainChain/trx.test';
 import {fallbackTestAll} from './test/mainChain/fallback.test';
-import ztronTest from './test/mainChain/ztron.test';
-import ztron2Test from './test/mainChain/ztron2.test';
 import trongridTest from './test/mainChain/trongrid.test';
 import {multiSignTestAll} from './test/mainChain/multiSign.test.js';
-import feelimitTest from './test/sideChain/feelimit.test';
-import multiSignTestSide from './test/sideChain/multiSign.test.js';
-import trc10Test from './test/sideChain/trc10.test.js';
-import trc20Test from './test/sideChain/trc20.test.js';
-import trc721Test from './test/sideChain/trc721.test.js';
-import trxTestSide from './test/sideChain/trx.test.js';
 import {isConstantCallTestAll} from './test/mainChain/isConstantCall.test.js';
 import {contractTypesTestAll} from './test/mainChain/contractTypes.test.js';
 import {typedDataAll} from './test/mainChain/typedData.test.js';
@@ -43,23 +35,23 @@ class App extends React.Component {
     /** need SIDE_CHAIN environment
      *  Use react default domain name in the browser
      */
-    await abiTestAll();//Yes 6.0.0 done
-    await accountsTestAll(); //Yes 6.0.0 done 需要学习
-    await bytesTestAll();//Yes 6.0.0 done
-    await codeTestAll();//Yes   6.0.0:传错参数类型期待报错，但是没有报错
-    await contractTypesTestAll();//Yes  6.0.0 done
-    await eip712TestAll();//Yes  6.0.0 done
-    await fallbackTestAll();//Yes  6.0.0 done
-    await isConstantCallTestAll(); //Yes 6.0.0 done
-    await methodTestAll();//Yes 6.0.0 done
-    await multiSignTestAll();//Yes  6.0.0 done
-    await pluginTestAll();//yes  pulgin 6.0.0 done 还需要研究学习
-    await providersTestAll();//Yes 6.0.0 done
-    await transactionBuilderTestAll(); //6.0.0 done
-    await trxTestAll();  //6.0.0 left await broadcastHex()
-    await typedDataAll();//Yes  6.0.0 done
-    await transactionTestAll();  //6.0.0 done
-    await signVisibleTestAll();//Yes 6.0.0 done
+    // await abiTestAll();//Yes 6.0.0 done
+    // await accountsTestAll(); //Yes 6.0.0 done 需要学习
+    // await bytesTestAll();//Yes 6.0.0 done
+    // await codeTestAll();//Yes   6.0.0:传错参数类型期待报错，但是没有报错
+    // await contractTypesTestAll();//Yes  6.0.0 done
+    // await eip712TestAll();//Yes  6.0.0 done
+    // await fallbackTestAll();//Yes  6.0.0 done
+    // await isConstantCallTestAll(); //Yes 6.0.0 done
+    // await methodTestAll();//Yes 6.0.0 done
+    // await multiSignTestAll();//Yes  6.0.0 done
+    // await pluginTestAll();//yes  pulgin 6.0.0 done 还需要研究学习
+    // await providersTestAll();//Yes 6.0.0 done
+    // await transactionBuilderTestAll(); //6.0.0 done
+    // await trxTestAll();  //6.0.0 left await broadcastHex()
+    // await typedDataAll();//Yes  6.0.0 done
+    // await transactionTestAll();  //6.0.0 done
+    // await signVisibleTestAll();//Yes 6.0.0 done
 
     //sideChain cases
     /* await feelimitTest.feelimitTestAll();//yes

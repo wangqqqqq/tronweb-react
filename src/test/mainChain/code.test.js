@@ -141,15 +141,15 @@ async function getStringType(){
 
 async function codeTestAll(){
   console.log("codeTestAll start")
-  this.bin2String();
-  this.arrayEquals();
-  this.stringToBytes();
-  this.hexChar2byte();
-  this.isHexChar();
-  this.hexStr2byteArray();
-  this.strToDate();
-  this.isNumbers();
-  this.getStringType();
+  bin2String();
+  arrayEquals();
+  stringToBytes();
+  hexChar2byte();
+  isHexChar();
+  hexStr2byteArray();
+  strToDate();
+  isNumbers();
+  getStringType();
   console.log("codeTestAll end")
 }
 

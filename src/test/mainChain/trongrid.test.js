@@ -1,7 +1,8 @@
 import React from 'react';
-const {ADDRESS_HEX, ADDRESS_BASE58, FULL_NODE_API, SOLIDITY_NODE_API, PRIVATE_KEY, SIDE_CHAIN, SUN_NETWORK} = require('../util/config');
-const tronWebBuilder = require('../util/tronWebBuilder');
-const broadcaster = require('../util/broadcaster');
+import Config from '../util/config.js'
+const {ADDRESS_HEX, ADDRESS_BASE58, FULL_NODE_API, SOLIDITY_NODE_API, PRIVATE_KEY, SIDE_CHAIN, SUN_NETWORK} = Config;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import broadcaster from '../util/broadcaster.js';
 const TronWeb = tronWebBuilder.TronWeb;
 const HttpProvider = tronWebBuilder.providers.HttpProvider;
 const jwt = require('jsonwebtoken');
@@ -12,11 +13,9 @@ const {
   TEST_TRON_HEADER_API_JWT_KEY,
   TEST_TRON_HEADER_JWT_ID,
   TEST_TRON_HEADER_JWT_PRIVATE_KEY
-} = require('../util/config');
-const BigNumber = require('bignumber.js');
-const wait = require('../util/wait');
-const util = require('util');
-const chai = require('chai');
+} = Config;
+import util from 'util';
+import chai from 'chai';
 const assert = chai.assert;
 const expect = chai.expect;
 const eventContractAddress="TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"

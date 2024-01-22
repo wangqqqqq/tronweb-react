@@ -2,17 +2,14 @@ import React from 'react';
 import Config from '../util/config.js'
 const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, FEE_LIMIT} = Config;
 import Contract from '../util/contracts.js'
-const {testDeployRevert} = require('../util/contracts').testDeployRevert;
-const testTriggerError = require('../util/contracts').testTriggerError;
-const tronWebBuilder = require('../util/tronWebBuilder');
-const {equals, getValues} = require('../util/testUtils');
-// const {loadTests} = require('../util/disk-utils');
-const broadcaster = require('../util/broadcaster');
-const wait = require('../util/wait');
-const assert = require('assert');
+const {testDeployRevert,testTriggerError } = Config;
+import tronWebBuilder from '../util/tronWebBuilder.js';
+import TestUtils from '../util/testUtils.js';
+const { equals, getValues } = TestUtils;
+import { assert } from 'chai';
 const util = require('util');
-import {json} from '../util/contract-interface'
-import {json2} from '../util/contract-interface-abi2'
+import {json} from '../util/contract-interface.js'
+import {json2} from '../util/contract-interface-abi2.js'
 
 const utils = tronWebBuilder.utils
 

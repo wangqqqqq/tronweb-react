@@ -2,7 +2,7 @@ import React from 'react';
 import Config from '../util/config.js'
 const {PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58} = Config;
 import Contract from '../util/contracts.js'
-const {trc20Contract} = require('../util/contracts').trc20Contract;
+const {trc20Contract} = Contract;
 const testDeploy = trc20Contract
 import tronWebBuilder from '../util/tronWebBuilder.js';
 import assertThrow from '../util/assertThrow.js';

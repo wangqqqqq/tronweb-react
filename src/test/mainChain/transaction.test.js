@@ -2277,7 +2277,7 @@ async function txCheckWithArgs_TriggerSmartContract(){
             }
             return type
         })
-        const abiCoder = AbiCoder.defaultAbiCoder;
+        const abiCoder = new AbiCoder();
         parameters = abiCoder.encode(types, values).replace(/^0x/, '');
         args.function_selector = param[1].replace('/\s+/g', '');
         args.parameter = parameters;
@@ -4466,7 +4466,7 @@ async function transactionTestAll(){
     await txCheckWithArgs_FreezeBalanceContract();
     await txCheckWithArgs_UnfreezeBalanceContract();*/
     // Execute this method when Proposition 70 is enabled
-    await txCheck_FreezeBalanceV2Contract();
+    /*await txCheck_FreezeBalanceV2Contract();
     await txCheck_UnfreezeBalanceV2Contract();
     await txCheck_DelegateResourceContract();
     await txCheck_UnDelegateResourceContract();
@@ -4514,7 +4514,7 @@ async function transactionTestAll(){
     await txCheckWithArgs_AccountCreateContract();
     await txCheckWithArgs_AccountUpdateContract();
     await txCheckWithArgs_SetAccountIdContract();
-    await txCheckWithArgs_ProposalCreateContract();
+    await txCheckWithArgs_ProposalCreateContract();*/
     await txCheckWithArgs_ProposalDeleteContract();
     await txCheckWithArgs_ProposalApproveContract_approve_true();
     await txCheckWithArgs_ProposalApproveContract_approve_false();

@@ -3,7 +3,7 @@ import Config from '../util/config.js'
 const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY, FEE_LIMIT} = Config;
 import Contract from '../util/contracts.js'
 const {testDeployRevert,testTriggerError} = Contract;
-const tronWebBuilder = require('../util/tronWebBuilder');
+import tronWebBuilder from '../util/tronWebBuilder.js';
 import broadcaster from '../util/broadcaster.js';
 import wait from '../util/wait.js';
 import { assert } from 'chai';
@@ -81,12 +81,12 @@ async function base64DecodeFromString(){
 
 async function bytesTestAll(){
     console.log("bytesTestAll start")
-    this.byte2hexStr();
-    this.bytesToString();
-    this.hextoString();
-    this.byteArray2hexStr();
-    this.base64EncodeToString();
-    this.base64DecodeFromString();
+    byte2hexStr();
+    bytesToString();
+    hextoString();
+    byteArray2hexStr();
+    base64EncodeToString();
+    base64DecodeFromString();
     console.log("bytesTestAll end")
 }
 

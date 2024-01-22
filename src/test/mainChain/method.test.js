@@ -2,12 +2,19 @@ import React from 'react';
 import Config from '../util/config.js'
 const {PRIVATE_KEY, ADDRESS_HEX, ADDRESS_BASE58,FEE_LIMIT, TOKEN_ID,getTokenOptions} = Config;
 import Contract from '../util/contracts.js'
-const {TestCustomError, testRevertContract, testSetValContract,testEmptyAbi, outputNameTest1, outputNameTest2, testConstantParameters } = Contract;
+const TestCustomError = Contract.TestCustomError;
+const testRevertContract = Contract.testRevert;
+const testEmptyAbi =Contract.testEmptyAbi;
+const testSetValContract = Contract.testSetVal;
+const outputNameTest1 =Contract.outputNameTest1;
+const outputNameTest2 =Contract.outputNameTest2;
+const testConstantParameters = Contract.testConstantParameters;
 import tronWebBuilder from '../util/tronWebBuilder.js';
 import assertThrow from '../util/assertThrow.js';
 import broadcaster from '../util/broadcaster.js';
 import publicMethod from '../util/PublicMethod.js';
 import waitChainData from '../util/waitChainData.js';
+import TestUtils from '../util/testUtils.js';
 const { equals, getValues } = TestUtils;
 import wait from '../util/wait.js';
 const TronWeb = tronWebBuilder.TronWeb;

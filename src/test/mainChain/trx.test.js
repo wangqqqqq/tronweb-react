@@ -10,14 +10,14 @@ import assertEqualHex from '../util/assertEqualHex.js';
 import waitChainData from '../util/waitChainData.js';
 import pollAccountFor from '../util/pollAccountFor';
 import assertThrow from '../util/assertThrow.js';
-import Signmessage from '../../testcases/src/sign-message.js'
+import Signmessage from '../util/sign-message.js'
 const {tests} = Signmessage
 const TronWeb = tronWebBuilder.TronWeb;
 const Trx = tronWebBuilder.Trx;
 import chai from 'chai';
 const assert = chai.assert;
 import wait from '../util/wait.js';
-const util = require('util');
+import util from 'util';
 let tronWeb;
 let emptyAccounts;
 let isAllowSameTokenNameApproved;
