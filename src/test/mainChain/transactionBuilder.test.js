@@ -6887,7 +6887,7 @@ async function beforeTestIssueToken() {
 async function transactionBuilderTestAll() {
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
-  /*await sendTrx();
+  await sendTrx();
   await sendTrxWithCustomBlockHeader()
   await createToken();
   await createTokenWithCustomBlockHeader()
@@ -6907,7 +6907,7 @@ async function transactionBuilderTestAll() {
   await createProposal();
   await deleteProposal();
   await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
-  await applyForSR();*/
+  await applyForSR();
   //Execute this method when Proposition 70 is not enabled
   /*await freezeBalance();
   await unfreezeBalance();*/
