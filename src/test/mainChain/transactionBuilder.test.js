@@ -2,8 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 import Config from '../util/config.js'
 const { ADDRESS_BASE58, ADDRESS_HEX, PRIVATE_KEY, WITNESS_ACCOUNT, WITNESS_KEY, UPDATED_TEST_TOKEN_OPTIONS, getTokenOptions, isProposalApproved, FEE_LIMIT } = Config;
-// import TestUtils from '../util/testUtils.js';
-// const { equals, getValues } = TestUtils;
+import TestUtils from '../util/testUtils.js';
+const { equals, getValues } = TestUtils;
 import Contract from '../util/contracts.js'
 const { testRevert, testConstant, arrayParam, tronToken, testAddressArray, trcTokenTest070, trcTokenTest059, funcABIV2, funcABIV2_2, funcABIV2_3, funcABIV2_4, abiV2Test1, testSetVal, testEmptyAbi } = Contract;
 import tronWebBuilder from '../util/tronWebBuilder.js';
@@ -997,7 +997,7 @@ async function updateToken() {
 
   let tokenOptions = getTokenOptions();
 
-  let tokenID;
+  var tokenID;
   await broadcaster.broadcaster(null, emptyAccount1.privateKey, await tronWeb.transactionBuilder.createToken(tokenOptions, emptyAccount1.address.base58))
   let tokenList
   while (!tokenList) {
@@ -4204,7 +4204,7 @@ async function triggerComfirmedConstantContract() {
   const emptyAccount1 = await TronWeb.createAccount();
   let brodcastResp = await tronWeb.trx.sendTrx(emptyAccount1.address.hex, 3000000000, { privateKey: PRIVATE_KEY })
   console.log("brodcastResp:", brodcastResp)
-  count = 0;
+  var count = 0;
   while (true) {
     count += 1;
     if (count > 15) {
@@ -4226,7 +4226,7 @@ async function triggerComfirmedConstantContract() {
     bytecode: testConstant.bytecode
   }, emptyAccount1.address.hex);
   await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
-  let count = 0;
+  count = 0;
   while (true) {
     const tx = await tronWeb.trx.getTransactionInfo(transaction.txID);
     if (Object.keys(tx).length === 0) {
