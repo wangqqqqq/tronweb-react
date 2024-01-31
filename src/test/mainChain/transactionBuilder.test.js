@@ -7338,7 +7338,7 @@ async function transactionBuilderTestAll() {
   await createToken();
   await createAccount();
   await updateAccount();
-//  await setAccountId();
+  await setAccountId();
 //  await setAccountIdMultiSign()
 //  await updateToken();
 //  await purchaseToken();
