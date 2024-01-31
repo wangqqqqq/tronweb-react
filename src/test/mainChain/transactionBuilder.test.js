@@ -7335,7 +7335,7 @@ async function transactionBuilderTestAll() {
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
   await sendTrx();
-//  await createToken();
+  await createToken();
 //  await createAccount();
 //  await updateAccount();
 //  await setAccountId();
