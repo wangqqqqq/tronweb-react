@@ -26,6 +26,7 @@ let TOKEN_ID = require('../util/config');
 const ethers = require('ethers');
 console.log(TronWeb.utils.ethersUtils);
 const { AbiCoder, keccak256 } = TronWeb.utils.ethersUtils;
+
 async function transactionBuilderBefore() {
   console.log("start...");
   tronWeb = tronWebBuilder.createInstance();
@@ -66,6 +67,30 @@ async function sendTrx() {
     assert.equal(parameter.value.to_address, emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.TransferContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[3] ? param[3]['permissionId'] : 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    const multiSignAccounts = { b58: [], hex: [], pks: []};
+    multiSignAccounts.pks.push(PRIVATE_KEY);
+    multiSignAccounts.b58.push(ADDRESS_BASE58);
+    multiSignAccounts.pks.push(accounts.pks[18]);
+    multiSignAccounts.b58.push(accounts.b58[18]);
+    multiSignAccounts.pks.push(accounts.pks[19]);
+    multiSignAccounts.b58.push(accounts.b58[19]);
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
 
   params = [
@@ -83,6 +108,12 @@ async function sendTrx() {
     assert.equal(parameter.value.to_address, emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.TransferContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[3] ? param[3]['permissionId'] : 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount.address.base58.toLowerCase());
   }
 
   await assertThrow(
@@ -143,6 +174,26 @@ async function createToken() {
     assert.equal(parameter.value.owner_address, emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AssetIssueContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, options.permissionId || 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount1.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount1.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
 
   if (isAllowSameTokenNameApproved) {
@@ -172,6 +223,12 @@ async function createToken() {
       assert.equal(parameter.value.owner_address, tempAccount.address.hex.toLowerCase());
       assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AssetIssueContract');
       assert.equal(transaction.raw_data.contract[0].Permission_id || 0, options.permissionId || 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, tempAccount.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), tempAccount.address.base58.toLowerCase());
 
       const triggerTx = await broadcaster.broadcaster(null, tempAccount.privateKey, transaction)
       console.log("triggerTx:" + util.inspect(triggerTx))
@@ -220,6 +277,12 @@ async function createToken() {
     const parameter = txPars(transaction);
     await assertEqualHex(parameter.value.abbr, options.abbreviation);
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, options.permissionId || 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[i]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[i].toLowerCase());
   }
 
   console.log("4444")
@@ -234,6 +297,12 @@ async function createToken() {
     const parameter = txPars(transaction);
     await assertEqualHex(parameter.value.abbr, options.abbreviation);
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, options.permissionId || 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[i]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[i].toLowerCase());
   }
 
 
@@ -255,6 +324,13 @@ async function createToken() {
     await assertEqualHex(parameter.value.abbr, options.abbreviation);
     assert.equal(parameter.value.owner_address, emptyAccount4.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AssetIssueContract');
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount4.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount4.address.base58.toLowerCase());
+
     await broadcaster.broadcaster(null, emptyAccount4.privateKey, transaction)
     let tokenList = await tronWeb.trx.getTokensIssuedByAddress(emptyAccount4.address.base58)
     let tokenID = tokenList[options.name].id
@@ -275,6 +351,13 @@ async function createToken() {
     await assertEqualHex(parameter.value.abbr, options.abbreviation);
     assert.equal(parameter.value.owner_address, emptyAccount5.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AssetIssueContract');
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount5.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount5.address.base58.toLowerCase());
+
     await broadcaster.broadcaster(null, emptyAccount5.privateKey, transaction)
     tokenList = await tronWeb.trx.getTokensIssuedByAddress(emptyAccount5.address.base58)
     tokenID = tokenList[options.name].id
@@ -503,6 +586,30 @@ async function createAccount() {
   assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AccountCreateContract');
   assert.equal(transaction.raw_data.contract[0].Permission_id, 2);
 
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    const multiSignAccounts = { b58: [], hex: [], pks: []};
+    multiSignAccounts.pks.push(emptyAccount1.privateKey);
+    multiSignAccounts.b58.push(emptyAccount1.address.base58);
+    multiSignAccounts.pks.push(accounts.pks[18]);
+    multiSignAccounts.b58.push(accounts.b58[18]);
+    multiSignAccounts.pks.push(accounts.pks[19]);
+    multiSignAccounts.b58.push(accounts.b58[19]);
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let updateTx = await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
   console.log("updateTx1.txID:" + updateTx.transaction.txID)
   assert.equal(updateTx.transaction.txID.length, 64);
@@ -518,6 +625,12 @@ async function createAccount() {
   assert.equal(parameter.value.owner_address.toLowerCase(), emptyAccount1.address.hex.toLowerCase());
   assert.equal(parameter.value.account_address.toLowerCase(), tronWeb.address.toHex(inactiveAccountAddress2).toLowerCase());
   assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AccountCreateContract');
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
 
   updateTx = await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction);
   console.log("updateTx2.txID:" + updateTx.transaction.txID)
@@ -558,6 +671,26 @@ async function updateAccount() {
     assert.equal(parameter.value.owner_address.toLowerCase(), emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.AccountUpdateContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[2] ? param[2]['permissionId'] : 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount1.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount1.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
 
   await assertThrow(
@@ -590,6 +723,25 @@ async function setAccountId() {
     assert.equal(parameter.value.owner_address.toLowerCase(), emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.SetAccountIdContract');
 
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount1.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount1.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
 
   // account id length should be between 8 and 32
@@ -621,6 +773,12 @@ async function setAccountId() {
     assert.equal(parameter.value.owner_address, accounts.hex[4]);
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.SetAccountIdContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[2] ? param[2]['permissionId'] : 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[4]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[4].toLowerCase());
   }
   console.log("execute setAccountId end")
 }
@@ -740,6 +898,26 @@ async function updateToken() {
     assert.equal(parameter.value.owner_address, emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.UpdateAssetContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, UPDATED_TEST_TOKEN_OPTIONS.permissionId || 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount1.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount1.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
 
   let options = _.clone(UPDATED_TEST_TOKEN_OPTIONS);
@@ -917,6 +1095,26 @@ async function purchaseToken() {
     assert.equal(parameter.value.to_address, emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.ParticipateAssetIssueContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[4] ? param[4]['permissionId'] : 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount2.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount2.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount2.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount2.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
 
   await assertThrow(
@@ -1065,6 +1263,26 @@ async function sendToken() {
     assert.equal(parameter.value.owner_address, emptyAccount3.address.hex.toLowerCase());
     assert.equal(parameter.value.to_address, emptyAccount2.address.hex.toLowerCase());
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[4] ? param[4]['permissionId'] : 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount3.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount3.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount3.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount3.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
 
   params = [
@@ -1081,6 +1299,12 @@ async function sendToken() {
     assert.equal(parameter.value.owner_address, emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.value.to_address, emptyAccount2.address.hex.toLowerCase());
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[4] ? param[4]['permissionId'] : 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
   }
 
   await assertThrow(
@@ -1138,7 +1362,7 @@ async function createProposal() {
     [parameters[0], ADDRESS_BASE58]
   ];
   // tronex have no witness account TODO
-  /*for (let input of inputs) {
+  for (let input of inputs) {
     const transaction = await tronWeb.transactionBuilder.createProposal(...input)
 
     const parameter = txPars(transaction);
@@ -1147,7 +1371,27 @@ async function createProposal() {
     assert.equal(parameter.value.parameters[0].value, parameters[0].value);
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.ProposalCreateContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, input[2] ? input[2]['permissionId'] : 0);
-  }*/
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+  }
 
   for (let input of inputs) {
     await assertThrow(
@@ -1193,6 +1437,26 @@ async function deleteProposal() {
     assert.equal(parameter.value.proposal_id, proposals[0].proposal_id);
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.ProposalDeleteContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[2] ? 2 : 0);
+
+    const tempTransaction = JSON.parse(JSON.stringify(transaction));
+    const signedTransaction = await tronWeb.trx.sign(tempTransaction, witnessKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), witnessAccount.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = witnessKey;
+    multiSignAccounts.b58[0] = witnessAccount;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
 
   await broadcaster.broadcaster(await tronWeb.transactionBuilder.deleteProposal(proposals[0].proposal_id, witnessAccount), witnessKey);
@@ -1307,6 +1571,25 @@ async function voteProposal() {
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
+        const tempTransaction = JSON.parse(JSON.stringify(transaction));
+        const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+        //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+        const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+        assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount1.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount1.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
   console.log("voteProposal excute success")
 }
@@ -1351,6 +1634,27 @@ async function applyForSR() {
   assert.equal(parameter.value.owner_address, emptyAccount1.address.hex.toLowerCase());
   await assertEqualHex(parameter.value.url, url);
   assert.equal(parameter.type_url, 'type.googleapis.com/protocol.WitnessCreateContract');
+
+        const tempTransaction = JSON.parse(JSON.stringify(transaction));
+        const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+        //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+        const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+        assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount1.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount1.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   console.log("applyForSR excute success")
 }
 
@@ -1390,6 +1694,26 @@ async function freezeBalance() {
     assert.equal(parameter.value.frozen_duration, 3);
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.FreezeBalanceContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[4] ? param[4]['permissionId'] : 0);
+
+        const tempTransaction = JSON.parse(JSON.stringify(transaction));
+        const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+        //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+        const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+        assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount1.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount1.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
   console.log("freezeBalance excute success")
 }
@@ -1443,12 +1767,53 @@ async function unfreezeBalance() {
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
+
+        const tempTransaction = JSON.parse(JSON.stringify(transaction));
+        const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+        //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+        const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+        assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount1.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount1.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
   console.log("unfreezeBalance excute success")
 }
 
 async function freezeBalanceV2_1() {
   let transaction = await tronWeb.transactionBuilder.freezeBalanceV2(4e6, 'BANDWIDTH', accounts.b58[0], { permissionId: 2 });
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[0];
+    multiSignAccounts.b58[0] = accounts.b58[0];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[0], transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -1483,6 +1848,13 @@ async function freezeBalanceV2_1() {
   assert.equal(accountResource.tronPowerLimit, 4);
 
   transaction = await tronWeb.transactionBuilder.freezeBalanceV2(3e6, 'ENERGY', accounts.hex[0]);
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+
   tx = await broadcaster.broadcaster(null, accounts.pks[0], transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -1506,6 +1878,27 @@ async function freezeBalanceV2_1() {
 
 async function freezeBalanceV2_2() {
   let transaction = await tronWeb.transactionBuilder.freezeBalanceV2(5e6, 'ENERGY', accounts.b58[1], { permissionId: 2 });
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -1527,6 +1920,13 @@ async function freezeBalanceV2_2() {
   assert.equal(accountResource.tronPowerLimit, 5);
 
   transaction = await tronWeb.transactionBuilder.freezeBalanceV2(6e6, 'BANDWIDTH', accounts.hex[1]);
+
+        tempTransaction = JSON.parse(JSON.stringify(transaction));
+        signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+        //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+        signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+        assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -1553,6 +1953,27 @@ async function freezeBalanceV2_3() {
   let accountBefore = await tronWeb.trx.getAccount();
   console.log("accountBefore: " + util.inspect(accountBefore, true, null, true))
   let transaction = await tronWeb.transactionBuilder.freezeBalanceV2(1e6);
+
+        const tempTransaction = JSON.parse(JSON.stringify(transaction));
+        const signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+        //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+        const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+        assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -1616,6 +2037,27 @@ async function freezeBalanceV2_4() {
 
 async function unfreezeBalanceV2_1() {
   let transaction = await tronWeb.transactionBuilder.unfreezeBalanceV2(3e6, 'BANDWIDTH', accounts.b58[0], { permissionId: 2 })
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[0];
+    multiSignAccounts.b58[0] = accounts.b58[0];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[0], transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -1635,6 +2077,13 @@ async function unfreezeBalanceV2_1() {
   assert.equal(accountResource.tronPowerLimit, 4);
 
   transaction = await tronWeb.transactionBuilder.unfreezeBalanceV2(2e6, 'ENERGY', accounts.b58[0])
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+
   tx = await broadcaster.broadcaster(null, accounts.pks[0], transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -1658,6 +2107,13 @@ async function unfreezeBalanceV2_1() {
 
 async function unfreezeBalanceV2_2() {
   let transaction = await tronWeb.transactionBuilder.unfreezeBalanceV2(5e6, 'ENERGY', accounts.b58[1], { permissionId: 2 })
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -1678,6 +2134,27 @@ async function unfreezeBalanceV2_2() {
   assert.equal(accountResource.tronPowerLimit, 6);
 
   transaction = await tronWeb.transactionBuilder.unfreezeBalanceV2(6e6, 'BANDWIDTH', accounts.b58[1])
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -1702,6 +2179,27 @@ async function unfreezeBalanceV2_3() {
   let accountResourceBeofre = await tronWeb.trx.getAccountResources()
   let accountBefore = await tronWeb.trx.getAccount();
   let transaction = await tronWeb.transactionBuilder.unfreezeBalanceV2(1e6);
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -1780,6 +2278,27 @@ async function cancelUnfreezeBalanceV2() {
   assert.equal(accountInfo.unfrozenV2[0].unfreeze_amount, 50000000);
   assert.equal(accountInfo.unfrozenV2[0].type, "ENERGY");
   const txCancel = await tronWeb.transactionBuilder.cancelUnfreezeBalanceV2(account.b58[0]);
+
+    let tempTransaction = JSON.parse(JSON.stringify(txCancel));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, account.pks[0]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, txCancel);
+    assert.equal(signAddresses.toLowerCase(), account.b58[0].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(txCancel));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[0];
+    multiSignAccounts.b58[0] = accounts.b58[0];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   console.log("txCancel txId", txCancel.txId);
   signedTrx = await tronWeb.trx.sign(txCancel, account.pks[0]);
   receipt = await tronWeb.trx.sendRawTransaction(signedTrx);
@@ -1809,6 +2328,27 @@ async function delegateResourcePeriod() {
     true,
     1
   );
+
+    let tempTransaction = JSON.parse(JSON.stringify(txDelegate));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, account.pks[0]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, txDelegate);
+    assert.equal(signAddresses.toLowerCase(), account.b58[0].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(txDelegate));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[0];
+    multiSignAccounts.b58[0] = accounts.b58[0];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   signedTrx = await tronWeb.trx.sign(txDelegate, account.pks[0]);
   receipt = await tronWeb.trx.sendRawTransaction(signedTrx);
   console.log("receipt: ",JSON.stringify(receipt,null,2));
@@ -1834,7 +2374,29 @@ async function delegateResource_before() {
 async function delegateResource_1() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1],false,0, { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH',
+  accounts.b58[1],false,0, { permissionId: 2 })
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -1855,6 +2417,13 @@ async function delegateResource_1() {
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
 
   transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1])
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -1879,7 +2448,29 @@ async function delegateResource_1() {
 async function delegateResource_2() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1],false,0, { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1],
+  false,0, { permissionId: 2 })
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -1901,6 +2492,13 @@ async function delegateResource_2() {
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
 
   transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1])
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -1927,7 +2525,29 @@ async function delegateResource_3() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   console.log("accountBefore1: " + util.inspect(accountBefore1, true, null, true))
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], true,3,{ permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1],
+  true,3,{ permissionId: 2 })
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -1948,6 +2568,13 @@ async function delegateResource_3() {
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
 
   transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], true)
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -1972,7 +2599,29 @@ async function delegateResource_3() {
 async function delegateResource_4() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], false,0,{ permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1],
+  false,0,{ permissionId: 2 })
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -1993,6 +2642,13 @@ async function delegateResource_4() {
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
 
   transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], false)
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2017,7 +2673,29 @@ async function delegateResource_4() {
 async function delegateResource_5() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1], true,3,{ permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1],
+  true,3,{ permissionId: 2 })
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2039,6 +2717,13 @@ async function delegateResource_5() {
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
 
   transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1], true)
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2065,7 +2750,29 @@ async function delegateResource_6() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   console.log("accountBefore1: " + util.inspect(accountBefore1, true, null, true))
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1], false,0, { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1],
+  false,0, { permissionId: 2 })
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2087,6 +2794,13 @@ async function delegateResource_6() {
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
 
   transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1], false)
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2113,6 +2827,27 @@ async function delegateResource_7() {
   let accountBefore1 = await tronWeb.trx.getAccount(ADDRESS_BASE58);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(ADDRESS_BASE58)
   let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7])
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2220,7 +2955,29 @@ async function undelegateResource_before() {
 async function undelegateResource_1() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.hex[7], 'BANDWIDTH', accounts.hex[1], { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.hex[7], 'BANDWIDTH', accounts.hex[1],
+  { permissionId: 2 })
+
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2241,6 +2998,13 @@ async function undelegateResource_1() {
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
 
   transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1])
+
+  tempTransaction = JSON.parse(JSON.stringify(transaction));
+  signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2265,7 +3029,15 @@ async function undelegateResource_1() {
 async function undelegateResource_2() {
   let accountBefore1 = await tronWeb.trx.getAccount(accounts.b58[1]);
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources(accounts.b58[1])
-  let transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.hex[7], 'ENERGY', accounts.hex[1], { permissionId: 2 })
+  let transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.hex[7], 'ENERGY', accounts.hex[1],
+  { permissionId: 2 })
+
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2286,6 +3058,27 @@ async function undelegateResource_2() {
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
 
   transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1])
+
+  tempTransaction = JSON.parse(JSON.stringify(transaction));
+  signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2311,6 +3104,27 @@ async function undelegateResource_3() {
   let accountBefore1 = await tronWeb.trx.getAccount();
   let accountResourceBefore1 = await tronWeb.trx.getAccountResources()
   let transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.hex[7])
+
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2410,6 +3224,27 @@ async function withdrawExpireUnfreeze_1() {
   assert.isTrue(accountBefore1.unfrozenV2[0].unfreeze_amount > 0);
   await wait(30);
   let transaction = await tronWeb.transactionBuilder.withdrawExpireUnfreeze(accounts.b58[3], { permissionId: 2 })
+
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[3]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[3].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[3];
+    multiSignAccounts.b58[0] = accounts.b58[3];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    let multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[3], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2429,6 +3264,27 @@ async function withdrawExpireUnfreeze_1() {
   assert.isTrue(accountBefore2.unfrozenV2[0].unfreeze_amount > 0);
   await wait(30); //fullnode设置解冻后的锁定期为1min，所以前后两个wait加起来要大于60s
   transaction = await tronWeb.transactionBuilder.withdrawExpireUnfreeze(accounts.hex[3])
+
+  tempTransaction = JSON.parse(JSON.stringify(transaction));
+  signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[3]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[3].toLowerCase());
+
+    multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[3];
+    multiSignAccounts.b58[0] = accounts.b58[3];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   tx = await broadcaster.broadcaster(null, accounts.pks[3], transaction);
   console.log("tx:" + util.inspect(tx))
   assert.equal(tx.transaction.txID.length, 64);
@@ -2821,6 +3677,25 @@ async function withdrawBalance() {
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
 
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, WITNESS_KEY);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), WITNESS_ACCOUNT.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = WITNESS_KEY;
+    multiSignAccounts.b58[0] = WITNESS_ACCOUNT;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
   console.log("withdrawBalance excute success")
 }
@@ -2868,6 +3743,27 @@ async function vote() {
   assert.equal(parameter.value.votes[0].vote_address, tronWeb.address.toHex(WITNESS_ACCOUNT));
   assert.equal(parameter.value.votes[0].vote_count, 5);
   assert.equal(parameter.type_url, 'type.googleapis.com/protocol.VoteWitnessContract');
+
+  tempTransaction = JSON.parse(JSON.stringify(transaction));
+  signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount2.privateKey);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), emptyAccount2.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount2.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount2.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   console.log("vote excute success")
 }
 
@@ -2980,6 +3876,26 @@ async function createSmartContract() {
     assert.equal(tx.raw_data.contract[0].parameter.value.new_contract.origin_energy_limit, 1e7);
     assert.equal(tx.raw_data.fee_limit, 15e7);
     assert.equal(tx.raw_data.contract[0].Permission_id || 0, options.permissionId || 0);
+
+  let tempTransaction = JSON.parse(JSON.stringify(tx));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(tx));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
 
   const bals = [1000, 2000, 3000, 4000];
@@ -2993,6 +3909,13 @@ async function createSmartContract() {
     ]
   };
   const transaction = await tronWeb.transactionBuilder.createSmartContract(options, emptyAccount5.address.hex);
+
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount5.privateKey);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), emptyAccount5.address.base58.toLowerCase());
+
   await broadcaster.broadcaster(null, emptyAccount5.privateKey, transaction);
   console.log("transaction.txID: " + transaction.txID)
   count = 0;
@@ -3038,6 +3961,12 @@ async function createSmartContract() {
     assert.equal(tx.raw_data.contract[0].parameter.value.new_contract.origin_energy_limit, 9e6);
     assert.equal(tx.raw_data.fee_limit, 9e8);
     assert.equal(tx.raw_data.contract[0].Permission_id || 0, options.permissionId || 0);
+
+  let tempTransaction = JSON.parse(JSON.stringify(tx));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
   }
   console.log("createSmartContract excute success");
 }
@@ -3133,6 +4062,27 @@ async function createSmartContractWithArray3() {
   console.log("PRIVATE_KEY:" + PRIVATE_KEY);
   console.log("PRIVATE_KEY:" + util.inspect(await tronWeb.trx.getAccount(ADDRESS_HEX), true, null, true));
   const transaction = await tronWeb.transactionBuilder.createSmartContract(options, emptyAccount4.address.hex);
+
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount4.privateKey);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), emptyAccount4.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount4.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount4.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   const createTx = await broadcaster.broadcaster(null, emptyAccount4.privateKey, transaction);
   assert.equal(createTx.transaction.txID.length, 64);
   count = 0;
@@ -3201,6 +4151,27 @@ async function createSmartContractWithTrctokenAndStateMutability() {
     feeLimit: FEE_LIMIT
   };
   const transaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_HEX);
+
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   let createInfo
   count = 0;
@@ -3269,6 +4240,27 @@ async function createSmartContractWithPayable() {
     tokenValue: 1e3
   };
   const transaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_HEX);
+
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   let createInfo
   count = 0;
@@ -3493,6 +4485,26 @@ async function clearabi() {
     assert.equal(parameter.value.owner_address, tronWeb.address.toHex(ownerAddress));
     assert.equal(transaction1.raw_data.contract[0].Permission_id, param[2]?.permissionId);
 
+    let tempTransaction = JSON.parse(JSON.stringify(transaction1));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[7]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[7].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[7];
+    multiSignAccounts.b58[0] = accounts.b58[7];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
     if (param.length === 2) {
       let transaction2 = await broadcaster.broadcaster(null, accounts.pks[7], transaction1);
       assert.isTrue(transaction2.receipt.result);
@@ -3683,6 +4695,26 @@ async function updateBrokerage() {
   console.log("emptyAccount1:" + emptyAccount1.address.base58)
   const transaction = await tronWeb.transactionBuilder.updateBrokerage(10, emptyAccount1.address.hex);
 
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount1.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount1.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   await assertThrow(
     tronWeb.transactionBuilder.updateBrokerage(null, emptyAccount1.address.hex),
     'Invalid brokerage provided'
@@ -3859,6 +4891,27 @@ async function triggerSmartContract() {
       transaction.transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.TriggerSmartContract');
     console.log("trigger transaction: ", JSON.stringify(transaction, null, 2))
     assert.equal(transaction.constant_result, '0000000000000000000000000000000000000000000000000000000000000004');
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction.transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction.transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount1.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount1.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
     transaction = await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction.transaction);
     assert.isTrue(transaction.receipt.result)
     assert.equal(transaction.transaction.raw_data.contract[0].Permission_id || 0, options.permissionId || 0);
@@ -3907,6 +4960,27 @@ async function triggerSmartContractWithArrays() {
   ]
   transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithArray, functionSelector, {},
     parameter, ADDRESS_HEX);
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction.transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction.transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction.transaction);
   count = 0;
   while (true) {
@@ -3940,6 +5014,13 @@ async function triggerSmartContractWithArrays() {
   ]
   transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithArray, functionSelector, {},
     parameter, ADDRESS_HEX);
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction.transaction);
   count = 0;
   while (true) {
@@ -3981,6 +5062,27 @@ async function triggerSmartContractWithTrctoken() {
     feeLimit: 9e7,
   };
   let transaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_HEX);
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   let createInfo
   let count = 0;
@@ -4020,6 +5122,13 @@ async function triggerSmartContractWithTrctoken() {
   };
   transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithTrctoken, functionSelector, options,
     parameter, ADDRESS_HEX);
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   const res = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction.transaction);
   count = 0;
   while (true) {
@@ -4117,7 +5226,28 @@ async function triggerSmartContractWithCallData() {
     feeLimit: 9e7,
   };
   let transaction = await tronWeb.transactionBuilder.createSmartContract(options, tronWeb.defaultAddress.base58);
-  let signedTransaction = await tronWeb.trx.sign(transaction);
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
+  signedTransaction = await tronWeb.trx.sign(transaction);
   let receipt = await tronWeb.trx.sendRawTransaction(signedTransaction);
   console.log(receipt);
   assert.equal(receipt.result, true);
@@ -4145,6 +5275,13 @@ async function triggerSmartContractWithCallData() {
   }
   optionsTrigger.input = keccak256(Buffer.from(functionSelector, 'utf-8')).toString().substring(2, 10) + abiCoder.encode(types, values).replace(/^(0x)/, '');
   transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddress, null, optionsTrigger, [], issuerAddress);
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   signedTransaction = await tronWeb.trx.sign(transaction.transaction);
   receipt = await tronWeb.trx.sendRawTransaction(signedTransaction);
   console.log(receipt);
@@ -4236,6 +5373,26 @@ async function createTokenExchange() {
   assert.equal(parameter.type_url, 'type.googleapis.com/protocol.ExchangeCreateContract');
   assert.isUndefined(transaction.raw_data.contract[0].Permission_id);
 
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount3.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount3.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount3.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount3.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   transaction = await tronWeb.transactionBuilder.createTokenExchange(tokenNames[0], 10e3, tokenNames[1], 10e3, emptyAccount3.address.hex, { permissionId: 2 });
   parameter = txPars(transaction);
 
@@ -4244,6 +5401,13 @@ async function createTokenExchange() {
   assert.equal(TronWeb.toUtf8(parameter.value.second_token_id), tokenNames[1]);
   assert.equal(parameter.type_url, 'type.googleapis.com/protocol.ExchangeCreateContract');
   assert.equal(transaction.raw_data.contract[0].Permission_id, 2);
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount3.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount3.address.base58.toLowerCase());
+
   console.log("createTokenExchange success")
 }
 
@@ -4295,6 +5459,26 @@ async function injectExchangeTokens() {
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
   console.log("injectExchangeTokens success")
 }
@@ -4347,6 +5531,26 @@ async function withdrawExchangeTokens() {
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
   }
   console.log("withdrawExchangeTokens excute success");
 }
@@ -4392,6 +5596,28 @@ async function tradeExchangeTokens() {
     const transaction = await tronWeb.transactionBuilder.tradeExchangeTokens(
       ...param
     );
+
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
@@ -4439,6 +5665,28 @@ async function updateSetting() {
     const transaction = await tronWeb.transactionBuilder.updateSetting(
       ...param
     );
+
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[0];
+    multiSignAccounts.b58[0] = accounts.b58[0];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
@@ -4476,6 +5724,27 @@ async function updateEnergyLimit() {
     const transaction = await tronWeb.transactionBuilder.updateEnergyLimit(
       ...param
     );
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[0];
+    multiSignAccounts.b58[0] = accounts.b58[0];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
@@ -4552,6 +5821,27 @@ async function accountPermissionUpdate() {
     const transaction = await tronWeb.transactionBuilder.updateAccountPermissions(
       ...param
     );
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[0];
+    multiSignAccounts.b58[0] = accounts.b58[0];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
     const parameter = txPars(transaction);
     assert.equal(transaction.txID.length, 64);
     assert.equal(parameter.value.owner_address, param[0]);
@@ -4690,6 +5980,27 @@ async function alterExistentTransactions() {
   previousId = transaction.txID;
   data = "Sending money to Bill.";
   transaction = await tronWeb.transactionBuilder.alterTransaction(transaction, { data });
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount2.privateKey);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), emptyAccount2.address.base58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount2.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount2.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   id = transaction.txID;
   assert.notEqual(id, previousId)
   await broadcaster.broadcaster(null, privateKey, transaction);
@@ -4755,6 +6066,27 @@ async function rawParameter() {
       rawParameter: param2,
     },
     [], ADDRESS_BASE58);
+
+    let tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   const triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   let triggerInfo;
@@ -4795,6 +6127,13 @@ async function rawParameter() {
       rawParameter: param2,
     },
     [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction2.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   const triggerTx2 = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction2.transaction);
   assert.equal(triggerTx2.transaction.txID.length, 64);
   let triggerInfo2;
@@ -4833,6 +6172,13 @@ async function rawParameter() {
       rawParameter: param2,
     },
     [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTransaction.transaction.txID.length, 64);
   let triggerInfo3;
@@ -4868,6 +6214,13 @@ async function rawParameter() {
   // clear abi
   console.log("clear abi")
   const clearAbiTransaction = await tronWeb.transactionBuilder.clearABI(contractAddress3, ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(clearAbiTransaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   console.log("clearAbiTransaction:" + util.inspect(clearAbiTransaction))
   const clearAbiTx = await broadcaster.broadcaster(null, PRIVATE_KEY, clearAbiTransaction);
   count = 0;
@@ -4891,6 +6244,13 @@ async function rawParameter() {
       rawParameter: param2,
     },
     [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTransaction.transaction.txID.length, 64);
   let triggerInfo4;
@@ -4990,6 +6350,27 @@ async function triggerSmartContractWithFuncABIV2_V1_input() {
     [],
     ADDRESS_HEX
   );
+
+    let tempTransaction = JSON.parse(JSON.stringify(setTransaction.transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(setTransaction.transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, setTransaction.transaction);
 
   check = await deployed.check().call();
@@ -5039,6 +6420,27 @@ async function triggerSmartContractWithFuncABIV2_V2_input() {
     },
     ADDRESS_HEX
   );
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   count = 0;
   while (true) {
@@ -5083,6 +6485,13 @@ async function triggerSmartContractWithFuncABIV2_V2_input() {
     },
     ADDRESS_HEX
   );
+
+    tempTransaction = JSON.parse(JSON.stringify(transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   count = 0;
   while (true) {
@@ -5141,6 +6550,27 @@ async function encodeABIV2test1_V1_input() {
     ],
   };
   let transaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   console.log("transaction.txID:" + transaction.txID)
   assert.equal(transaction.txID.length, 64);
@@ -5169,6 +6599,13 @@ async function encodeABIV2test1_V1_input() {
     contractAddress, "changeStrs(string[])", { feeLimit: FEE_LIMIT }, [
     { type: 'string[]', value: ["o", "p"] }
   ], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   let triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   let triggerInfo;
@@ -5199,6 +6636,13 @@ async function encodeABIV2test1_V1_input() {
     contractAddress, "changeBys(bytes[])", { feeLimit: FEE_LIMIT }, [
     { type: 'bytes[]', value: ["0x298fa36a9e2ebd6d3698e552987294fa8b65cd00", "0x60f68c9b9e50"] }
   ], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   count = 0;
@@ -5229,6 +6673,13 @@ async function encodeABIV2test1_V1_input() {
     [
       { type: 'bool', value: false }
     ], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   count = 0;
@@ -5258,6 +6709,13 @@ async function encodeABIV2test1_V1_input() {
     [
       { type: 'int256', value: 37497 }
     ], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   count = 0;
@@ -5287,6 +6745,13 @@ async function encodeABIV2test1_V1_input() {
     [
       { type: 'int256', value: -37497 }
     ], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   count = 0;
@@ -5330,6 +6795,27 @@ async function encodeABIV2test1_V2_input() {
     ],
   };
   let transaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_BASE58);
+
+    let tempTransaction = JSON.parse(JSON.stringify(transaction));
+    let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   console.log("transaction.txID:" + transaction.txID)
   assert.equal(transaction.txID.length, 64);
@@ -5489,6 +6975,13 @@ async function encodeABIV2test1_V2_input() {
   // strs
   let triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
     contractAddress, "changeStrs(string[])", { feeLimit: FEE_LIMIT, funcABIV2: abiV2Test1.abi[15], parametersV2: [["o", "p"]] }, [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   let triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   count = 0;
@@ -5516,6 +7009,13 @@ async function encodeABIV2test1_V2_input() {
   // bys
   triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
     contractAddress, "changeBys(bytes[])", { feeLimit: FEE_LIMIT, funcABIV2: abiV2Test1.abi[9], parametersV2: [["0x298fa36a9e2ebd6d3698e552987294fa8b65cd00", "0x60f68c9b9e50"]] }, [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   count = 0;
@@ -5544,6 +7044,13 @@ async function encodeABIV2test1_V2_input() {
   triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
     contractAddress, "changeMapAll(uint256,string[],uint256,bytes[],(uint256),uint256[],address,trcToken)", { feeLimit: FEE_LIMIT, funcABIV2: abiV2Test1.abi[11], parametersV2: [0, ["a", "s"], 0, ["0x60F68C9B9e50", "0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"], [687], [9, 0, 23, 1], ADDRESS_BASE58, TOKEN_ID] },
     [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   count = 0;
@@ -5572,6 +7079,13 @@ async function encodeABIV2test1_V2_input() {
   triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
     contractAddress, "changeMapAll2(uint256,string[],uint256,bytes[],(((uint256),uint256[],address,trcToken)))", { feeLimit: FEE_LIMIT, funcABIV2: abiV2Test1.abi[12], parametersV2: [0, ["a", "s"], 0, ["0x60F68C9B9e50", "0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"], [[[683], [5, 6, 68, 9], "TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU", 1000008]]] },
     [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   count = 0;
@@ -5600,6 +7114,13 @@ async function encodeABIV2test1_V2_input() {
   triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
     contractAddress, "changeMapAll3(uint256,string[],uint256,bytes[],((((uint256),uint256[],address,trcToken))))", { feeLimit: FEE_LIMIT, funcABIV2: abiV2Test1.abi[13], parametersV2: [0, ["a", "s"], 0, ["0x60F68C9B9e50", "0x298fa36a9e2ebd6d3698e552987294fa8b65cd00"], [[[[683], [5, 6, 68, 9], "TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU", 1000008]]]] },
     [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   count = 0;
@@ -5629,6 +7150,13 @@ async function encodeABIV2test1_V2_input() {
   triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
     contractAddress, "changeStructArray((uint256),(uint256))", { feeLimit: FEE_LIMIT, funcABIV2: abiV2Test1.abi[16], parametersV2: [[909], [404]] },
     [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   console.log("StructArray  tx: " + triggerTx.transaction.txID)
@@ -5658,6 +7186,13 @@ async function encodeABIV2test1_V2_input() {
   triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
     contractAddress, "changeBool(bool)", { feeLimit: FEE_LIMIT, funcABIV2: abiV2Test1.abi[8], parametersV2: [false] },
     [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   console.log("triggerTx: ", triggerTx);
   assert.equal(triggerTx.transaction.txID.length, 64);
@@ -5686,6 +7221,13 @@ async function encodeABIV2test1_V2_input() {
   triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
     contractAddress, "changeInt(int256)", { feeLimit: FEE_LIMIT, funcABIV2: abiV2Test1.abi[10], parametersV2: [37497] },
     [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   console.log("triggerTx: ", triggerTx);
@@ -5714,6 +7256,13 @@ async function encodeABIV2test1_V2_input() {
   triggerTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
     contractAddress, "changeNegativeInt(int256)", { feeLimit: FEE_LIMIT, funcABIV2: abiV2Test1.abi[14], parametersV2: [-37497] },
     [], ADDRESS_BASE58);
+
+    tempTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
+    signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
+    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+    assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   triggerTx = await broadcaster.broadcaster(null, PRIVATE_KEY, triggerTransaction.transaction);
   assert.equal(triggerTx.transaction.txID.length, 64);
   console.log("triggerTx: ", triggerTx)
@@ -5785,81 +7334,81 @@ async function beforeTestIssueToken() {
 async function transactionBuilderTestAll() {
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
-  /*await sendTrx();
-  await createToken();
-  await createAccount();
-  await updateAccount();
-  await setAccountId();
-  await setAccountIdMultiSign()
-  await updateToken();
-  await purchaseToken();
-  await sendToken();
-  await createProposal();
-  await deleteProposal();
-  await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
-  await applyForSR();*/
-  //Execute this method when Proposition 70 is not enabled
-  /*await freezeBalance();
-  await unfreezeBalance();*/
+//  await sendTrx();
+//  await createToken();
+//  await createAccount();
+//  await updateAccount();
+//  await setAccountId();
+//  await setAccountIdMultiSign()
+//  await updateToken();
+//  await purchaseToken();
+//  await sendToken();
+//  await createProposal();
+//  await deleteProposal();
+//  await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
+//  await applyForSR();
+//  //Execute this method when Proposition 70 is not enabled
+//  await freezeBalance();
+//  await unfreezeBalance();
   //Execute this method when Proposition 70 is enabled
-  /*await freezeBalanceV2_1();
-  await freezeBalanceV2_2();
-  await freezeBalanceV2_3();
-  await freezeBalanceV2_4();
-  await unfreezeBalanceV2_1();
-  await unfreezeBalanceV2_2();
-  await unfreezeBalanceV2_3();
-  await unfreezeBalanceV2_4();
-  await cancelUnfreezeBalanceV2();
-  await delegateResource_before();
-  await delegateResource_1();
-  await delegateResource_2();
-  await delegateResource_3();
-  await delegateResource_4();
-  await delegateResource_5();
-  await delegateResource_6();
-  await delegateResource_7();
-  await delegateResource_8();
-  await delegateResourcePeriod();
-  await undelegateResource_before();
-  await undelegateResource_1();
-  await undelegateResource_2();
-  await undelegateResource_3();
-  await undelegateResource_4();
-  await withdrawExpireUnfreeze_1();
-  await withdrawExpireUnfreeze_2();
-  await estimateEnergy_1();
-  await estimateEnergy_2();
-  await estimateEnergy_3();
-  await estimateEnergy_4();
-  await withdrawBalance();
-  await vote();
-  await createSmartContract();
-  await createSmartContractWithArray3();
-  await createSmartContractWithTrctokenAndStateMutability();
-  await createSmartContractWithPayable();
-  await triggerConstantContract();
-  await testDeployConstantContract();
-  await triggerComfirmedConstantContract();
-  await clearabi();
-  await clearabiMultiSign()
-  await updateBrokerage();
-  await updateBrokerageMultiSign(); //需要开30号提案 需要将49ContractType加入Permission码
-  await triggerSmartContract();
-  await triggerSmartContractWithArrays();
-  await triggerSmartContractWithTrctoken();
-  await triggerSmartContractWithCallData();//TRNWB-61
-  await createTokenExchange();
-  await createTRXExchange();
-  await injectExchangeTokens(); //last not passed  
-  await updateSetting();
-  await updateEnergyLimit();
-  await accountPermissionUpdate();
-  await accountPermissionUpdateMultiSign()
-  await withdrawExchangeTokens();
-  await tradeExchangeTokens(); //last not passed   */
-  await alterExistentTransactions();
-  await rawParameter(); //有时候不通过，是因为好像余额转了两次
+//  await freezeBalanceV2_1();
+//  await freezeBalanceV2_2();
+//  await freezeBalanceV2_3();
+//  await freezeBalanceV2_4();
+//  await unfreezeBalanceV2_1();
+//  await unfreezeBalanceV2_2();
+//  await unfreezeBalanceV2_3();
+//  await unfreezeBalanceV2_4();
+//  await cancelUnfreezeBalanceV2();
+//  await delegateResource_before();
+//  await delegateResource_1();
+//  await delegateResource_2();
+//  await delegateResource_3();
+//  await delegateResource_4();
+//  await delegateResource_5();
+//  await delegateResource_6();
+//  await delegateResource_7();
+//  await delegateResource_8();
+//  await delegateResourcePeriod();
+//  await undelegateResource_before();
+//  await undelegateResource_1();
+//  await undelegateResource_2();
+//  await undelegateResource_3();
+//  await undelegateResource_4();
+//  await withdrawExpireUnfreeze_1();
+//  await withdrawExpireUnfreeze_2();
+//  await estimateEnergy_1();
+//  await estimateEnergy_2();
+//  await estimateEnergy_3();
+//  await estimateEnergy_4();
+//  await withdrawBalance();
+//  await vote();
+//  await createSmartContract();
+//  await createSmartContractWithArray3();
+//  await createSmartContractWithTrctokenAndStateMutability();
+//  await createSmartContractWithPayable();
+//  await triggerConstantContract();
+//  await testDeployConstantContract();
+//  await triggerComfirmedConstantContract();
+//  await clearabi();
+//  await clearabiMultiSign()
+//  await updateBrokerage();
+//  await updateBrokerageMultiSign(); //需要开30号提案 需要将49ContractType加入Permission码
+//  await triggerSmartContract();
+//  await triggerSmartContractWithArrays();
+//  await triggerSmartContractWithTrctoken();
+//  await triggerSmartContractWithCallData();//TRNWB-61
+//  await createTokenExchange();
+//  await createTRXExchange();
+//  await injectExchangeTokens(); //last not passed
+//  await withdrawExchangeTokens();
+//  await tradeExchangeTokens(); //last not passed
+//  await updateSetting();
+//  await updateEnergyLimit();
+//  await accountPermissionUpdate();
+//  await accountPermissionUpdateMultiSign()
+//  await alterExistentTransactions();
+//  await rawParameter(); //有时候不通过，是因为好像余额转了两次
   await triggerSmartContractWithFuncABIV2_V1_input();
   await triggerSmartContractWithFuncABIV2_V2_input();
   await encodeABIV2test1_V1_input();
