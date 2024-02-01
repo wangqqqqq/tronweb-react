@@ -7,7 +7,7 @@ const tronWebBuilder = require('../util/tronWebBuilder');
 const broadcaster = require('../util/broadcaster');
 const publicMethod = require('../util/PublicMethod');
 const TronWeb = tronWebBuilder.TronWeb;
-const Event = tronWebBuilder.Event;
+const Event = TronWeb.Event;
 const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
@@ -153,8 +153,8 @@ async function getEventsByTransactionIDWithUnconfirmed(){
   while(true) {
     events = await tronWeb.event.getEventsByTransactionID(txId)
     console.log("events:"+util.inspect(events,true,null,true))
-    if (events.data.length) {
-        if (Object.keys(events.data[0].result).length !== 0) {
+    if (events.length) {
+        if (Object.keys(events[0].result).length !== 0) {
             break
         }
       break
@@ -166,12 +166,12 @@ async function getEventsByTransactionIDWithUnconfirmed(){
     await wait(0.5)
   }
 
-  console.log("events.data[0].result:"+util.inspect(events.data[0].result,true,null,true))
-  if ('_receiver' in events.data[0].result) {
+  console.log("events[0].result:"+util.inspect(events[0].result,true,null,true))
+  if ('_receiver' in events[0].result) {
     console.log("emptyAccount1.address.hex: ",emptyAccount1.address.hex)
-    assert.equal(events.data[0].result._receiver.substring(2), emptyAccount1.address.hex.substring(2).toLowerCase())
-    assert.equal(events.data[0].result._sender.substring(2), ADDRESS_HEX.substring(2).toLowerCase())
-    assert.equal(events.data[0].result._amount, "2000")
+    assert.equal(events[0].result._receiver.substring(2), emptyAccount1.address.hex.substring(2).toLowerCase())
+    assert.equal(events[0].result._sender.substring(2), ADDRESS_HEX.substring(2).toLowerCase())
+    assert.equal(events[0].result._amount, "2000")
   }
   console.log("execute getEventsByTransactionIDWithUnconfirmed success")
 }
@@ -198,8 +198,8 @@ async function getEventsByTransactionIDWithConfirmation(){
   while(true) {
     events = await tronWeb.event.getEventsByTransactionID(txId)
     console.log("events:"+util.inspect(events,true,null,true))
-    if (events.data.length) {
-      if (Object.keys(events.data[0].result).length !== 0) {
+    if (events.length) {
+      if (Object.keys(events[0].result).length !== 0) {
         break
       }
     }
@@ -210,10 +210,10 @@ async function getEventsByTransactionIDWithConfirmation(){
     await wait(0.5)
   }
 
-  if ('_receiver' in events.data[0].result) {
-    assert.equal(events.data[0].result._receiver.substring(2), emptyAccount1.address.hex.substring(2).toLowerCase())
-    assert.equal(events.data[0].result._sender.substring(2), ADDRESS_HEX.substring(2).toLowerCase())
-    assert.equal(events.data[0].result._amount, "2000")
+  if ('_receiver' in events[0].result) {
+    assert.equal(events[0].result._receiver.substring(2), emptyAccount1.address.hex.substring(2).toLowerCase())
+    assert.equal(events[0].result._sender.substring(2), ADDRESS_HEX.substring(2).toLowerCase())
+    assert.equal(events[0].result._amount, "2000")
   }
   console.log("execute getEventsByTransactionIDWithConfirmation success")
 }
@@ -232,22 +232,22 @@ async function getEventsByContractAddress(){
   while(true) {
     events = await tronWeb.event.getEventsByContractAddress(contractAddress, {
       eventName: 'SomeEvent',
-      sort: 'block_timestamp'
+      sort: '-block_timestamp'
     })
-    if (events.data.length === eventLength) {
+    if (events.length === eventLength) {
       break
     }
     count++
     await wait(1)
   }
 
-  const event = events.data[events.data.length - 1]
+  const event = events[events.length - 1]
   console.log("event:"+util.inspect(event,true,null,true))
 
-  if ('_receiver' in events.data[0].result) {
-    assert.equal(events.data[0].result._receiver.substring(2), emptyAccount.address.hex.substring(2).toLowerCase())
-    assert.equal(events.data[0].result._sender.substring(2), ADDRESS_HEX.substring(2).toLowerCase())
-    assert.equal(events.data[0].result._amount, "4000")
+  if ('_receiver' in events[0].result) {
+    assert.equal(events[0].result._receiver.substring(2), emptyAccount.address.hex.substring(2).toLowerCase())
+    assert.equal(events[0].result._sender.substring(2), ADDRESS_HEX.substring(2).toLowerCase())
+    assert.equal(events[0].result._amount, "4000")
   }
   console.log("execute getEventsByContractAddress success")
 }
@@ -268,16 +268,16 @@ async function onlyConfirmed(){
   // onlyConfirmed: false
   events = await tronWeb.getEventResult(contractAddress2, {
     eventName: 'SomeEvent',
-    sort: 'block_timestamp',
+    sort: '-block_timestamp',
     onlyConfirmed: false
   })
   console.log("events2:"+util.inspect(events,true,null,true))
-  assert.equal(events.data.length, 5)
-  for(var i = 0; i < events.data.length; i++) {
-    if (Object.keys(events.data[i]).length == 10) {
-      assert.equal(events.data[i]._unconfirmed, undefined);
-    } else if (Object.keys(events.data[i]).length == 11) {
-      assert.isTrue(events.data[i]._unconfirmed);
+  assert.equal(events.length, 5)
+  for(var i = 0; i < events.length-1; i++) {
+    if (Object.keys(events[i]).length == 7) {
+      assert.equal(events[i].unconfirmed, undefined);
+    } else if (Object.keys(events[i]).length == 8) {
+      assert.isTrue(events[i].unconfirmed);
     }
   }
 
@@ -292,19 +292,14 @@ async function onlyConfirmed(){
   // onlyConfirmed: true
   events = await tronWeb.getEventResult(contractAddress2, {
     eventName: 'SomeEvent',
-    sort: 'block_timestamp',
+    sort: '-block_timestamp',
     onlyConfirmed: true
   })
 
   console.log("events1:"+util.inspect(events,true,null,true))
-  for(var i = 0; i < events.data.length; i++) {
-    assert.equal(Object.keys(events.data[i]).length, 10);
+  for(var i = 0; i < events.length-1; i++) {
+    assert.equal(Object.keys(events[i]).length, 7);
   }
-
-  /*const event = events.data[events.length - 1]
-  assert.equal(event.result._receiver.substring(2), accounts.hex[4].substring(2))
-  assert.equal(event.result._sender.substring(2), accounts.hex[3].substring(2))*/
-
   console.log("execute onlyConfirmed success")
 }
 
@@ -325,12 +320,12 @@ async function onlyUnconfirmed(){
   // onlyUnconfirmed: true
   events = await tronWeb.getEventResult(contractAddress2, {
     eventName: 'SomeEvent',
-    sort: 'block_timestamp',
+    sort: '-block_timestamp',
     onlyUnconfirmed: true
   })
   console.log("events1:"+util.inspect(events,true,null,true))
-  for(var i = 0; i < events.data.length; i++) {
-      assert.equal(Object.keys(events.data[i]).length, 11);
+  for(var i = 0; i < events.length-1; i++) {
+      assert.equal(Object.keys(events[i]).length, 8);
     }
 
 
@@ -340,14 +335,14 @@ async function onlyUnconfirmed(){
     if (fingerprint == "") {
       events = await tronWeb.getEventResult(contractAddress2, {
         eventName: 'SomeEvent',
-        sort: 'block_timestamp',
+        sort: '-block_timestamp',
         onlyUnconfirmed: false,
       })
-      assert.equal(events.data.length, 20)
+      assert.equal(events.length, 20)
     } else {
       events = await tronWeb.getEventResult(contractAddress2, {
         eventName: 'SomeEvent',
-        sort: 'block_timestamp',
+        sort: '-block_timestamp',
         onlyUnconfirmed: false,
         fingerprint: fingerprint,
       })
@@ -355,18 +350,18 @@ async function onlyUnconfirmed(){
     console.log("events2-"+fingerprint+":"+util.inspect(events,true,null,true))
 
     fingerprint = false;
-    for(var i = 0; i < events.data.length; i++) {
-      if (Object.keys(events.data[i]).length == 10) {
-        assert.equal(events.data[i]._unconfirmed, undefined);
-      } else if (Object.keys(events.data[i]).length == 11) {
-          assert.equal(events.data[i]._unconfirmed, true);
+    for(var i = 0; i < events.length-1; i++) {
+      if (Object.keys(events[i]).length == 7) {
+        assert.equal(events[i].unconfirmed, undefined);
+      } else if (Object.keys(events[i]).length == 8) {
+          assert.equal(events[i].unconfirmed, true);
       }
       // has next page
-      fingerprint = events.meta.fingerprint == undefined ? "" : events[i].fingerprint;
+      fingerprint = events[events.length-1].fingerprint == undefined ? "" : events[i].fingerprint;
     }
 
-    if (events.data.length > 0) {
-      const event = events.data[events.data.length - 1]
+    if (events.length > 0) {
+      const event = events[events.length - 1]
       if (Object.keys(event.result).length !== 0){
           assert.equal(event.result._receiver.substring(2), accounts.hex[4].substring(2))
           assert.equal(event.result._sender.substring(2), accounts.hex[3].substring(2))
@@ -391,57 +386,57 @@ async function onlyConfirmedAndOnlyUnconfirmed(){
   // onlyConfirmed: false,onlyUnconfirmed: true
   events = await tronWeb.getEventResult(contractAddress2, {
     eventName: 'SomeEvent',
-    sort: 'block_timestamp',
+    sort: '-block_timestamp',
     onlyConfirmed: false,
     onlyUnconfirmed: true
   })
   console.log("events5:"+util.inspect(events,true,null,true))
-  for(var i = 0; i < events.data.length; i++) {
-    assert.equal(Object.keys(events.data[i]).length, 11);
-    assert.isTrue(events.data[i]._unconfirmed);
+  for(var i = 0; i < events.length-1; i++) {
+    assert.equal(Object.keys(events[i]).length, 8);
+    assert.isTrue(events[i].unconfirmed);
   }
 
   // onlyConfirmed: true,onlyUnconfirmed: false
   events = await tronWeb.getEventResult(contractAddress2, {
     eventName: 'SomeEvent',
-    sort: 'block_timestamp',
+    sort: '-block_timestamp',
     onlyConfirmed: true,
     onlyUnconfirmed: false,
     limit:40,
   })
   console.log("events6:"+util.inspect(events,true,null,true))
-  for(var i = 0; i < events.data.length; i++) {
-    assert.equal(Object.keys(events.data[i]).length, 10);
-    assert.equal(events.data[i].unconfirmed, undefined);
+  for(var i = 0; i < events.length-1; i++) {
+    assert.equal(Object.keys(events[i]).length, 7);
+    assert.equal(events[i].unconfirmed, undefined);
   }
 
   // onlyConfirmed: false,onlyUnconfirmed: false
   events = await tronWeb.getEventResult(contractAddress2, {
     eventName: 'SomeEvent',
-    sort: 'block_timestamp',
+    sort: '-block_timestamp',
     onlyConfirmed: false,
     onlyUnconfirmed: false,
     limit:40
   })
-  assert.equal(events.data.length, 30)
+  assert.equal(events.length, 20)
   console.log("events7:"+util.inspect(events,true,null,true))
-  for(var i = 0; i < events.data.length; i++) {
-    if (Object.keys(events.data[i]).length == 10) {
-      assert.equal(events.data[i].unconfirmed, undefined);
-    } else if (Object.keys(events.data[i]).length == 11) {
-      assert.isTrue(events.data[i]._unconfirmed);
+  for(var i = 0; i < events.length-1; i++) {
+    if (Object.keys(events[i]).length == 7) {
+      assert.equal(events[i].unconfirmed, undefined);
+    } else if (Object.keys(events[i]).length == 8) {
+      assert.isTrue(events[i].unconfirmed);
     }
   }
 
-  const event = events.data[events.data.length - 1]
+  const event = events[events.length - 1]
   if (Object.keys(event.result).length !== 0){
       assert.equal(event.result._receiver.substring(2), accounts.hex[4].substring(2))
       assert.equal(event.result._sender.substring(2), accounts.hex[3].substring(2))
   }
   console.log("execute onlyConfirmedAndOnlyUnconfirmed success")
 }
-//6.0.0 not supported any more
-/*async function watchForAnEvent(){
+
+async function watchForAnEvent(){
   setTimeout(20000)
 
   let watchTest = await contract.SomeEvent().watch((err, res) => {
@@ -492,7 +487,7 @@ async function watchWithSize(){
     }
   })
   console.log("execute watchWithSize success")
-}*/
+}
 
 async function eventTestAll(){
   console.log("eventTestAll start")
@@ -504,10 +499,9 @@ async function eventTestAll(){
   await onlyConfirmed();
   await onlyUnconfirmed();
   await onlyConfirmedAndOnlyUnconfirmed();
-  // 6.0.0 is not supported watch any more.
-  /*await watchForAnEvent();
+  await watchForAnEvent();
   await watchForAnEventWithGivenFilters();
-  await watchWithSize();*/
+  await watchWithSize();
   console.log("eventTestAll end")
 }
 

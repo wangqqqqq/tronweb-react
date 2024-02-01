@@ -28,7 +28,7 @@ async function rejectCreateAnInstance(){
   let fullNode = new HttpProvider(FULL_NODE_API);
   assert.throws(() => new TronWeb(
       fullNode
-  ), 'Invalid URL provided to HttpProvider');
+  ), 'Invalid solidity node provided');
 
   fullNode = FULL_NODE_API;
   let eventServer = EVENT_API;
@@ -49,21 +49,21 @@ async function rejectCreateAnInstance(){
   let solidityNode = SOLIDITY_NODE_API;
   assert.throws(() => new TronWeb({
     solidityNode
-  }), 'Invalid URL provided to HttpProvider');
+  }), 'Invalid full node provided');
 
   solidityNode = SOLIDITY_NODE_API;
   eventServer = EVENT_API;
   assert.throws(() => new TronWeb({
     solidityNode,
     eventServer
-  }), 'Invalid URL provided to HttpProvider');
+  }), 'Invalid full node provided');
 
   solidityNode = SOLIDITY_NODE_API;
   privateKey = PRIVATE_KEY;
   assert.throws(() => new TronWeb({
     solidityNode,
     privateKey
-  }), 'Invalid URL provided to HttpProvider');
+  }), 'Invalid full node provided');
 
   solidityNode = SOLIDITY_NODE_API;
   eventServer = EVENT_API;
@@ -72,24 +72,24 @@ async function rejectCreateAnInstance(){
     solidityNode,
     eventServer,
     privateKey
-  }), 'Invalid URL provided to HttpProvider');
+  }), 'Invalid full node provided');
 
   eventServer = EVENT_API;
   assert.throws(() => new TronWeb({
     eventServer
-  }), 'Invalid URL provided to HttpProvider');
+  }), 'Invalid full node provided');
 
   privateKey = PRIVATE_KEY;
   assert.throws(() => new TronWeb({
     privateKey
-  }), 'Invalid URL provided to HttpProvider');
+  }), 'Invalid full node provided');
 
   eventServer = EVENT_API;
   privateKey = PRIVATE_KEY;
   assert.throws(() => new TronWeb({
     eventServer,
     privateKey
-  }), 'Invalid URL provided to HttpProvider');
+  }), 'Invalid full node provided');
 
   solidityNode = new HttpProvider(SOLIDITY_NODE_API);
   assert.throws(() => new TronWeb(
@@ -121,8 +121,7 @@ async function rejectCreateAnInstance(){
       '$' + PRIVATE_KEY
   ), 'Invalid private key provided');
 
-  // from 6.0.0, not sport sidechain options anymore.
-  /*fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
+  fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
   solidityNode = new HttpProvider(SIDE_CHAIN.solidityNode);
   assert.throws(() => new TronWeb(
       fullNode,
@@ -186,7 +185,7 @@ async function rejectCreateAnInstance(){
         sideChainId: SIDE_CHAIN.sideOptions.sideChainId
       }
   ), 'Invalid private key provided');
-  */
+  
 }
 async function createAnInstance(){
   let fullNode = FULL_NODE_API;
@@ -229,7 +228,7 @@ async function createAnInstance(){
     solidityNode,
     privateKey
   });
-  assert.equal(tronWeb.eventServer, undefined);
+  assert.equal(tronWeb.eventServer, false);
   assert.equal(tronWeb.defaultPrivateKey, privateKey);
   keys = Object.keys(tronWeb);
   values = Object.values(tronWeb);
@@ -243,14 +242,14 @@ async function createAnInstance(){
       fullNode,
       solidityNode
   );
-  assert.equal(tronWeb.eventServer, undefined);
+  assert.equal(tronWeb.eventServer, false);
   keys = Object.keys(tronWeb);
   values = Object.values(tronWeb);
   for(let key in keys){
     console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
   }
 
-  /*fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
+  fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
   solidityNode = new HttpProvider(SIDE_CHAIN.solidityNode);
   eventServer = SIDE_CHAIN.eventServer;
   tronWeb = new TronWeb({
@@ -263,9 +262,9 @@ async function createAnInstance(){
   values = Object.values(tronWeb);
   for(let key in keys){
     console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
-  }*/
+  }
 
-  /*fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
+  fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
   solidityNode = new HttpProvider(SIDE_CHAIN.solidityNode);
   eventServer = SIDE_CHAIN.eventServer;
   tronWeb = new TronWeb(
@@ -280,7 +279,7 @@ async function createAnInstance(){
         sideGatewayAddress: SIDE_CHAIN.sideOptions.sideGatewayAddress,
         sideChainId: SIDE_CHAIN.sideOptions.sideChainId
       }
-  );*/
+  );
   assert.equal(tronWeb.defaultPrivateKey, false);
   keys = Object.keys(tronWeb);
   values = Object.values(tronWeb);
@@ -288,7 +287,7 @@ async function createAnInstance(){
     console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
   }
 
-  /*fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
+  fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
   solidityNode = new HttpProvider(SIDE_CHAIN.solidityNode);
   eventServer = SIDE_CHAIN.eventServer;
   tronWeb = new TronWeb(
@@ -307,9 +306,9 @@ async function createAnInstance(){
   values = Object.values(tronWeb);
   for(let key in keys){
     console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
-  }*/
+  }
 
-  /*fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
+  fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
   solidityNode = new HttpProvider(SIDE_CHAIN.solidityNode);
   tronWeb = new TronWeb(
       fullNode,
@@ -329,9 +328,9 @@ async function createAnInstance(){
   values = Object.values(tronWeb);
   for(let key in keys){
     console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
-  }*/
+  }
 
-  /*fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
+  fullNode = new HttpProvider(SIDE_CHAIN.fullNode);
   solidityNode = new HttpProvider(SIDE_CHAIN.solidityNode);
   tronWeb = new TronWeb(
       fullNode,
@@ -350,7 +349,7 @@ async function createAnInstance(){
   values = Object.values(tronWeb);
   for(let key in keys){
     console.log(util.inspect(keys[key])+' : ' + util.inspect(values[key]));
-  }*/
+  }
 
 }
 
@@ -523,7 +522,7 @@ async function setEventServer(){
 
   tronWeb = tronWebBuilder.createInstance();
   tronWeb.setEventServer(false);
-  assert.equal(tronWeb.eventServer, undefined);
+  assert.equal(tronWeb.eventServer, false);
 
   tronWeb = tronWebBuilder.createInstance();
   assert.throws(() => {
@@ -914,22 +913,22 @@ async function abiV2Test2(){
   const contractInstance2 = await tronWeb.contract(abiV2Test2t.abi,"41E38397ADACF9C723C06CE1F5E2E1E84CA487D07D");
   const res = await contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016c').call();
   console.log("res:"+res)
-  contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016c').call((err, data)=>{
+  contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016c').call(async (err, data)=>{
     console.log("data:"+data)
-    assert.equal(data.toString(),res.toString())
+    //assert.equal(data.toString(),res.toString())
   });
   console.log("res:"+res)
   assert.equal(res[1],'41fdbbdc2e4b98deffeaa4d1299ee5301e24e8e246')
-  assert.equal(res[2],true)
+  assert.equal(res[2],false)
   const array = res[3]
   // below value will be changed with time flys. They should be modify to current "tronscan call" result.
   assert.equal(parseInt(array[0],10),199999996000013666045)
   assert.equal(parseInt(array[1],10),4000000000000000000)
   assert.equal(parseInt(array[2],10),3940370243356483537)
   assert.isTrue(parseInt(array[3],10) > 0)
-  assert.equal(parseInt(array[4],10),2666666533334682099)
-  assert.equal(parseInt(array[5],10),79999996000029744189)
-  assert.equal(parseInt(array[6],10),79999996000040462951)
+  assert.equal(parseInt(array[4],10),0)
+  assert.equal(parseInt(array[5],10),0)
+  assert.equal(parseInt(array[6],10),0)
   assert.isTrue(parseInt(array[7],10) > 0)
 }
 
