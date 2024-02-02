@@ -54,12 +54,12 @@ async function sendTrx() {
 
   let params = [
     [emptyAccount1.address.base58, 10, ADDRESS_BASE58,{ permissionId: 2 }],
-    [emptyAccount1.address.base58, 10]
+    [emptyAccount1.address.base58, 10,{ permissionId: 0 }]
   ];
   for (let param of params) {
     const transaction = await tronWeb.transactionBuilder.sendTrx(...param);
     console.log("---------sendTrx() transaction:----------");
-    console.log(transaction);
+    console.log('62：' + JSON.stringify(transaction, null, 2));
     const parameter = txPars(transaction);
     assert.equal(transaction.txID.length, 64);
     assert.equal(parameter.value.amount, 10);
@@ -68,12 +68,14 @@ async function sendTrx() {
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.TransferContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[3] ? param[3]['permissionId'] : 0);
 
+
     const tempTransaction = JSON.parse(JSON.stringify(transaction));
     const signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
     const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
+    if (param.length == 4) {
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     const multiSignAccounts = { b58: [], hex: [], pks: []};
@@ -84,12 +86,13 @@ async function sendTrx() {
     multiSignAccounts.pks.push(accounts.pks[19]);
     multiSignAccounts.b58.push(accounts.b58[19]);
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
 
@@ -181,18 +184,20 @@ async function createToken() {
     const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
 
+    if (i == 1) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount1.privateKey;
     multiSignAccounts.b58[0] = emptyAccount1.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
 
@@ -602,7 +607,7 @@ async function createAccount() {
     multiSignAccounts.pks.push(accounts.pks[19]);
     multiSignAccounts.b58.push(accounts.b58[19]);
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -678,18 +683,20 @@ async function updateAccount() {
     const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
 
+    if (param.length == 3) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount1.privateKey;
     multiSignAccounts.b58[0] = emptyAccount1.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
 
@@ -730,12 +737,12 @@ async function setAccountId() {
     assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
 
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignTransaction = await tronWeb.transactionBuilder.setAccountId(accountId, emptyAccount1.address.base58, {permissionId : 2});
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount1.privateKey;
     multiSignAccounts.b58[0] = emptyAccount1.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -862,6 +869,12 @@ async function setAccountIdMultiSign() {
 
   assert.equal(signedTransaction.signature.length, 2);
 
+    const multiSignAddresses = await tronWeb.trx.ecRecover(signedTransaction, transaction);
+    assert.equal(idxE, multiSignAddresses.length);
+    for (let k = idxS; k < idxE; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), accountsl.b58[k].toLowerCase());
+    }
+
   // broadcast multi-sign transaction
   const result = await tronWeb.trx.broadcast(signedTransaction);
   await wait(30);
@@ -905,18 +918,20 @@ async function updateToken() {
     const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
 
+    if (i == 1) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount1.privateKey;
     multiSignAccounts.b58[0] = emptyAccount1.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
 
@@ -1102,18 +1117,21 @@ async function purchaseToken() {
     const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), emptyAccount2.address.base58.toLowerCase());
 
+    if (param.length == 5) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount2.privateKey;
     multiSignAccounts.b58[0] = emptyAccount2.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
+
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
 
@@ -1270,18 +1288,20 @@ async function sendToken() {
     const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), emptyAccount3.address.base58.toLowerCase());
 
+    if (param.length == 5) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount3.privateKey;
     multiSignAccounts.b58[0] = emptyAccount3.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
 
@@ -1378,18 +1398,20 @@ async function createProposal() {
     const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
+    if (input.length == 3) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
 
@@ -1444,18 +1466,20 @@ async function deleteProposal() {
     const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), witnessAccount.toLowerCase());
 
+    if (param.length == 3) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = witnessKey;
     multiSignAccounts.b58[0] = witnessAccount;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
 
@@ -1577,18 +1601,20 @@ async function voteProposal() {
         const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
         assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
 
+    if (param.length == 4) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount1.privateKey;
     multiSignAccounts.b58[0] = emptyAccount1.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
   console.log("voteProposal excute success")
@@ -1642,12 +1668,12 @@ async function applyForSR() {
         assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
 
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignTransaction = await tronWeb.transactionBuilder.applyForSR(emptyAccount1.address.base58, url, {permissionId : 2});
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount1.privateKey;
     multiSignAccounts.b58[0] = emptyAccount1.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -1701,18 +1727,20 @@ async function freezeBalance() {
         const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
         assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
 
+    if (param.length == 5) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount1.privateKey;
     multiSignAccounts.b58[0] = emptyAccount1.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
   console.log("freezeBalance excute success")
@@ -1774,18 +1802,20 @@ async function unfreezeBalance() {
         const signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
         assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
 
+    if (param.length == 3) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount1.privateKey;
     multiSignAccounts.b58[0] = emptyAccount1.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
   console.log("unfreezeBalance excute success")
@@ -1806,7 +1836,7 @@ async function freezeBalanceV2_1() {
     multiSignAccounts.pks[0] = accounts.pks[0];
     multiSignAccounts.b58[0] = accounts.b58[0];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -1891,7 +1921,7 @@ async function freezeBalanceV2_2() {
     multiSignAccounts.pks[0] = accounts.pks[1];
     multiSignAccounts.b58[0] = accounts.b58[1];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -2050,7 +2080,7 @@ async function unfreezeBalanceV2_1() {
     multiSignAccounts.pks[0] = accounts.pks[0];
     multiSignAccounts.b58[0] = accounts.b58[0];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -2114,6 +2144,20 @@ async function unfreezeBalanceV2_2() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
 
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = accounts.pks[1];
+    multiSignAccounts.b58[0] = accounts.b58[1];
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
+
   let tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
   console.log("tx.txID:" + tx.transaction.txID)
@@ -2140,20 +2184,6 @@ async function unfreezeBalanceV2_2() {
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
     signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
-
-    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
-    let multiSignedTransaction = multiSignTransaction;
-    multiSignAccounts.pks[0] = accounts.pks[1];
-    multiSignAccounts.b58[0] = accounts.b58[1];
-    for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
-    }
-    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
-    assert.equal(3, multiSignAddresses.length);
-    for (let k = 0; k < 3; k++) {
-        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
-    }
 
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
@@ -2286,12 +2316,12 @@ async function cancelUnfreezeBalanceV2() {
     assert.equal(signAddresses.toLowerCase(), account.b58[0].toLowerCase());
 
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(txCancel));
+    let multiSignTransaction = await tronWeb.transactionBuilder.cancelUnfreezeBalanceV2(account.b58[0], {permissionId : 2});
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = accounts.pks[0];
     multiSignAccounts.b58[0] = accounts.b58[0];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -2336,12 +2366,20 @@ async function delegateResourcePeriod() {
     assert.equal(signAddresses.toLowerCase(), account.b58[0].toLowerCase());
 
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(txDelegate));
+    let multiSignTransaction = await tronWeb.transactionBuilder.delegateResource(
+                                   1000000,
+                                   ADDRESS_BASE58,
+                                   "ENERGY",
+                                   account.b58[0],
+                                   true,
+                                   1,
+                                   {permissionId : 2}
+                                 );
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = accounts.pks[0];
     multiSignAccounts.b58[0] = accounts.b58[0];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -2389,7 +2427,7 @@ async function delegateResource_1() {
     multiSignAccounts.pks[0] = accounts.pks[1];
     multiSignAccounts.b58[0] = accounts.b58[1];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -2463,7 +2501,7 @@ async function delegateResource_2() {
     multiSignAccounts.pks[0] = accounts.pks[1];
     multiSignAccounts.b58[0] = accounts.b58[1];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -2540,7 +2578,7 @@ async function delegateResource_3() {
     multiSignAccounts.pks[0] = accounts.pks[1];
     multiSignAccounts.b58[0] = accounts.b58[1];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -2614,7 +2652,7 @@ async function delegateResource_4() {
     multiSignAccounts.pks[0] = accounts.pks[1];
     multiSignAccounts.b58[0] = accounts.b58[1];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -2688,7 +2726,7 @@ async function delegateResource_5() {
     multiSignAccounts.pks[0] = accounts.pks[1];
     multiSignAccounts.b58[0] = accounts.b58[1];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -2765,7 +2803,7 @@ async function delegateResource_6() {
     multiSignAccounts.pks[0] = accounts.pks[1];
     multiSignAccounts.b58[0] = accounts.b58[1];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -2970,7 +3008,7 @@ async function undelegateResource_1() {
     multiSignAccounts.pks[0] = accounts.pks[1];
     multiSignAccounts.b58[0] = accounts.b58[1];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -3071,7 +3109,7 @@ async function undelegateResource_2() {
     multiSignAccounts.pks[0] = accounts.pks[1];
     multiSignAccounts.b58[0] = accounts.b58[1];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -3237,7 +3275,7 @@ async function withdrawExpireUnfreeze_1() {
     multiSignAccounts.pks[0] = accounts.pks[3];
     multiSignAccounts.b58[0] = accounts.b58[3];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     let multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -3277,7 +3315,7 @@ async function withdrawExpireUnfreeze_1() {
     multiSignAccounts.pks[0] = accounts.pks[3];
     multiSignAccounts.b58[0] = accounts.b58[3];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -3683,18 +3721,20 @@ async function withdrawBalance() {
   let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
   assert.equal(signAddresses.toLowerCase(), WITNESS_ACCOUNT.toLowerCase());
 
+    if (param.length == 2) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = WITNESS_KEY;
     multiSignAccounts.b58[0] = WITNESS_ACCOUNT;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
   console.log("withdrawBalance excute success")
@@ -3751,12 +3791,12 @@ async function vote() {
   assert.equal(signAddresses.toLowerCase(), emptyAccount2.address.base58.toLowerCase());
 
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignTransaction = await tronWeb.transactionBuilder.vote(votes, emptyAccount2.address.base58, {permissionId : 2});
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount2.privateKey;
     multiSignAccounts.b58[0] = emptyAccount2.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -3883,18 +3923,20 @@ async function createSmartContract() {
   let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
   assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
+    if (i == 1) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(tx));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
 
@@ -4075,7 +4117,7 @@ async function createSmartContractWithArray3() {
     multiSignAccounts.pks[0] = emptyAccount4.privateKey;
     multiSignAccounts.b58[0] = emptyAccount4.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -4158,13 +4200,14 @@ async function createSmartContractWithTrctokenAndStateMutability() {
   let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
   assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
+    options.permissionId = 2;
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignTransaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_HEX);
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -4247,13 +4290,14 @@ async function createSmartContractWithPayable() {
   let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
   assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
+    options.permissionId = 2;
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignTransaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_HEX);
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -4491,18 +4535,20 @@ async function clearabi() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), accounts.b58[7].toLowerCase());
 
+    if (param.length == 3) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignTransaction = JSON.parse(JSON.stringify(transaction1));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = accounts.pks[7];
     multiSignAccounts.b58[0] = accounts.b58[7];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
 
     if (param.length === 2) {
@@ -4656,6 +4702,12 @@ async function clearabiMultiSign() {
     console.log("multi transaction is ", JSON.stringify(signedTransaction, null, 2));
   }
   assert.equal(signedTransaction.signature.length, 2);
+
+    const multiSignAddresses = await tronWeb.trx.ecRecover(signedTransaction, transaction);
+    assert.equal(idxE, multiSignAddresses.length);
+    for (let k = idxS; k < idxE; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), accountsl.b58[k].toLowerCase());
+    }
 
   // broadcast multi-sign transaction
 
@@ -4842,6 +4894,12 @@ async function updateBrokerageMultiSign() {
   }
   assert.equal(signedTransaction.signature.length, 2);
 
+    const multiSignAddresses = await tronWeb.trx.ecRecover(signedTransaction, transaction);
+    assert.equal(idxE, multiSignAddresses.length);
+    for (let k = idxS; k < idxE; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), accountsl.b58[k].toLowerCase());
+    }
+
   // broadcast multi-sign transaction
   const result = await tronWeb.trx.broadcast(signedTransaction);
   console.log("result: ", result);
@@ -4898,18 +4956,20 @@ async function triggerSmartContract() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), emptyAccount1.address.base58.toLowerCase());
 
+    if (i == 1) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction.transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount1.privateKey;
     multiSignAccounts.b58[0] = emptyAccount1.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
 
     transaction = await broadcaster.broadcaster(null, emptyAccount1.privateKey, transaction.transaction);
@@ -4968,12 +5028,13 @@ async function triggerSmartContractWithArrays() {
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction.transaction));
-    let multiSignedTransaction = multiSignTransaction;
+    let multiSignTransaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithArray, functionSelector, {permissionId : 2},
+                                   parameter, ADDRESS_HEX);
+    let multiSignedTransaction = multiSignTransaction.transaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -5069,20 +5130,6 @@ async function triggerSmartContractWithTrctoken() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
-    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
-    let multiSignedTransaction = multiSignTransaction;
-    multiSignAccounts.pks[0] = PRIVATE_KEY;
-    multiSignAccounts.b58[0] = ADDRESS_BASE58;
-    for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
-    }
-    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
-    assert.equal(3, multiSignAddresses.length);
-    for (let k = 0; k < 3; k++) {
-        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
-    }
-
   await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   let createInfo
   let count = 0;
@@ -5128,6 +5175,27 @@ async function triggerSmartContractWithTrctoken() {
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
     signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
+    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    let multiSignTransaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithTrctoken, functionSelector, {
+                                                                                                                                        callValue: 321,
+                                                                                                                                        tokenId: TOKEN_ID,
+                                                                                                                                        tokenValue: 1e3,
+                                                                                                                                        feeLimit: FEE_LIMIT,
+                                                                                                                                        permissionId : 2
+                                                                                                                                      },
+                                   parameter, ADDRESS_HEX);
+    let multiSignedTransaction = multiSignTransaction.transaction;
+    multiSignAccounts.pks[0] = PRIVATE_KEY;
+    multiSignAccounts.b58[0] = ADDRESS_BASE58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
+    }
+    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
 
   const res = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction.transaction);
   count = 0;
@@ -5233,13 +5301,14 @@ async function triggerSmartContractWithCallData() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
+    options.permissionId = 2;
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignTransaction = await tronWeb.transactionBuilder.createSmartContract(options, tronWeb.defaultAddress.base58);
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -5387,7 +5456,7 @@ async function createTokenExchange() {
     for (let j = 0; j < 3; j++) {
         multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
     }
-    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    let multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
@@ -5407,6 +5476,20 @@ async function createTokenExchange() {
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
     signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), emptyAccount3.address.base58.toLowerCase());
+
+    multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+    multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    multiSignedTransaction = multiSignTransaction;
+    multiSignAccounts.pks[0] = emptyAccount3.privateKey;
+    multiSignAccounts.b58[0] = emptyAccount3.address.base58;
+    for (let j = 0; j < 3; j++) {
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
+    }
+    multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+    assert.equal(3, multiSignAddresses.length);
+    for (let k = 0; k < 3; k++) {
+        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
 
   console.log("createTokenExchange success")
 }
@@ -5466,18 +5549,20 @@ async function injectExchangeTokens() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
+    if (param.length == 5) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
   console.log("injectExchangeTokens success")
@@ -5538,18 +5623,20 @@ async function withdrawExchangeTokens() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
+    if (param.length == 5) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
   }
   console.log("withdrawExchangeTokens excute success");
@@ -5604,18 +5691,20 @@ async function tradeExchangeTokens() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
+    if (param.length == 6) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
 
     const authResult =
@@ -5673,18 +5762,20 @@ async function updateSetting() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
 
+    if (param.length == 4) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = accounts.pks[0];
     multiSignAccounts.b58[0] = accounts.b58[0];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
 
     const authResult =
@@ -5731,18 +5822,20 @@ async function updateEnergyLimit() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
 
+    if (param.length == 4) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = accounts.pks[0];
     multiSignAccounts.b58[0] = accounts.b58[0];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
 
     const authResult =
@@ -5828,18 +5921,20 @@ async function accountPermissionUpdate() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
 
+    if (param.length == 5) {
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
     let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = accounts.pks[0];
     multiSignAccounts.b58[0] = accounts.b58[0];
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
     for (let k = 0; k < 3; k++) {
         assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+    }
     }
 
     const parameter = txPars(transaction);
@@ -5924,6 +6019,12 @@ async function accountPermissionUpdateMultiSign() {
   }
   assert.equal(signedTransaction.signature.length, 2);
 
+  const multiSignAddresses = await tronWeb.trx.ecRecover(signedTransaction, updateTransaction);
+      assert.equal(idxE, multiSignAddresses.length);
+      for (let k = idxS; k < idxE; k++) {
+          assert.equal(multiSignAddresses[k].toLowerCase(), accountsl.b58[k].toLowerCase());
+      }
+
   // broadcast multi-sign transaction
   const result = await tronWeb.trx.broadcast(signedTransaction);
   await wait(30);
@@ -5987,13 +6088,15 @@ async function alterExistentTransactions() {
     let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
     assert.equal(signAddresses.toLowerCase(), emptyAccount2.address.base58.toLowerCase());
 
+  let multiSignTransaction = await tronWeb.transactionBuilder.sendTrx(receiver, 10, sender, {permissionId : 2});
+  multiSignTransaction = await tronWeb.transactionBuilder.alterTransaction(transaction, { data });
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+//    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = emptyAccount2.privateKey;
     multiSignAccounts.b58[0] = emptyAccount2.address.base58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -6074,12 +6177,18 @@ async function rawParameter() {
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(triggerTransaction.transaction));
-    let multiSignedTransaction = multiSignTransaction;
+    let multiSignTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
+                                   contractAddress1, "transfer(address,uint256)",
+                                   {
+                                     rawParameter: param2,
+                                     permissionId : 2
+                                   },
+                                   [], ADDRESS_BASE58);
+    let multiSignedTransaction = multiSignTransaction.transaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -6358,12 +6467,24 @@ async function triggerSmartContractWithFuncABIV2_V1_input() {
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(setTransaction.transaction));
-    let multiSignedTransaction = multiSignTransaction;
+    let multiSignTransaction = await tronWeb.transactionBuilder.triggerSmartContract(
+                                   transaction.contract_address,
+                                   "setCheck(uint256)",
+                                   {
+                                     funcABIV2: funcABIV2.abi[2],
+                                     parametersV2: [
+                                       16
+                                     ],
+                                     permissionId : 2
+                                   },
+                                   [],
+                                   ADDRESS_HEX
+                                 );
+    let multiSignedTransaction = multiSignTransaction.transaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -6558,12 +6679,25 @@ async function encodeABIV2test1_V1_input() {
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignTransaction = await tronWeb.transactionBuilder.createSmartContract({
+                                    abi: abiV2Test1.abi,
+                                    bytecode: abiV2Test1.bytecode,
+                                    feeLimit: FEE_LIMIT,
+                                    funcABIV2: abiV2Test1.abi[0],
+                                    parametersV2: [
+                                      [5],
+                                      ADDRESS_BASE58,
+                                      TOKEN_ID,
+                                      ["q", "w", "e"],
+                                      ["0xf579f9c22b185800e3b6e6886ffc8584215c05a5", "0xd9dcae335acd3d4ffd2e6915dc702a59136ab46f"]
+                                    ],
+                                    permissionId : 2
+                                  }, ADDRESS_BASE58);
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -6803,12 +6937,25 @@ async function encodeABIV2test1_V2_input() {
     assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
     let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+    let multiSignTransaction = await tronWeb.transactionBuilder.createSmartContract({
+                                                                                        abi: abiV2Test1.abi,
+                                                                                        bytecode: abiV2Test1.bytecode,
+                                                                                        feeLimit: FEE_LIMIT,
+                                                                                        funcABIV2: abiV2Test1.abi[0],
+                                                                                        parametersV2: [
+                                                                                          [5],
+                                                                                          ADDRESS_BASE58,
+                                                                                          TOKEN_ID,
+                                                                                          ["q", "w", "e"],
+                                                                                          ["0xf579f9c22b185800e3b6e6886ffc8584215c05a5", "0xd9dcae335acd3d4ffd2e6915dc702a59136ab46f"]
+                                                                                        ],
+                                                                                        permissionId : 2
+                                                                                      }, ADDRESS_BASE58);
     let multiSignedTransaction = multiSignTransaction;
     multiSignAccounts.pks[0] = PRIVATE_KEY;
     multiSignAccounts.b58[0] = ADDRESS_BASE58;
     for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
     }
     const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
     assert.equal(3, multiSignAddresses.length);
@@ -7339,76 +7486,76 @@ async function transactionBuilderTestAll() {
   await createAccount();
   await updateAccount();
   await setAccountId();
-//  await setAccountIdMultiSign()
-//  await updateToken();
-//  await purchaseToken();
-//  await sendToken();
-//  await createProposal();
-//  await deleteProposal();
-//  await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
-//  await applyForSR();
-//  //Execute this method when Proposition 70 is not enabled
-//  await freezeBalance();
-//  await unfreezeBalance();
-  //Execute this method when Proposition 70 is enabled
-//  await freezeBalanceV2_1();
-//  await freezeBalanceV2_2();
-//  await freezeBalanceV2_3();
-//  await freezeBalanceV2_4();
-//  await unfreezeBalanceV2_1();
-//  await unfreezeBalanceV2_2();
-//  await unfreezeBalanceV2_3();
-//  await unfreezeBalanceV2_4();
-//  await cancelUnfreezeBalanceV2();
-//  await delegateResource_before();
-//  await delegateResource_1();
-//  await delegateResource_2();
-//  await delegateResource_3();
-//  await delegateResource_4();
-//  await delegateResource_5();
-//  await delegateResource_6();
-//  await delegateResource_7();
-//  await delegateResource_8();
-//  await delegateResourcePeriod();
-//  await undelegateResource_before();
-//  await undelegateResource_1();
-//  await undelegateResource_2();
-//  await undelegateResource_3();
-//  await undelegateResource_4();
-//  await withdrawExpireUnfreeze_1();
-//  await withdrawExpireUnfreeze_2();
-//  await estimateEnergy_1();
-//  await estimateEnergy_2();
-//  await estimateEnergy_3();
-//  await estimateEnergy_4();
-//  await withdrawBalance();
-//  await vote();
-//  await createSmartContract();
-//  await createSmartContractWithArray3();
-//  await createSmartContractWithTrctokenAndStateMutability();
-//  await createSmartContractWithPayable();
-//  await triggerConstantContract();
-//  await testDeployConstantContract();
-//  await triggerComfirmedConstantContract();
-//  await clearabi();
-//  await clearabiMultiSign()
-//  await updateBrokerage();
-//  await updateBrokerageMultiSign(); //需要开30号提案 需要将49ContractType加入Permission码
-//  await triggerSmartContract();
-//  await triggerSmartContractWithArrays();
-//  await triggerSmartContractWithTrctoken();
-//  await triggerSmartContractWithCallData();//TRNWB-61
-//  await createTokenExchange();
-//  await createTRXExchange();
-//  await injectExchangeTokens(); //last not passed
-//  await withdrawExchangeTokens();
-//  await tradeExchangeTokens(); //last not passed
-//  await updateSetting();
-//  await updateEnergyLimit();
-//  await accountPermissionUpdate();
-//  await accountPermissionUpdateMultiSign()
-//  await alterExistentTransactions();
-//  await rawParameter(); //有时候不通过，是因为好像余额转了两次
+  await setAccountIdMultiSign()
+  await updateToken();
+  await purchaseToken();
+  await sendToken();
+  await createProposal();
+  await deleteProposal();
+  await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
+  await applyForSR();
+  //Execute this method when Proposition 70 is not enabled
+  await freezeBalance();
+  await unfreezeBalance();
+  Execute this method when Proposition 70 is enabled
+  await freezeBalanceV2_1();
+  await freezeBalanceV2_2();
+  await freezeBalanceV2_3();
+  await freezeBalanceV2_4();
+  await unfreezeBalanceV2_1();
+  await unfreezeBalanceV2_2();
+  await unfreezeBalanceV2_3();
+  await unfreezeBalanceV2_4();
+  await cancelUnfreezeBalanceV2();
+  await delegateResource_before();
+  await delegateResource_1();
+  await delegateResource_2();
+  await delegateResource_3();
+  await delegateResource_4();
+  await delegateResource_5();
+  await delegateResource_6();
+  await delegateResource_7();
+  await delegateResource_8();
+  await delegateResourcePeriod();
+  await undelegateResource_before();
+  await undelegateResource_1();
+  await undelegateResource_2();
+  await undelegateResource_3();
+  await undelegateResource_4();
+  await withdrawExpireUnfreeze_1();
+  await withdrawExpireUnfreeze_2();
+  await estimateEnergy_1();
+  await estimateEnergy_2();
+  await estimateEnergy_3();
+  await estimateEnergy_4();
+  await withdrawBalance();
+  await vote();
+  await createSmartContract();
+  await createSmartContractWithArray3();
+  await createSmartContractWithTrctokenAndStateMutability();
+  await createSmartContractWithPayable();
+  await triggerConstantContract();
+  await testDeployConstantContract();
+  await triggerComfirmedConstantContract();
+  await clearabi();
+  await clearabiMultiSign()
+  await updateBrokerage();
+  await updateBrokerageMultiSign(); //需要开30号提案 需要将49ContractType加入Permission码
+  await triggerSmartContract();
+  await triggerSmartContractWithArrays();
+  await triggerSmartContractWithTrctoken();
+  await triggerSmartContractWithCallData();//TRNWB-61
+  await createTokenExchange();
+  await createTRXExchange();
+  await injectExchangeTokens(); //last not passed
+  await withdrawExchangeTokens();
+  await tradeExchangeTokens(); //last not passed
+  await updateSetting();
+  await updateEnergyLimit();
+  await accountPermissionUpdate();
+  await accountPermissionUpdateMultiSign()
+  await alterExistentTransactions();
+  await rawParameter(); //有时候不通过，是因为好像余额转了两次
   await triggerSmartContractWithFuncABIV2_V1_input();
   await triggerSmartContractWithFuncABIV2_V2_input();
   await encodeABIV2test1_V1_input();
