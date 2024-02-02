@@ -7497,7 +7497,7 @@ async function transactionBuilderTestAll() {
   //Execute this method when Proposition 70 is not enabled
   await freezeBalance();
   await unfreezeBalance();
-  Execute this method when Proposition 70 is enabled
+//  Execute this method when Proposition 70 is enabled
   await freezeBalanceV2_1();
   await freezeBalanceV2_2();
   await freezeBalanceV2_3();
