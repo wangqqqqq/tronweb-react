@@ -27,6 +27,12 @@ const ethers = require('ethers');
 console.log(TronWeb.utils.ethersUtils);
 const { AbiCoder, keccak256 } = TronWeb.utils.ethersUtils;
 
+function deepClone (obj) {
+  let _tmp = JSON.stringify(obj)
+  let result = JSON.parse(_tmp)
+  return result
+}
+
 async function transactionBuilderBefore() {
   console.log("start...");
   tronWeb = tronWebBuilder.createInstance();
@@ -142,6 +148,37 @@ async function sendTrx() {
     'ContractValidateException'
   );
   console.log("---------sendTrx() end------------")
+}
+
+async function sendTrxWithCustomBlockHeader() {
+  const params = [
+    [accounts.b58[1], 10, ADDRESS_HEX, {permissionId: 2}],
+    [accounts.b58[1], 10]
+  ];
+  for (let param of params) {
+      //transaction1为trowweb不指定block header时产生的交易
+      const transaction1 = await tronWeb.transactionBuilder.sendTrx(...param);
+      console.log(JSON.stringify(transaction1, null, 2));
+      let ref_block_bytes_pre = transaction1.raw_data.ref_block_bytes
+      let ref_block_hash_pre = transaction1.raw_data.ref_block_hash
+      let expiration_pre = transaction1.raw_data.expiration
+      let timestamp_pre = transaction1.raw_data.timestamp
+      let blockheader_pre = {
+          ref_block_bytes:ref_block_bytes_pre,
+          ref_block_hash:ref_block_hash_pre,
+          expiration:expiration_pre,
+          timestamp:timestamp_pre
+      }
+      //transaction2为trowweb指定block header时产生的交易
+      let newParam = (param.length >2)? 
+                  [accounts.b58[1], 10, ADDRESS_HEX, {permissionId:2, blockHeader:blockheader_pre}] :
+                  [accounts.b58[1], 10, ADDRESS_HEX, {blockHeader:blockheader_pre}]
+                  await wait(4)   //insure if don't have custom block header, the two tx will be different.
+      const transaction2 = await tronWeb.transactionBuilder.sendTrx(...newParam);
+      console.log(JSON.stringify(transaction2, null, 2));
+      assert.isTrue(_.isEqual(transaction1,transaction2));
+  }
+  console.log(`sendTrxWithCustomBlockHeader execute success`)
 }
 
 async function createToken() {
@@ -567,6 +604,128 @@ async function createToken() {
   console.log("execute createToken success")
 }
 
+async function createTokenWithCustomBlockHeader(){
+  const options = getTokenOptions();
+  for (let i = 0; i < 2; i++) {
+      if (i === 1) options.permissionId = 2;
+      const transaction1 = await tronWeb.transactionBuilder.createToken(options, accounts.b58[2]);
+      console.log(JSON.stringify(transaction1, null, 2));
+      let ref_block_bytes_pre = transaction1.raw_data.ref_block_bytes
+      let ref_block_hash_pre = transaction1.raw_data.ref_block_hash
+      let expiration_pre = transaction1.raw_data.expiration
+      let timestamp_pre = transaction1.raw_data.timestamp
+      let blockheader_pre = {
+          ref_block_bytes:ref_block_bytes_pre,
+          ref_block_hash:ref_block_hash_pre,
+          expiration:expiration_pre,
+          timestamp:timestamp_pre
+      }
+      let options2 = deepClone(options)
+      options2.blockHeader=blockheader_pre
+      console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
+      const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[2]);
+      console.log(JSON.stringify(transaction2, null, 2));
+      assert.isTrue(_.isEqual(transaction1,transaction2));
+  }
+  console.log(`createTokenWithCustomBlockHeader execute success`)
+}
+
+async function createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader() {
+  const options = getTokenOptions();
+  options.voteScore = 5;
+  options.precision = 4;
+
+  for (let i = 0; i < 2; i++) {
+      if (i === 1) {
+          options.permissionId = 2;
+          options.saleStart = Date.now() + 500;
+          options.saleEnd = Date.now() + 60000;
+      }
+      const transaction1 = await tronWeb.transactionBuilder.createToken(options, accounts.b58[3 + i]);
+      console.log(`transaction1: ${JSON.stringify(transaction1, null, 2)}`);
+      let ref_block_bytes_pre = transaction1.raw_data.ref_block_bytes
+      let ref_block_hash_pre = transaction1.raw_data.ref_block_hash
+      let expiration_pre = transaction1.raw_data.expiration
+      let timestamp_pre = transaction1.raw_data.timestamp
+      let blockheader_pre = {
+          ref_block_bytes:ref_block_bytes_pre,
+          ref_block_hash:ref_block_hash_pre,
+          expiration:expiration_pre,
+          timestamp:timestamp_pre
+      }
+      let options2 = deepClone(options)
+      options2.blockHeader=blockheader_pre
+      console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
+      const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[3 + i]);
+      console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+      assert.isTrue(_.isEqual(transaction1,transaction2));
+  }
+  console.log(`createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader execute success`)
+};
+
+async function createTokenPassingAnyNumberAsAStringWithCustomBlockHeader(){
+  const options = getTokenOptions();
+  options.totalSupply = '100'
+  options.frozenAmount = '5'
+  options.frozenDuration = '2'
+  options.saleEnd = options.saleEnd.toString()
+  for (let i = 0; i < 2; i++) {
+      if (i === 1) options.permissionId = 2;
+      const transaction1 = await tronWeb.transactionBuilder.createToken(options, accounts.b58[25]);
+      console.log(`transaction1: ${JSON.stringify(transaction1, null, 2)}`);
+      let ref_block_bytes_pre = transaction1.raw_data.ref_block_bytes
+      let ref_block_hash_pre = transaction1.raw_data.ref_block_hash
+      let expiration_pre = transaction1.raw_data.expiration
+      let timestamp_pre = transaction1.raw_data.timestamp
+      let blockheader_pre = {
+          ref_block_bytes:ref_block_bytes_pre,
+          ref_block_hash:ref_block_hash_pre,
+          expiration:expiration_pre,
+          timestamp:timestamp_pre
+      }
+      let options2 = deepClone(options)
+      options2.blockHeader=blockheader_pre
+      console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
+      const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[25]);
+      console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+      assert.isTrue(_.isEqual(transaction1,transaction2));
+      
+  }
+  console.log(`createTokenPassingAnyNumberAsAStringWithCustomBlockHeader execute success`)
+
+};
+
+async function createTokenWithoutFreezeAnythingWithCustomBlockHeader() {
+  const options = getTokenOptions();
+  options.totalSupply = '100'
+  options.frozenAmount = '0'
+  options.frozenDuration = '0'
+  options.saleEnd = options.saleEnd.toString()
+  for (let i = 0; i < 2; i++) {
+      if (i === 1) options.permissionId = 2;
+      const transaction1 = await tronWeb.transactionBuilder.createToken(options, accounts.b58[1]);
+      console.log(`transaction1: ${JSON.stringify(transaction1, null, 2)}`);
+      let ref_block_bytes_pre = transaction1.raw_data.ref_block_bytes
+      let ref_block_hash_pre = transaction1.raw_data.ref_block_hash
+      let expiration_pre = transaction1.raw_data.expiration
+      let timestamp_pre = transaction1.raw_data.timestamp
+      let blockheader_pre = {
+          ref_block_bytes:ref_block_bytes_pre,
+          ref_block_hash:ref_block_hash_pre,
+          expiration:expiration_pre,
+          timestamp:timestamp_pre
+      }
+      let options2 = deepClone(options)
+      options2.blockHeader=blockheader_pre
+      console.log(`new options: ${JSON.stringify(options2, null, 2)}`);
+      const transaction2 = await tronWeb.transactionBuilder.createToken(options2, accounts.b58[1]);
+      console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+      assert.isTrue(_.isEqual(transaction1,transaction2));
+  }
+  console.log(`createTokenWithoutFreezeAnythingWithCustomBlockHeader execute success`)
+
+};
+
 async function createAccount() {
   const inactiveAccount1 = await tronWeb.createAccount();
   const inactiveAccountAddress1 = inactiveAccount1.address.base58;
@@ -651,6 +810,64 @@ async function createAccount() {
   console.log("createAccount success")
 }
 
+async function createAccountWithCustomBlockHeader() {
+  const inactiveAccount1 = await tronWeb.createAccount();
+  const inactiveAccountAddress1 = inactiveAccount1.address.base58;
+  const inactiveAccount2 = await tronWeb.createAccount();
+  const inactiveAccountAddress2 = inactiveAccount2.address.base58;
+
+  // permissionId
+  let transaction1 = await tronWeb.transactionBuilder.createAccount(inactiveAccountAddress1, accounts.hex[3], {permissionId: 2});
+  console.log(`transaction1: ${JSON.stringify(transaction1, null, 2)}`);
+  let ref_block_bytes_pre = transaction1.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction1.raw_data.ref_block_hash
+  let expiration_pre = transaction1.raw_data.expiration
+  let timestamp_pre = transaction1.raw_data.timestamp
+  let blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  let transaction2 = await tronWeb.transactionBuilder.createAccount(inactiveAccountAddress1, accounts.hex[3], {permissionId: 2, blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction1,transaction2));
+
+
+  let updateTx = await broadcaster.broadcaster(null, accounts.pks[3], transaction2);
+  console.log("updateTx1.txID:"+updateTx.transaction.txID)
+  assert.equal(updateTx.transaction.txID.length, 64);
+  await wait(30);
+  console.log("inactiveAccountAddress1:"+inactiveAccountAddress1)
+  const in1 = await tronWeb.trx.getAccount(inactiveAccountAddress1);
+  assert.equal(in1.address.toLowerCase(), inactiveAccount1.address.hex.toLowerCase());
+
+  // no permissionId
+  transaction1 = await tronWeb.transactionBuilder.createAccount(inactiveAccountAddress2, accounts.hex[3]);
+  console.log(`transaction1: ${JSON.stringify(transaction1, null, 2)}`);
+  ref_block_bytes_pre = transaction1.raw_data.ref_block_bytes
+  ref_block_hash_pre = transaction1.raw_data.ref_block_hash
+  expiration_pre = transaction1.raw_data.expiration
+  timestamp_pre = transaction1.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  transaction2 = await tronWeb.transactionBuilder.createAccount(inactiveAccountAddress2, accounts.hex[3],{blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction1,transaction2));
+  updateTx = await broadcaster.broadcaster(null, accounts.pks[3], transaction2);
+  console.log("updateTx2.txID:"+updateTx.transaction.txID)
+  assert.equal(updateTx.transaction.txID.length, 64);
+  await wait(30);
+  const in2 = await tronWeb.trx.getAccount(inactiveAccountAddress2);
+  assert.equal(in2.address.toLowerCase(), inactiveAccount2.address.hex.toLowerCase());
+  console.log(`createAccountWithCustomBlockHeader execute success`)
+
+};
+
 async function updateAccount() {
   const emptyAccount1 = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount1.address.hex, 1000000000, { privateKey: PRIVATE_KEY })
@@ -704,6 +921,38 @@ async function updateAccount() {
   );
   console.log("updateAccount success")
 }
+
+async function updateAccountWithCustomBlockHeader() {
+  const newName = 'New name'
+  const params = [
+      [newName, accounts.b58[3], {permissionId: 2}],
+      [newName, accounts.b58[3]]
+  ];
+
+  for (let param of params) {
+      const transaction1 = await tronWeb.transactionBuilder.updateAccount(...param);
+      console.log(JSON.stringify(transaction1, null, 2));
+      let ref_block_bytes_pre = transaction1.raw_data.ref_block_bytes
+      let ref_block_hash_pre = transaction1.raw_data.ref_block_hash
+      let expiration_pre = transaction1.raw_data.expiration
+      let timestamp_pre = transaction1.raw_data.timestamp
+      let blockheader_pre = {
+          ref_block_bytes:ref_block_bytes_pre,
+          ref_block_hash:ref_block_hash_pre,
+          expiration:expiration_pre,
+          timestamp:timestamp_pre
+      }
+      //transaction2为trowweb指定block header时产生的交易
+      let newParam = (param.length >2)? 
+                  [newName, accounts.b58[3], {permissionId:2, blockHeader:blockheader_pre}] :
+                  [newName, accounts.b58[3], {blockHeader:blockheader_pre}]
+      const transaction2 = await tronWeb.transactionBuilder.updateAccount(...newParam);
+      console.log(JSON.stringify(transaction2, null, 2));
+      assert.isTrue(_.isEqual(transaction1,transaction2));
+  }
+  console.log(`updateAccountWithCustomBlockHeader execute success`)
+
+};
 
 async function setAccountId() {
   const emptyAccount1 = await TronWeb.createAccount();
@@ -782,6 +1031,32 @@ async function setAccountId() {
   }
   console.log("execute setAccountId end")
 }
+
+async function setAccountIdWithCustomBlockHeader() {
+
+  const ids = ['abcabc110', 'testtest', 'jackieshen110'];
+
+  for (let id of ids) {
+      let accountId = TronWeb.toHex(id);
+      const transaction1 = await tronWeb.transactionBuilder.setAccountId(accountId, accounts.b58[4]);
+      console.log(JSON.stringify(transaction1, null, 2));
+      let ref_block_bytes_pre = transaction1.raw_data.ref_block_bytes
+      let ref_block_hash_pre = transaction1.raw_data.ref_block_hash
+      let expiration_pre = transaction1.raw_data.expiration
+      let timestamp_pre = transaction1.raw_data.timestamp
+      let blockheader_pre = {
+          ref_block_bytes:ref_block_bytes_pre,
+          ref_block_hash:ref_block_hash_pre,
+          expiration:expiration_pre,
+          timestamp:timestamp_pre
+      }
+      //transaction2为trowweb指定block header时产生的交易
+      const transaction2 = await tronWeb.transactionBuilder.setAccountId(accountId, accounts.b58[4],{blockHeader:blockheader_pre});
+      console.log(JSON.stringify(transaction2, null, 2));
+      assert.isTrue(_.isEqual(transaction1,transaction2));
+  }
+  console.log(`setAccountIdWithCustomBlockHeader execute success`)
+};
 
 function randomString(e) {
   e = e || 32;
@@ -898,7 +1173,27 @@ async function updateToken() {
     assert.equal(parameter.value.owner_address, emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.UpdateAssetContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, UPDATED_TEST_TOKEN_OPTIONS.permissionId || 0);
+    //add for custom blocker header 
+    console.log(JSON.stringify(transaction, null, 2));
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    //transaction2为trowweb指定block header时产生的交易
+    const UPDATED_TEST_TOKEN_OPTIONS2 = deepClone(UPDATED_TEST_TOKEN_OPTIONS)
+    UPDATED_TEST_TOKEN_OPTIONS2.blockHeader=blockheader_pre;
+    await wait(4)
+    const transaction2 = await tronWeb.transactionBuilder.updateToken(UPDATED_TEST_TOKEN_OPTIONS2, emptyAccount1.address.base58);
+    console.log(JSON.stringify(transaction2, null, 2));
+    assert.isTrue(_.isEqual(transaction,transaction2));
 
+    //below add for ecRecover
     const tempTransaction = JSON.parse(JSON.stringify(transaction));
     const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -1095,6 +1390,28 @@ async function purchaseToken() {
     assert.equal(parameter.value.to_address, emptyAccount1.address.hex.toLowerCase());
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.ParticipateAssetIssueContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[4] ? param[4]['permissionId'] : 0);
+
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    //transaction2为trowweb指定block header时产生的交易
+    let newParam = deepClone(param);
+    newParam = (param.length >4)? 
+                            [emptyAccount1.address.base58, tokenID, 20, emptyAccount2.address.base58, {permissionId:2, blockHeader:blockheader_pre}] :
+                            [emptyAccount1.address.base58, tokenID, 20, emptyAccount2.address.base58,{blockHeader:blockheader_pre}]
+
+    await wait(4)
+    const transaction2 = await tronWeb.transactionBuilder.purchaseToken(...newParam)
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
 
     const tempTransaction = JSON.parse(JSON.stringify(transaction));
     const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount2.privateKey);
@@ -1300,6 +1617,27 @@ async function sendToken() {
     assert.equal(parameter.value.to_address, emptyAccount2.address.hex.toLowerCase());
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[4] ? param[4]['permissionId'] : 0);
 
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    let newParam = deepClone(param)
+    newParam = (param.length >4)? 
+                [emptyAccount2.address.base58, 5, tokenID, emptyAccount1.address.base58, {permissionId:2, blockHeader:blockheader_pre}] :
+                [emptyAccount2.address.base58, 5, tokenID, emptyAccount1.address.base58, {blockHeader:blockheader_pre}]
+    
+    //transaction2为trowweb指定block header时产生的交易
+    const transaction2 = await tronWeb.transactionBuilder.sendToken(...newParam);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
+
     const tempTransaction = JSON.parse(JSON.stringify(transaction));
     const signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -1372,6 +1710,25 @@ async function createProposal() {
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.ProposalCreateContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, input[2] ? input[2]['permissionId'] : 0);
 
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    //transaction2为trowweb指定block header时产生的交易
+    let newInput = (input.length >2)? 
+                [parameters[0], ADDRESS_BASE58, {permissionId: 2,blockHeader:blockheader_pre}] :
+                [parameters[0], ADDRESS_BASE58, {blockHeader:blockheader_pre}]
+    const transaction2 = await tronWeb.transactionBuilder.createProposal(...newInput);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
+
     const tempTransaction = JSON.parse(JSON.stringify(transaction));
     const signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -1437,6 +1794,25 @@ async function deleteProposal() {
     assert.equal(parameter.value.proposal_id, proposals[0].proposal_id);
     assert.equal(parameter.type_url, 'type.googleapis.com/protocol.ProposalDeleteContract');
     assert.equal(transaction.raw_data.contract[0].Permission_id || 0, param[2] ? 2 : 0);
+
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    //transaction2为trowweb指定block header时产生的交易
+    let newParam = (param.length >2)? 
+                [proposals[0].proposal_id, witnessAccount, {permissionId: 2,blockHeader:blockheader_pre}] :
+                [proposals[0].proposal_id, witnessAccount, {blockHeader:blockheader_pre}]
+    const transaction2 = await tronWeb.transactionBuilder.deleteProposal(...newParam);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
 
     const tempTransaction = JSON.parse(JSON.stringify(transaction));
     const signedTransaction = await tronWeb.trx.sign(tempTransaction, witnessKey);
@@ -1568,6 +1944,27 @@ async function voteProposal() {
   ];
   for (let param of params) {
     const transaction = await tronWeb.transactionBuilder.voteProposal(...param)
+    // add customer block header 
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    //transaction2为trowweb指定block header时产生的交易
+    let newParam = (param.length >3)? 
+                [proposals.length, true, emptyAccount1.address.base58, {permissionId: 2,blockHeader:blockheader_pre}] :
+                [proposals.length, true, emptyAccount1.address.base58, {blockHeader:blockheader_pre}]
+    const transaction2 = await tronWeb.transactionBuilder.voteProposal(...newParam);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
+
+
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
@@ -1629,6 +2026,23 @@ async function applyForSR() {
   url = 'https://xtron.network';
 
   const transaction = await tronWeb.transactionBuilder.applyForSR(emptyAccount1.address.base58, url);
+  // add customer block header
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  let blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  const transaction2 = await tronWeb.transactionBuilder.applyForSR(emptyAccount1.address.base58, url,{blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+  
   const parameter = txPars(transaction);
 
   assert.equal(parameter.value.owner_address, emptyAccount1.address.hex.toLowerCase());
@@ -1794,25 +2208,41 @@ async function unfreezeBalance() {
 async function freezeBalanceV2_1() {
   let transaction = await tronWeb.transactionBuilder.freezeBalanceV2(4e6, 'BANDWIDTH', accounts.b58[0], { permissionId: 2 });
 
-    let tempTransaction = JSON.parse(JSON.stringify(transaction));
-    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
-    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
-    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
-    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  let blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  let transaction2 = await tronWeb.transactionBuilder.freezeBalanceV2(4e6, 'BANDWIDTH', accounts.b58[0],{permissionId: 2, blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+  
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
 
-    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
-    let multiSignedTransaction = multiSignTransaction;
-    multiSignAccounts.pks[0] = accounts.pks[0];
-    multiSignAccounts.b58[0] = accounts.b58[0];
-    for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
-    }
-    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
-    assert.equal(3, multiSignAddresses.length);
-    for (let k = 0; k < 3; k++) {
-        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
-    }
+  let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+  let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+  let multiSignedTransaction = multiSignTransaction;
+  multiSignAccounts.pks[0] = accounts.pks[0];
+  multiSignAccounts.b58[0] = accounts.b58[0];
+  for (let j = 0; j < 3; j++) {
+      multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+  }
+  const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+  assert.equal(3, multiSignAddresses.length);
+  for (let k = 0; k < 3; k++) {
+      assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+  }
 
   let tx = await broadcaster.broadcaster(null, accounts.pks[0], transaction);
   console.log("tx:" + util.inspect(tx))
@@ -1849,11 +2279,27 @@ async function freezeBalanceV2_1() {
 
   transaction = await tronWeb.transactionBuilder.freezeBalanceV2(3e6, 'ENERGY', accounts.hex[0]);
 
-    tempTransaction = JSON.parse(JSON.stringify(transaction));
-    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
-    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
-    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
-    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  expiration_pre = transaction.raw_data.expiration
+  timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  transaction2 = await tronWeb.transactionBuilder.freezeBalanceV2(3e6, 'ENERGY', accounts.hex[0],{blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+
+  tempTransaction = JSON.parse(JSON.stringify(transaction));
+  signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
 
   tx = await broadcaster.broadcaster(null, accounts.pks[0], transaction);
   console.log("tx:" + util.inspect(tx))
@@ -1878,6 +2324,8 @@ async function freezeBalanceV2_1() {
 
 async function freezeBalanceV2_2() {
   let transaction = await tronWeb.transactionBuilder.freezeBalanceV2(5e6, 'ENERGY', accounts.b58[1], { permissionId: 2 });
+
+  
 
     let tempTransaction = JSON.parse(JSON.stringify(transaction));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
@@ -1921,11 +2369,27 @@ async function freezeBalanceV2_2() {
 
   transaction = await tronWeb.transactionBuilder.freezeBalanceV2(6e6, 'BANDWIDTH', accounts.hex[1]);
 
-        tempTransaction = JSON.parse(JSON.stringify(transaction));
-        signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
-        //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
-        signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
-        assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  expiration_pre = transaction.raw_data.expiration
+  timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  transaction2 = await tronWeb.transactionBuilder.freezeBalanceV2(6e6, 'BANDWIDTH', accounts.hex[1], {blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+
+  tempTransaction = JSON.parse(JSON.stringify(transaction));
+  signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[1].toLowerCase());
 
   tx = await broadcaster.broadcaster(null, accounts.pks[1], transaction);
   console.log("tx:" + util.inspect(tx))
@@ -2038,25 +2502,41 @@ async function freezeBalanceV2_4() {
 async function unfreezeBalanceV2_1() {
   let transaction = await tronWeb.transactionBuilder.unfreezeBalanceV2(3e6, 'BANDWIDTH', accounts.b58[0], { permissionId: 2 })
 
-    let tempTransaction = JSON.parse(JSON.stringify(transaction));
-    let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
-    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
-    let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
-    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  let transaction2 = await tronWeb.transactionBuilder.unfreezeBalanceV2(3e6, 'BANDWIDTH', accounts.b58[0],{permissionId: 2, blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+  
+  let tempTransaction = JSON.parse(JSON.stringify(transaction));
+  let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  let signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
 
-    let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
-    let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
-    let multiSignedTransaction = multiSignTransaction;
-    multiSignAccounts.pks[0] = accounts.pks[0];
-    multiSignAccounts.b58[0] = accounts.b58[0];
-    for (let j = 0; j < 3; j++) {
-        multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
-    }
-    const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
-    assert.equal(3, multiSignAddresses.length);
-    for (let k = 0; k < 3; k++) {
-        assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
-    }
+  let multiSignAccounts = await tronWebBuilder.getTestAccountsInMain(3);
+  let multiSignTransaction = JSON.parse(JSON.stringify(transaction));
+  let multiSignedTransaction = multiSignTransaction;
+  multiSignAccounts.pks[0] = accounts.pks[0];
+  multiSignAccounts.b58[0] = accounts.b58[0];
+  for (let j = 0; j < 3; j++) {
+      multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
+  }
+  const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
+  assert.equal(3, multiSignAddresses.length);
+  for (let k = 0; k < 3; k++) {
+      assert.equal(multiSignAddresses[k].toLowerCase(), multiSignAccounts.b58[k].toLowerCase());
+  }
 
   let tx = await broadcaster.broadcaster(null, accounts.pks[0], transaction);
   console.log("tx:" + util.inspect(tx))
@@ -2078,11 +2558,26 @@ async function unfreezeBalanceV2_1() {
 
   transaction = await tronWeb.transactionBuilder.unfreezeBalanceV2(2e6, 'ENERGY', accounts.b58[0])
 
-    tempTransaction = JSON.parse(JSON.stringify(transaction));
-    signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
-    //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
-    signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
-    assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
+  ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  expiration_pre = transaction.raw_data.expiration
+  timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  transaction2 = await tronWeb.transactionBuilder.unfreezeBalanceV2(2e6, 'ENERGY', accounts.b58[0],{blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+  
+  tempTransaction = JSON.parse(JSON.stringify(transaction));
+  signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
+  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+  signAddresses = await tronWeb.trx.ecRecover(signedTransaction, tempTransaction);
+  assert.equal(signAddresses.toLowerCase(), accounts.b58[0].toLowerCase());
 
   tx = await broadcaster.broadcaster(null, accounts.pks[0], transaction);
   console.log("tx:" + util.inspect(tx))
@@ -2107,6 +2602,22 @@ async function unfreezeBalanceV2_1() {
 
 async function unfreezeBalanceV2_2() {
   let transaction = await tronWeb.transactionBuilder.unfreezeBalanceV2(5e6, 'ENERGY', accounts.b58[1], { permissionId: 2 })
+
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  let transaction2 = await tronWeb.transactionBuilder.unfreezeBalanceV2(5e6, 'ENERGY', accounts.b58[1],{permissionId: 2, blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
 
     let tempTransaction = JSON.parse(JSON.stringify(transaction));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
@@ -2134,6 +2645,22 @@ async function unfreezeBalanceV2_2() {
   assert.equal(accountResource.tronPowerLimit, 6);
 
   transaction = await tronWeb.transactionBuilder.unfreezeBalanceV2(6e6, 'BANDWIDTH', accounts.b58[1])
+
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  expiration_pre = transaction.raw_data.expiration
+  timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  transaction2 = await tronWeb.transactionBuilder.unfreezeBalanceV2(6e6, 'BANDWIDTH', accounts.b58[1],{blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
 
     tempTransaction = JSON.parse(JSON.stringify(transaction));
     signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
@@ -2279,6 +2806,22 @@ async function cancelUnfreezeBalanceV2() {
   assert.equal(accountInfo.unfrozenV2[0].type, "ENERGY");
   const txCancel = await tronWeb.transactionBuilder.cancelUnfreezeBalanceV2(account.b58[0]);
 
+  console.log(`txCancel: ${JSON.stringify(txCancel, null, 2)}`);
+  let ref_block_bytes_pre = txCancel.raw_data.ref_block_bytes
+  let ref_block_hash_pre = txCancel.raw_data.ref_block_hash
+  let expiration_pre = txCancel.raw_data.expiration
+  let timestamp_pre = txCancel.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  let txCancel2 = await tronWeb.transactionBuilder.cancelUnfreezeBalanceV2(account.b58[0],{blockHeader:blockheader_pre});
+  console.log(`txCancel2: ${JSON.stringify(txCancel2, null, 2)}`);
+  assert.isTrue(_.isEqual(txCancel,txCancel2));
+
     let tempTransaction = JSON.parse(JSON.stringify(txCancel));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, account.pks[0]);
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -2329,6 +2872,22 @@ async function delegateResourcePeriod() {
     1
   );
 
+  console.log(`txDelegate: ${JSON.stringify(txDelegate, null, 2)}`);
+  let ref_block_bytes_pre = txDelegate.raw_data.ref_block_bytes
+  let ref_block_hash_pre = txDelegate.raw_data.ref_block_hash
+  let expiration_pre = txDelegate.raw_data.expiration
+  let timestamp_pre = txDelegate.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  let txDelegate2 = await tronWeb.transactionBuilder.delegateResource(1000000,ADDRESS_BASE58,"ENERGY",account.b58[0],true,1,{blockHeader:blockheader_pre});
+  console.log(`txCancel2: ${JSON.stringify(txDelegate2, null, 2)}`);
+  assert.isTrue(_.isEqual(txDelegate,txDelegate2));
+
     let tempTransaction = JSON.parse(JSON.stringify(txDelegate));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, account.pks[0]);
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -2377,6 +2936,22 @@ async function delegateResource_1() {
   let transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH',
   accounts.b58[1],false,0, { permissionId: 2 })
 
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  let transaction2 = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1],false,0,{permissionId: 2, blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+
     let tempTransaction = JSON.parse(JSON.stringify(transaction));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -2417,6 +2992,22 @@ async function delegateResource_1() {
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
 
   transaction = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1])
+  
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  expiration_pre = transaction.raw_data.expiration
+  timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  transaction2 = await tronWeb.transactionBuilder.delegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1],false,0,{ blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
 
     tempTransaction = JSON.parse(JSON.stringify(transaction));
     signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
@@ -2958,6 +3549,23 @@ async function undelegateResource_1() {
   let transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.hex[7], 'BANDWIDTH', accounts.hex[1],
   { permissionId: 2 })
 
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  let transaction2 = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], {permissionId: 2, blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+
+
   let tempTransaction = JSON.parse(JSON.stringify(transaction));
   let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
   //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -2999,6 +3607,22 @@ async function undelegateResource_1() {
 
   transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1])
 
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  expiration_pre = transaction.raw_data.expiration
+  timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  transaction2 = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.b58[7], 'BANDWIDTH', accounts.b58[1], { blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+
   tempTransaction = JSON.parse(JSON.stringify(transaction));
   signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
   //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -3032,6 +3656,23 @@ async function undelegateResource_2() {
   let transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.hex[7], 'ENERGY', accounts.hex[1],
   { permissionId: 2 })
 
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  let transaction2 = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.hex[7], 'ENERGY', accounts.hex[1], {permissionId: 2, blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+
+
   let tempTransaction = JSON.parse(JSON.stringify(transaction));
   let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
   //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -3058,6 +3699,22 @@ async function undelegateResource_2() {
   assert.equal(accountResourceAfter1.tronPowerLimit, accountResourceBefore1.tronPowerLimit);
 
   transaction = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.b58[7], 'ENERGY', accounts.b58[1])
+
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  expiration_pre = transaction.raw_data.expiration
+  timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  transaction2 = await tronWeb.transactionBuilder.undelegateResource(10e6, accounts.hex[7], 'ENERGY', accounts.hex[1], { blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
 
   tempTransaction = JSON.parse(JSON.stringify(transaction));
   signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[1]);
@@ -3225,6 +3882,22 @@ async function withdrawExpireUnfreeze_1() {
   await wait(30);
   let transaction = await tronWeb.transactionBuilder.withdrawExpireUnfreeze(accounts.b58[3], { permissionId: 2 })
 
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  let transaction2 = await tronWeb.transactionBuilder.withdrawExpireUnfreeze(accounts.b58[3], {permissionId: 2, blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+
   let tempTransaction = JSON.parse(JSON.stringify(transaction));
   let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[3]);
   //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -3264,6 +3937,22 @@ async function withdrawExpireUnfreeze_1() {
   assert.isTrue(accountBefore2.unfrozenV2[0].unfreeze_amount > 0);
   await wait(30); //fullnode设置解冻后的锁定期为1min，所以前后两个wait加起来要大于60s
   transaction = await tronWeb.transactionBuilder.withdrawExpireUnfreeze(accounts.hex[3])
+
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  expiration_pre = transaction.raw_data.expiration
+  timestamp_pre = transaction.raw_data.timestamp
+  blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  transaction2 = await tronWeb.transactionBuilder.withdrawExpireUnfreeze(accounts.b58[3], { blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
 
   tempTransaction = JSON.parse(JSON.stringify(transaction));
   signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[3]);
@@ -3673,6 +4362,27 @@ async function withdrawBalance() {
     const transaction = await tronWeb.transactionBuilder.withdrawBlockRewards(
       ...param
     );
+
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    //transaction2为trowweb指定block header时产生的交易
+    let newParam = (param.length >1)? 
+                [WITNESS_ACCOUNT, {permissionId: 2,blockHeader:blockheader_pre}] :
+                [WITNESS_ACCOUNT, {blockHeader:blockheader_pre}]
+    const transaction2 = await tronWeb.transactionBuilder.withdrawBlockRewards(...newParam);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
+
+
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
@@ -3737,6 +4447,24 @@ async function vote() {
   votes[tronWeb.address.toHex(WITNESS_ACCOUNT)] = 5
 
   const transaction = await tronWeb.transactionBuilder.vote(votes, emptyAccount2.address.base58)
+  
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  let blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  const transaction2 = await tronWeb.transactionBuilder.vote(votes, emptyAccount2.address.base58,{blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+
+  
   const parameter = txPars(transaction);
 
   assert.equal(parameter.value.owner_address, emptyAccount2.address.hex.toLowerCase());
@@ -3872,6 +4600,26 @@ async function createSmartContract() {
   for (let i = 0; i < 2; i++) {
     if (i === 1) options.permissionId = 2;
     const tx = await tronWeb.transactionBuilder.createSmartContract(options)
+    
+    console.log(`tx: ${JSON.stringify(tx, null, 2)}`);
+    let ref_block_bytes_pre = tx.raw_data.ref_block_bytes
+    let ref_block_hash_pre = tx.raw_data.ref_block_hash
+    let expiration_pre = tx.raw_data.expiration
+    let timestamp_pre = tx.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    //transaction2为trowweb指定block header时产生的交易
+    const options2 = deepClone(options);
+                options2.blockHeader = blockheader_pre
+                await wait(4)
+    const transaction2 = await tronWeb.transactionBuilder.createSmartContract(options2)
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(tx,transaction2));
+    
     assert.equal(tx.raw_data.contract[0].parameter.value.new_contract.consume_user_resource_percent, 100);
     assert.equal(tx.raw_data.contract[0].parameter.value.new_contract.origin_energy_limit, 1e7);
     assert.equal(tx.raw_data.fee_limit, 15e7);
@@ -3957,6 +4705,26 @@ async function createSmartContract() {
   for (let i = 0; i < 2; i++) {
     if (i === 1) options.permissionId = 2;
     const tx = await tronWeb.transactionBuilder.createSmartContract(options)
+    
+    console.log(`tx: ${JSON.stringify(tx, null, 2)}`);
+    let ref_block_bytes_pre = tx.raw_data.ref_block_bytes
+    let ref_block_hash_pre = tx.raw_data.ref_block_hash
+    let expiration_pre = tx.raw_data.expiration
+    let timestamp_pre = tx.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    //transaction2为trowweb指定block header时产生的交易
+    const options2 = deepClone(options);
+                options2.blockHeader = blockheader_pre
+                await wait(4)
+    const transaction2 = await tronWeb.transactionBuilder.createSmartContract(options2)
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(tx,transaction2));
+    
     assert.equal(tx.raw_data.contract[0].parameter.value.new_contract.consume_user_resource_percent, 30);
     assert.equal(tx.raw_data.contract[0].parameter.value.new_contract.origin_energy_limit, 9e6);
     assert.equal(tx.raw_data.fee_limit, 9e8);
@@ -4063,6 +4831,25 @@ async function createSmartContractWithArray3() {
   console.log("PRIVATE_KEY:" + util.inspect(await tronWeb.trx.getAccount(ADDRESS_HEX), true, null, true));
   const transaction = await tronWeb.transactionBuilder.createSmartContract(options, emptyAccount4.address.hex);
 
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  let blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  const options2 = deepClone(options);
+              options2.blockHeader = blockheader_pre
+              await wait(4)
+  const transaction2 = await tronWeb.transactionBuilder.createSmartContract(options2,emptyAccount4.address.hex)
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+
   let tempTransaction = JSON.parse(JSON.stringify(transaction));
   let signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount4.privateKey);
   //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -4151,6 +4938,25 @@ async function createSmartContractWithTrctokenAndStateMutability() {
     feeLimit: FEE_LIMIT
   };
   const transaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_HEX);
+
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  let blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  const options2 = deepClone(options);
+              options2.blockHeader = blockheader_pre
+              await wait(4)
+  const transaction2 = await tronWeb.transactionBuilder.createSmartContract(options2,ADDRESS_HEX)
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
 
   let tempTransaction = JSON.parse(JSON.stringify(transaction));
   let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
@@ -4477,6 +5283,28 @@ async function clearabi() {
 
     // clear abi
     let transaction1 = await tronWeb.transactionBuilder.clearABI(contractAddress, ownerAddress, param[2]);
+    
+    console.log(`transaction1: ${JSON.stringify(transaction1, null, 2)}`);
+    let ref_block_bytes_pre = transaction1.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction1.raw_data.ref_block_hash
+    let expiration_pre = transaction1.raw_data.expiration
+    let timestamp_pre = transaction1.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    let newParam = deepClone(param)
+    newParam = (param.length >2)? 
+                [transaction, accounts.hex[7], { permissionId: 2, blockHeader:blockheader_pre}] :
+                [transaction, accounts.hex[7], {blockHeader:blockheader_pre}]
+    
+    //transaction2为trowweb指定block header时产生的交易
+    const transaction1_1 = await tronWeb.transactionBuilder.clearABI(contractAddress, ownerAddress, newParam[2]);
+    console.log(`transaction1_1: ${JSON.stringify(transaction1_1, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction1,transaction1_1));
+    
     const parameter = txPars(transaction1);
     assert.isTrue(!transaction1.visible &&
       transaction1.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.ClearABIContract');
@@ -4694,6 +5522,22 @@ async function updateBrokerage() {
 
   console.log("emptyAccount1:" + emptyAccount1.address.base58)
   const transaction = await tronWeb.transactionBuilder.updateBrokerage(10, emptyAccount1.address.hex);
+
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  let blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  const transaction2 = await tronWeb.transactionBuilder.updateBrokerage(10, emptyAccount1.address.hex,{blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
 
     let tempTransaction = JSON.parse(JSON.stringify(transaction));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, emptyAccount1.privateKey);
@@ -4958,8 +5802,36 @@ async function triggerSmartContractWithArrays() {
     { type: 'address[2]', value: [emptyAccount1.address.hex, emptyAccount2.address.hex] },
     { type: 'uint256[2]', value: [123456, 123456] }
   ]
+  const options = {txLocal: true};
   transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithArray, functionSelector, {},
     parameter, ADDRESS_HEX);
+
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.transaction.raw_data.expiration
+  let fee_limit_pre = transaction.transaction.raw_data.fee_limit
+  timestamp_pre = transaction.transaction.raw_data.timestamp
+  let blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      fee_limit: fee_limit_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  const options2 = deepClone(options);
+  options2.blockHeader = blockheader_pre
+  await wait(4)   //insure if don't have custom block header, the two tx will be different.
+  const transaction2 = await tronWeb.transactionBuilder.triggerSmartContract(
+                                                                      contractAddressWithArray,
+                                                                      functionSelector,
+                                                                      options2,
+                                                                      parameter,
+                                                                      ADDRESS_HEX
+                                                                  );
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
 
     let tempTransaction = JSON.parse(JSON.stringify(transaction.transaction));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
@@ -5118,11 +5990,34 @@ async function triggerSmartContractWithTrctoken() {
     callValue: 321,
     tokenId: TOKEN_ID,
     tokenValue: 1e3,
-    feeLimit: FEE_LIMIT
+    feeLimit: FEE_LIMIT,
+    txLocal: true
   };
   transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithTrctoken, functionSelector, options,
     parameter, ADDRESS_HEX);
 
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.transaction.raw_data.expiration
+    let fee_limit_pre = transaction.transaction.raw_data.fee_limit
+    timestamp_pre = transaction.transaction.raw_data.timestamp
+    let blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        fee_limit: fee_limit_pre,
+        timestamp:timestamp_pre
+    }
+    //transaction2为trowweb指定block header时产生的交易
+    const options2 = deepClone(options);
+    options2.blockHeader = blockheader_pre
+    await wait(4)   //insure if don't have custom block header, the two tx will be different.
+    const transaction2 = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithTrctoken,functionSelector,options2,
+      parameter, ADDRESS_HEX);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));  
+    
     tempTransaction = JSON.parse(JSON.stringify(transaction.transaction));
     signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -5276,6 +6171,27 @@ async function triggerSmartContractWithCallData() {
   optionsTrigger.input = keccak256(Buffer.from(functionSelector, 'utf-8')).toString().substring(2, 10) + abiCoder.encode(types, values).replace(/^(0x)/, '');
   transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddress, null, optionsTrigger, [], issuerAddress);
 
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.transaction.raw_data.expiration
+  let fee_limit_pre = transaction.transaction.raw_data.fee_limit
+  timestamp_pre = transaction.transaction.raw_data.timestamp
+  let blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      fee_limit: fee_limit_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  const optionsTrigger2 = deepClone(optionsTrigger);
+  optionsTrigger2.blockHeader = blockheader_pre
+  await wait(4)   //insure if don't have custom block header, the two tx will be different.
+  const transaction2 = await tronWeb.transactionBuilder.triggerSmartContract(contractAddress, null, optionsTrigger2, [], issuerAddress);
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+
     tempTransaction = JSON.parse(JSON.stringify(transaction.transaction));
     signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
     //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
@@ -5365,6 +6281,23 @@ async function createTokenExchange() {
   }
 
   let transaction = await tronWeb.transactionBuilder.createTokenExchange(tokenNames[0], 10e3, tokenNames[1], 10e3, emptyAccount3.address.hex);
+  
+  console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+  let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+  let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+  let expiration_pre = transaction.raw_data.expiration
+  let timestamp_pre = transaction.raw_data.timestamp
+  let blockheader_pre = {
+      ref_block_bytes:ref_block_bytes_pre,
+      ref_block_hash:ref_block_hash_pre,
+      expiration:expiration_pre,
+      timestamp:timestamp_pre
+  }
+  //transaction2为trowweb指定block header时产生的交易
+  let transaction2 = await tronWeb.transactionBuilder.createTokenExchange(tokenNames[0], 10e3, tokenNames[1], 10e3, emptyAccount3.address.hex,{blockHeader:blockheader_pre});
+  console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+  assert.isTrue(_.isEqual(transaction,transaction2));
+  
   let parameter = txPars(transaction);
 
   assert.equal(transaction.txID.length, 64);
@@ -5440,7 +6373,7 @@ async function injectExchangeTokens() {
   }
   const transaction = await tronWeb.transactionBuilder.createTokenExchange(tokenNames[1], 10, tokenNames[0], 10);
   const result = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
-  console.log("result: " + util.inspect(result, true, null, true))
+
   let receipt = await tronWeb.trx.getTransactionInfo(transaction.txID);
   while (!Object.keys(receipt).length) {
     await wait(5);
@@ -5456,6 +6389,26 @@ async function injectExchangeTokens() {
     const transaction = await tronWeb.transactionBuilder.injectExchangeTokens(
       ...param
     );
+
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    let newParam = (param.length >3)? 
+                [exchangeId, tokenNames[0], 10,ADDRESS_BASE58, {permissionId:2, blockHeader:blockheader_pre}] :
+                [exchangeId, tokenNames[0], 10,ADDRESS_BASE58, {blockHeader:blockheader_pre}]
+    //transaction2为trowweb指定block header时产生的交易
+    transaction2 = await tronWeb.transactionBuilder.injectExchangeTokens(...newParam);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
+
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
@@ -5528,6 +6481,26 @@ async function withdrawExchangeTokens() {
     const transaction = await tronWeb.transactionBuilder.withdrawExchangeTokens(
       ...param
     );
+
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    let newParam = (param.length >3)? 
+                [exchangeId, tokenNames[0], 10,ADDRESS_BASE58, {permissionId:2, blockHeader:blockheader_pre}] :
+                [exchangeId, tokenNames[0], 10,ADDRESS_BASE58, {blockHeader:blockheader_pre}]
+    //transaction2为trowweb指定block header时产生的交易
+    const transaction2 = await tronWeb.transactionBuilder.withdrawExchangeTokens(...newParam);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
+
     const authResult =
       utils.transaction.txCheck(transaction);
     assert.equal(authResult, true);
@@ -5597,6 +6570,24 @@ async function tradeExchangeTokens() {
       ...param
     );
 
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    let newParam = (param.length >4)? 
+                [exchangeId, tokenNames[0], 10,5, ADDRESS_BASE58, {permissionId:2, blockHeader:blockheader_pre}] :
+                [exchangeId, tokenNames[0], 10,5, ADDRESS_BASE58, {blockHeader:blockheader_pre}]
+    //transaction2为trowweb指定block header时产生的交易
+    const transaction2 = await tronWeb.transactionBuilder.tradeExchangeTokens(...newParam);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
 
     let tempTransaction = JSON.parse(JSON.stringify(transaction));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, PRIVATE_KEY);
@@ -5657,15 +6648,35 @@ async function updateSetting() {
     }
   }
 
+  const myContract_address = transaction.contract_address;
   const params = [
-    [transaction.contract_address, 10, accounts.b58[0], { permissionId: 2 }],
-    [transaction.contract_address, 20, accounts.b58[0]]
+    [myContract_address, 10, accounts.b58[0], { permissionId: 2 }],
+    [myContract_address, 20, accounts.b58[0]]
   ];
+  
   for (let param of params) {
     const transaction = await tronWeb.transactionBuilder.updateSetting(
       ...param
     );
 
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    let newParam = (param.length >3)? 
+                [myContract_address, 10, accounts.b58[0], {permissionId:2, blockHeader:blockheader_pre}] :
+                [myContract_address, 20, accounts.b58[0], {blockHeader:blockheader_pre}]
+    //transaction2为trowweb指定block header时产生的交易
+    const transaction2 = await tronWeb.transactionBuilder.updateSetting(...newParam);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
 
     let tempTransaction = JSON.parse(JSON.stringify(transaction));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
@@ -5715,15 +6726,34 @@ async function updateEnergyLimit() {
       break;
     }
   }
-
+  const myContract_address = transaction.contract_address;
   const params = [
-    [transaction.contract_address, 10e6, accounts.b58[0], { permissionId: 2 }],
-    [transaction.contract_address, 10e6, accounts.b58[0]]
+    [myContract_address, 10e6, accounts.b58[0], { permissionId: 2 }],
+    [myContract_address, 10e6, accounts.b58[0]]
   ];
   for (let param of params) {
     const transaction = await tronWeb.transactionBuilder.updateEnergyLimit(
       ...param
     );
+
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    let newParam = (param.length >3)? 
+                [myContract_address, 10e6, accounts.b58[0],{permissionId:2, blockHeader:blockheader_pre}] :
+                [myContract_address, 10e6, accounts.b58[0], {blockHeader:blockheader_pre}]
+    //transaction2为trowweb指定block header时产生的交易
+    const transaction2 = await tronWeb.transactionBuilder.updateEnergyLimit(...newParam);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
 
     let tempTransaction = JSON.parse(JSON.stringify(transaction));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
@@ -5821,6 +6851,25 @@ async function accountPermissionUpdate() {
     const transaction = await tronWeb.transactionBuilder.updateAccountPermissions(
       ...param
     );
+
+    console.log(`transaction: ${JSON.stringify(transaction, null, 2)}`);
+    let ref_block_bytes_pre = transaction.raw_data.ref_block_bytes
+    let ref_block_hash_pre = transaction.raw_data.ref_block_hash
+    let expiration_pre = transaction.raw_data.expiration
+    let timestamp_pre = transaction.raw_data.timestamp
+    blockheader_pre = {
+        ref_block_bytes:ref_block_bytes_pre,
+        ref_block_hash:ref_block_hash_pre,
+        expiration:expiration_pre,
+        timestamp:timestamp_pre
+    }
+    let newParam = (param.length >4)? 
+                [accounts.hex[0], permissionData.owner, permissionData.witness, permissionData.actives,{permissionId:2, blockHeader:blockheader_pre}] :
+                [accounts.hex[0], permissionData.owner, permissionData.witness, permissionData.actives,{blockHeader:blockheader_pre}]
+    //transaction2为trowweb指定block header时产生的交易
+    const transaction2 = await tronWeb.transactionBuilder.updateAccountPermissions(...newParam);
+    console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
+    assert.isTrue(_.isEqual(transaction,transaction2));
 
     let tempTransaction = JSON.parse(JSON.stringify(transaction));
     let signedTransaction = await tronWeb.trx.sign(tempTransaction, accounts.pks[0]);
@@ -7334,81 +8383,89 @@ async function beforeTestIssueToken() {
 async function transactionBuilderTestAll() {
   console.log("transactionBuilderTestAll start")
   await transactionBuilderBefore();
-  await sendTrx();
-  await createToken();
-  await createAccount();
-  await updateAccount();
-  await setAccountId();
-//  await setAccountIdMultiSign()
-//  await updateToken();
-//  await purchaseToken();
-//  await sendToken();
-//  await createProposal();
-//  await deleteProposal();
-//  await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
-//  await applyForSR();
-//  //Execute this method when Proposition 70 is not enabled
-//  await freezeBalance();
-//  await unfreezeBalance();
-  //Execute this method when Proposition 70 is enabled
-//  await freezeBalanceV2_1();
-//  await freezeBalanceV2_2();
-//  await freezeBalanceV2_3();
-//  await freezeBalanceV2_4();
-//  await unfreezeBalanceV2_1();
-//  await unfreezeBalanceV2_2();
-//  await unfreezeBalanceV2_3();
-//  await unfreezeBalanceV2_4();
-//  await cancelUnfreezeBalanceV2();
-//  await delegateResource_before();
-//  await delegateResource_1();
-//  await delegateResource_2();
-//  await delegateResource_3();
-//  await delegateResource_4();
-//  await delegateResource_5();
-//  await delegateResource_6();
-//  await delegateResource_7();
-//  await delegateResource_8();
-//  await delegateResourcePeriod();
-//  await undelegateResource_before();
-//  await undelegateResource_1();
-//  await undelegateResource_2();
-//  await undelegateResource_3();
-//  await undelegateResource_4();
-//  await withdrawExpireUnfreeze_1();
-//  await withdrawExpireUnfreeze_2();
-//  await estimateEnergy_1();
-//  await estimateEnergy_2();
-//  await estimateEnergy_3();
-//  await estimateEnergy_4();
-//  await withdrawBalance();
-//  await vote();
-//  await createSmartContract();
-//  await createSmartContractWithArray3();
-//  await createSmartContractWithTrctokenAndStateMutability();
-//  await createSmartContractWithPayable();
-//  await triggerConstantContract();
-//  await testDeployConstantContract();
-//  await triggerComfirmedConstantContract();
-//  await clearabi();
-//  await clearabiMultiSign()
-//  await updateBrokerage();
-//  await updateBrokerageMultiSign(); //需要开30号提案 需要将49ContractType加入Permission码
-//  await triggerSmartContract();
-//  await triggerSmartContractWithArrays();
-//  await triggerSmartContractWithTrctoken();
-//  await triggerSmartContractWithCallData();//TRNWB-61
-//  await createTokenExchange();
-//  await createTRXExchange();
-//  await injectExchangeTokens(); //last not passed
-//  await withdrawExchangeTokens();
-//  await tradeExchangeTokens(); //last not passed
-//  await updateSetting();
-//  await updateEnergyLimit();
-//  await accountPermissionUpdate();
-//  await accountPermissionUpdateMultiSign()
-//  await alterExistentTransactions();
-//  await rawParameter(); //有时候不通过，是因为好像余额转了两次
+  // await sendTrx();
+  // await sendTrxWithCustomBlockHeader()
+  // await createToken();
+  // await createTokenWithCustomBlockHeader()
+  // await createTokenWithVoteScoreAndPrecisionWithCustomBlockHeader()
+  // await createTokenPassingAnyNumberAsAStringWithCustomBlockHeader()
+  // await createTokenWithoutFreezeAnythingWithCustomBlockHeader()
+  // await createAccount();
+  // await createAccountWithCustomBlockHeader()
+  // await updateAccount();
+  // await updateAccountWithCustomBlockHeader()
+  // await setAccountId();
+  // await setAccountIdWithCustomBlockHeader()
+  // await setAccountIdMultiSign()
+  // await updateToken();
+  // await purchaseToken();
+  // await sendToken();
+  // await createProposal();
+  // await deleteProposal();
+  // await voteProposal();     //BANDWITH_ERROR：Account resource insufficient error.
+  // await applyForSR();
+  //  //Execute this method when Proposition 70 is not enabled
+  //  await freezeBalance();
+  //  await unfreezeBalance();
+  // Execute this method when Proposition 70 is enabled
+  // await freezeBalanceV2_1();
+  // await freezeBalanceV2_2();
+  // await freezeBalanceV2_3();
+  // await freezeBalanceV2_4();
+  // await unfreezeBalanceV2_1();
+  // await unfreezeBalanceV2_2();
+  // await unfreezeBalanceV2_3();
+  // await unfreezeBalanceV2_4();
+  // await cancelUnfreezeBalanceV2();
+  // await delegateResource_before();
+  // await delegateResource_1();
+  // await delegateResource_2();
+  // await delegateResource_3();
+  // await delegateResource_4();
+  // await delegateResource_5();
+  // await delegateResource_6();
+  // await delegateResource_7();
+  // await delegateResource_8();
+  // await delegateResourcePeriod();
+  // await undelegateResource_before();
+  // await undelegateResource_1();
+  // await undelegateResource_2();
+  // await undelegateResource_3();
+  // await undelegateResource_4();
+  // await withdrawExpireUnfreeze_1();
+  // await withdrawExpireUnfreeze_2();
+  // await estimateEnergy_1();
+  // await estimateEnergy_2();
+  // await estimateEnergy_3();
+  // await estimateEnergy_4();
+  // await withdrawBalance();
+  // await vote();
+  // await createSmartContract();
+  // await createSmartContractWithArray3();
+  // await createSmartContractWithTrctokenAndStateMutability();
+  // await createSmartContractWithPayable();
+  // await triggerConstantContract();
+  // await testDeployConstantContract();
+  // await triggerComfirmedConstantContract();
+  // await clearabi();
+  // await clearabiMultiSign()
+  // await updateBrokerage();
+  // await updateBrokerageMultiSign(); //需要开30号提案 需要将49ContractType加入Permission码
+  // await triggerSmartContract();
+  // await triggerSmartContractWithArrays();
+  // await triggerSmartContractWithTrctoken();
+  // await triggerSmartContractWithCallData();//TRNWB-61
+  // await createTokenExchange();
+  // await createTRXExchange();
+  // await injectExchangeTokens(); //last not passed
+  // await withdrawExchangeTokens();
+  // await tradeExchangeTokens(); //last not passed
+  await updateSetting();
+  await updateEnergyLimit();
+  await accountPermissionUpdate();
+  await accountPermissionUpdateMultiSign()
+  await alterExistentTransactions();
+  await rawParameter(); //有时候不通过，是因为好像余额转了两次
   await triggerSmartContractWithFuncABIV2_V1_input();
   await triggerSmartContractWithFuncABIV2_V2_input();
   await encodeABIV2test1_V1_input();

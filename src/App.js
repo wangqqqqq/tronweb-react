@@ -59,8 +59,8 @@ class App extends React.Component {
     // await multiSignTestMain.multiSignTestAll();
     // await pluginTest.pluginTestAll();
     // await providersTest.providersTestAll();
-    // await transactionBuilderTest.transactionBuilderTestAll();
-     await trxTestMain.trxTestAll(); 
+     await transactionBuilderTest.transactionBuilderTestAll();
+    // await trxTestMain.trxTestAll(); 
     // await typedData.typedDataAll();
     // await transactionTest.transactionTestAll(); 
     // await signVisibleTest.signVisibleTestAll();
