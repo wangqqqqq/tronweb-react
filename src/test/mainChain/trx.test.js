@@ -1859,21 +1859,16 @@ async function verifyMessageForUsingSignatureFrom(){
   assert.isTrue(result);
 }
 
-async function verifyMessageUseSignaturefrom(){
-  const hexMsg = '0a02616222082b6a2d73221629b740d8d7c2c6d5315a65080112610a2d747970';
-            const signedMsg = await tronWeb.trx.sign(hexMsg, PRIVATE_KEY, null, false);
-            console.log(`signedMsg: ${signedMsg}`)
-            let result = await tronWeb.trx.verifyMessage(hexMsg, signedMsg, ADDRESS_BASE58, null);
-            assert.isTrue(result);
-            //1c对应01， 1b对应00.
-            let newSignedMsg;
-            if (signedMsg.substring(signedMsg.length-2,signedMsg.length) == "1c")
-                newSignedMsg = signedMsg.substring(0, signedMsg.length-2) + "01"
-            else if(signedMsg.substring(signedMsg.length-2,signedMsg.length) == "1b")
-                newSignedMsg = signedMsg.substring(0, signedMsg.length-2) + "00"
-            console.log(`newSignedMsg: ${newSignedMsg}`)
-            result = await tronWeb.trx.verifyMessage(hexMsg, newSignedMsg, ADDRESS_BASE58, null);
-            assert.isTrue(result);
+async function ShouldGetBandwitdthPrices(){
+  const res = await tronWeb.trx.getBandwidthPrices();
+  console.log('Bandwitdth Prices：' + res);
+  assert.isTrue(res.includes("0:"))
+}
+
+async function ShouldGetEnergyPrices(){
+  const res = await tronWeb.trx.getEnergyPrices();
+  console.log('Engergy Prices：' + res);
+  assert.isTrue(res.includes("0:"))
 }
 
 async function trxTestAll(){
@@ -1917,7 +1912,8 @@ async function trxTestAll(){
   await getAvailableUnfreezeCount();
   await getCanWithdrawUnfreezeAmount();
   await verifyMessageForUsingSignatureFrom();
-  await verifyMessageUseSignaturefrom();
+  await ShouldGetBandwitdthPrices();
+  await ShouldGetEnergyPrices();
   console.log("trxTestAll end")
 }
 
