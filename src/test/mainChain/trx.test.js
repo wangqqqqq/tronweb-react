@@ -1871,6 +1871,38 @@ async function ShouldGetEnergyPrices(){
   assert.isTrue(res.includes("0:"))
 }
 
+async function ecRecoverCase() {
+    let transaction = await tronWeb.transactionBuilder.sendTrx(accounts.b58[1], 10, accounts.b58[0]);
+    let signedTransaction = await tronWeb.trx.multiSign(transaction, accounts.pks[0]);
+    let multiSignTransaction = await tronWeb.transactionBuilder.sendTrx(accounts.b58[1], 10, accounts.b58[0], {permissionId : 2});
+    let signedMultiSignTransaction = multiSignTransaction;
+    for (let i = 0; i < 3; i++) {
+        signedMultiSignTransaction = await tronWeb.trx.multiSign(signedMultiSignTransaction, accounts.pks[i], 2);
+    }
+
+    const transactionNew1 = await tronWeb.transactionBuilder.sendTrx(accounts.b58[1], 10, accounts.b58[0]);
+    let flag = 0;
+    try {
+        tronWeb.trx.ecRecover(transactionNew1);
+    } catch (error) {
+        flag = 1;
+        assert.strictEqual(error.message, 'Transaction is not signed');
+    }
+    assert.strictEqual(flag, 1);
+
+    const transactionNew2 = await tronWeb.transactionBuilder.sendTrx(accounts.b58[1], 10, accounts.b58[0]);
+    let signedTransactionNew2 = await tronWeb.trx.multiSign(transactionNew2, accounts.pks[0]);
+    signedTransactionNew2.raw_data.contract[0].parameter.value.owner_address = null;
+    flag = 0;
+    try {
+        console.log(tronWeb.trx.ecRecover(signedTransactionNew2));
+    } catch (error) {
+        flag = 1;
+        assert.strictEqual(error.message, 'Invalid transaction');
+    }
+    assert.strictEqual(flag, 1);
+}
+
 async function trxTestAll(){
   console.log("trxTestAll start")
   await trxBefore();
@@ -1906,14 +1938,15 @@ async function trxTestAll(){
   await getBrokerage();
   await getUnconfirmedBrokerage();
   /*await broadcastHex();                        //todo6.0.0 need use java tron to make transaction. */
-  await getDelegatedResourceV2();  
-  await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？  
+  await getDelegatedResourceV2();
+  await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？
   await getCanDelegatedMaxSize();
   await getAvailableUnfreezeCount();
   await getCanWithdrawUnfreezeAmount();
   await verifyMessageForUsingSignatureFrom();
   await ShouldGetBandwitdthPrices();
   await ShouldGetEnergyPrices();
+  await ecRecoverCase();
   console.log("trxTestAll end")
 }
 
