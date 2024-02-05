@@ -1,6 +1,6 @@
 const chalk = require('chalk')
 const TronWeb = require('tronweb');
-
+const wait = require('../util/wait');
 const jlog = require('./jlog')
 const util = require('util');
 
@@ -101,6 +101,27 @@ const getTestAccountsInMain = async (amount) => {
    return Promise.resolve(accounts);
 }
 
+ const isTransactionConfirmed = async (txId, maxWait=10) => {
+    const tronWeb = createInstance();
+    // maxWait ： {} second;
+    const begin = Date.now();
+    maxWait = maxWait * 1000;
+    let result = false;
+    while (Date.now() - begin <= maxWait) {
+        const tx = await tronWeb.trx.getTransactionInfo(txId);
+        if (Object.keys(tx).length === 0) {
+            await wait(3);
+            continue;
+        } else {
+            result = true;
+            // console.log("transaction result:", JSON.stringify(tx, null, 2));
+            break;
+        }
+    }
+    return result;
+}
+
+
 module.exports = {
     createInstance,
     getInstance,
@@ -108,6 +129,7 @@ module.exports = {
     newTestAccounts,
     getTestAccounts,
     getTestAccountsInMain,
+    isTransactionConfirmed,
     TronWeb
 }
 
