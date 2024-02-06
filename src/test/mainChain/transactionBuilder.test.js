@@ -6394,44 +6394,68 @@ async function triggerSmartContractWithCallData() {
   console.log(infoById);
   assert.equal(infoById.receipt.result, "SUCCESS");
 }
-//trigger Contract With address[][] parameter
-async function triggerContractWithMultiDimeinsionAddressParam() {
-  const transaction1 = await tronWeb.transactionBuilder.createSmartContract({abi: TestMultiDimensionAddress.abi,bytecode: TestMultiDimensionAddress.bytecode,name:TestMultiDimensionAddress.name}, ADDRESS_HEX);
-  const result1 = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction1);
-  console.log(`result1: ${result1}`)
-  console.log(`result1: ${JSON.stringify(result1,null,2)}`)
-  assert.isTrue(result1.receipt.result, "deploy contract occurred error");
-  const contractAddress = transaction1.contract_address;
-  console.log(`contractAddress: ${contractAddress}`);
-  assert.isTrue(await tronWebBuilder.isTransactionConfirmed(transaction1.txID, 30));
-  //trigger smart contract with address[][]
-  await wait(10)  // wait for contract can be used.
-  const functionSelector = 'setAddress(address[][])';
-  const parameter = [
-      {type: 'address[][]', value: [["TYyptUzArG7hUprUCUk2kzBrY4faKD4ioz","TUEqRk58EGN6PBRJ4vDGZ7xjAeHXz4ELan"],["TS2Gh8ebPZy7EyQoJEnL13fCxN71rawEBK","TQWnq5DpQ87LmE2BBAcia1fJ1Z2hP1d3cg"]]
-  }
-  ]
+//trigger Contract With address[][][] parameter
+async function triggerContractWithMultiDimesionAddressParam(){
+  const transaction = await tronWeb.transactionBuilder.createSmartContract(
+    {
+        abi: TestMultiDimensionAddress.abi,
+        bytecode: TestMultiDimensionAddress.bytecode,
+        name:TestMultiDimensionAddress.name,
+        parameters: [
+            [[["TYyptUzArG7hUprUCUk2kzBrY4faKD4ioz","TUEqRk58EGN6PBRJ4vDGZ7xjAeHXz4ELan"],["TS2Gh8ebPZy7EyQoJEnL13fCxN71rawEBK","TQWnq5DpQ87LmE2BBAcia1fJ1Z2hP1d3cg"]],[["TSTmoR33wZ71NmE7dMkgk1pdYBsiWKhCjM","TJhGp8LrCtKQfDy6gChjkdVe8PRzfG4NYQ"],["TLVVGtdXFyLKMUe7Xs43dB1YJyeikqZRTk","TSD189tmGZbic6mCpgLHZhNs8PoFrqXkbK"]]]
+        ]
 
-  const options = {};
-  const transaction = await tronWeb.transactionBuilder.triggerSmartContract(
+    }, 
+    ADDRESS_HEX);
+  const result = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
+  console.log(`result: ${result}`)
+  console.log(`result: ${JSON.stringify(result,null,2)}`)
+  assert.isTrue(result.receipt.result, "deploy contract occurred error");
+  const contractAddress = transaction.contract_address;
+  console.log(`contractAddress: ${contractAddress}`);
+  assert.isTrue(await tronWebBuilder.isTransactionConfirmed(transaction.txID, 30));
+  await wait(10)  // wait for contract can be used.
+  //--------------------------------------
+  //trigger smart contract with get address[][][]
+
+  const functionSelector1 = 'getAddress()';
+  const options1 = {
+      txLocal: false,
+  };
+  console.log(`wqqdebug1`)
+  const transaction1 = await tronWeb.transactionBuilder.triggerConstantContract(
                                                                               contractAddress,
-                                                                              functionSelector,
-                                                                              options,
-                                                                              parameter,
+                                                                              functionSelector1,
+                                                                              options1,
+                                                                              [],
                                                                               ADDRESS_BASE58
                                                                           );
+  console.log(`wqqdebug2`)
+  console.log(`transaction1: ${JSON.stringify(transaction1,null,2)}`);
+  assert.isTrue(transaction1.result.result && transaction1.transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.TriggerSmartContract');
+  let returnResult1 = transaction1.constant_result[0];
+  console.log(`returnResult1: ${returnResult1}`)
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult1.substr(512,64).substr(-40)) }`, "TYyptUzArG7hUprUCUk2kzBrY4faKD4ioz")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult1.substr(576,64).substr(-40)) }`, "TUEqRk58EGN6PBRJ4vDGZ7xjAeHXz4ELan")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult1.substr(704,64).substr(-40)) }`, "TS2Gh8ebPZy7EyQoJEnL13fCxN71rawEBK")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult1.substr(768,64).substr(-40)) }`, "TQWnq5DpQ87LmE2BBAcia1fJ1Z2hP1d3cg")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult1.substr(1088,64).substr(-40)) }`, "TSTmoR33wZ71NmE7dMkgk1pdYBsiWKhCjM")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult1.substr(1152,64).substr(-40)) }`, "TJhGp8LrCtKQfDy6gChjkdVe8PRzfG4NYQ")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult1.substr(1280,64).substr(-40)) }`, "TLVVGtdXFyLKMUe7Xs43dB1YJyeikqZRTk")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult1.substr(1344,64).substr(-40)) }`, "TSD189tmGZbic6mCpgLHZhNs8PoFrqXkbK")
 
-  const result = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction.transaction);
-  console.log(`485, ${JSON.stringify(result, null, 2)}`)
-
-  const functionSelector2 = 'addressGroup(uint256,uint256)';
+  // -------------------------------
+  // get address from addressGroup by sub index
+  const functionSelector2 = 'addressGroup(uint256,uint256,uint256)';
   const parameter2 = [
-      {type: 'uint256', value: 0},
-      {type: 'uint256', value: 1}
+      {type: 'uint256', value: 1},
+      {type: 'uint256', value: 1},
+      {type: 'uint256', value: 0}
   ]
   const options2 = {
-      txLocal: true,
+      txLocal: false,
   };
+  console.log(`wqqdebug2`)
   const transaction2 = await tronWeb.transactionBuilder.triggerConstantContract(
                                                                               contractAddress,
                                                                               functionSelector2,
@@ -6439,39 +6463,62 @@ async function triggerContractWithMultiDimeinsionAddressParam() {
                                                                               parameter2,
                                                                               ADDRESS_BASE58
                                                                           );
+  console.log(`wqqdebug3`)                                                                    
   console.log(`transaction2: ${JSON.stringify(transaction2,null,2)}`);
   assert.isTrue(transaction2.result.result && transaction2.transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.TriggerSmartContract');
-  let returnResult = transaction2.constant_result[0];
-  let returnHexAddress = tronWeb.address.fromHex("41"+returnResult.substr(-40));
-  assert.equal(returnHexAddress,"TUEqRk58EGN6PBRJ4vDGZ7xjAeHXz4ELan");
+  let returnResult2 = transaction2.constant_result[0];
+  console.log(`returnResult2: ${returnResult2}`)
+  let returnHexAddress = tronWeb.address.fromHex("41"+returnResult2.substr(-40));
+  assert.equal(returnHexAddress,"TLVVGtdXFyLKMUe7Xs43dB1YJyeikqZRTk");
 
-  let multiSignTransaction = deepClone(transaction1);
-  let multiSignedTransaction = multiSignTransaction;
-  const multiSignAccounts = { b58: [], hex: [], pks: []};
-  multiSignAccounts.pks.push(PRIVATE_KEY);
-  multiSignAccounts.b58.push(ADDRESS_BASE58);
-  multiSignAccounts.pks.push(accounts.pks[18]);
-  multiSignAccounts.b58.push(accounts.b58[18]);
-  multiSignAccounts.pks.push(accounts.pks[19]);
-  multiSignAccounts.b58.push(accounts.b58[19]);
-  for (let j = 0; j < 3; j++) {
-      multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 0);
-  }
-  const multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction, multiSignTransaction);
-  assert.equal(3, multiSignAddresses.length);
-  for (let k = 0; k < 3; k++) {
-      assert.equal(multiSignAccounts.b58[k].toLowerCase(), multiSignAddresses[k].toLowerCase());
-  }
+  //---------------------------------
+  // set address
+  const functionSelector3 = 'setAddress(address[][][])';
+  const parameter3 = [
+      {type: 'address[][][]',
+      value: [[["TRgHmmGRjx939vfcCSmNrKr7vv8oghuCSH","TKqQkmybjeoXPVRHErzU9k5D3LJD2kKHvv"],["TA9mA7EmcPMtH2gjfamu2kPDYfzpXypN1F","TCwGkgWhuCqgXaX2ESwL6mVGZEyxwVAopZ"]],[["TBnfeEAkUQ27M6zWBGoK74vmtBNvzTBQtz","TFcfEdVVtqutMkb83YXsrjRnQ2E6MvSpDY"],["TLY7ZRJWyi7hJ6LPDKfoiaNMT8sfG6vMqs","TS97yaeq5X2a9g4zvBiPEcvY6VWBYcJAV5"]]]
+      }
+  ]
 
-  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
-  const signAddresses1 = await tronWeb.trx.ecRecover(result.signedTransaction, result.transaction);
-  assert.equal(ADDRESS_BASE58.toLowerCase(), signAddresses1.toLowerCase());
+  const options3 = {};
+  const transaction3 = await tronWeb.transactionBuilder.triggerSmartContract(
+                                                                              contractAddress,
+                                                                              functionSelector3,
+                                                                              options3,
+                                                                              parameter3,
+                                                                              ADDRESS_BASE58
+                                                                          );
 
-  const signedTransaction2 = await tronWeb.trx.sign(transaction2.transaction, PRIVATE_KEY);
-  //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
-  const signAddresses2 = await tronWeb.trx.ecRecover(signedTransaction2, transaction2.transaction);
-  assert.equal(ADDRESS_BASE58.toLowerCase(), signAddresses2.toLowerCase());
+  const result3 = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction3.transaction);
+  console.log(`485, ${JSON.stringify(result3, null, 2)}`)
 
+  //--------------------------------------
+  // getAddress again to check set result.
+
+  const functionSelector4 = 'getAddress()';
+  const options4 = {
+      txLocal: false,
+  };
+  const transaction4 = await tronWeb.transactionBuilder.triggerConstantContract(
+                                                                              contractAddress,
+                                                                              functionSelector4,
+                                                                              options4,
+                                                                              [],
+                                                                              ADDRESS_BASE58
+                                                                          );
+  console.log(`transaction4: ${JSON.stringify(transaction4,null,2)}`);
+  assert.isTrue(transaction4.result.result && transaction4.transaction.raw_data.contract[0].parameter.type_url === 'type.googleapis.com/protocol.TriggerSmartContract');
+  let returnResult4 = transaction4.constant_result[0];
+  console.log(`returnResult4: ${returnResult4}`) 
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult4.substr(512,64).substr(-40)) }`, "TRgHmmGRjx939vfcCSmNrKr7vv8oghuCSH")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult4.substr(576,64).substr(-40)) }`, "TKqQkmybjeoXPVRHErzU9k5D3LJD2kKHvv")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult4.substr(704,64).substr(-40)) }`, "TA9mA7EmcPMtH2gjfamu2kPDYfzpXypN1F")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult4.substr(768,64).substr(-40)) }`, "TCwGkgWhuCqgXaX2ESwL6mVGZEyxwVAopZ")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult4.substr(1088,64).substr(-40)) }`, "TBnfeEAkUQ27M6zWBGoK74vmtBNvzTBQtz")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult4.substr(1152,64).substr(-40)) }`, "TFcfEdVVtqutMkb83YXsrjRnQ2E6MvSpDY")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult4.substr(1280,64).substr(-40)) }`, "TLY7ZRJWyi7hJ6LPDKfoiaNMT8sfG6vMqs")
+  assert.equal(`${ tronWeb.address.fromHex("41" + returnResult4.substr(1344,64).substr(-40)) }`, "TS97yaeq5X2a9g4zvBiPEcvY6VWBYcJAV5")
+  console.log(`execute triggerContractWithMultiDimesionAddressParam success.`)
 }
 
 async function testDeployConstantContract() {
@@ -8680,6 +8727,194 @@ async function encodeABIV2test1_V2_input() {
   assert.equal(transaction.constant_result[0], 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff6d87');
   console.log("encodeABIV2test1_V2_input execute success")
 }
+// with custom block header:future, before block
+async function withCustomBlockerHeaderAbnormalCaseTimeLine(){
+  let testAccount = `TX74o6dWugAgdaMv8M39QP9YL5QRgfj32t`;
+  //current data
+  let data = await tronWeb.trx.getCurrentBlock()
+  // console.log("getblock:")
+  // console.log(JSON.stringify(data))
+
+  let curBlockNumber = data.block_header.raw_data.number
+  const cur_ref_block_bytes=curBlockNumber.toString(16).slice(-4).padStart(4, '0')
+  const cur_ref_block_hash=data.blockID.slice(16, 32)
+  const cur_expiration= data.block_header.raw_data.timestamp + 60 * 1000
+  const cur_timestamp= data.block_header.raw_data.timestamp
+  const cur_blockheader = {
+      ref_block_bytes:cur_ref_block_bytes,
+      ref_block_hash:cur_ref_block_hash,
+      expiration:cur_expiration,
+      timestamp:cur_timestamp
+  }
+  console.log(`cur_blockheader: ${JSON.stringify(cur_blockheader)}`)
+  const cur_param = [testAccount, 10, ADDRESS_HEX, {blockHeader:cur_blockheader}];
+  const cur_transaction = await tronWeb.transactionBuilder.sendTrx(...cur_param);
+  const cur_result = await broadcaster.broadcaster(null, PRIVATE_KEY, cur_transaction)
+  console.log(`cur_result: ${JSON.stringify(cur_result)}`)
+  assert.isTrue(cur_result.receipt.result)
+
+  //before data
+  data = await tronWeb.trx.getBlockByNumber(curBlockNumber-100)
+  // console.log("getblock 100 blocks before:")
+  // console.log(JSON.stringify(data))
+  const before_ref_block_bytes=data.block_header.raw_data.number.toString(16).slice(-4).padStart(4, '0')
+  const before_ref_block_hash =data.blockID.slice(16, 32)
+  const before_expiration = data.block_header.raw_data.timestamp + 60 * 1000
+  const before_timestamp = data.block_header.raw_data.timestamp
+  const before_blockheader = {
+      ref_block_bytes:before_ref_block_bytes,
+      ref_block_hash:before_ref_block_hash,
+      expiration:before_expiration,
+      timestamp:before_timestamp
+  }
+  console.log(`before_blockheader: ${JSON.stringify(before_blockheader)}`)
+  const before_param = [testAccount, 10, ADDRESS_HEX, {blockHeader:before_blockheader}];
+  const before_transaction = await tronWeb.transactionBuilder.sendTrx(...before_param);
+  const before_result = await broadcaster.broadcaster(null, PRIVATE_KEY, before_transaction)
+  console.log(`before_result: ${JSON.stringify(before_result)}`)
+  assert.equal(before_result.receipt.code,"TRANSACTION_EXPIRATION_ERROR")
+
+  //future data
+  const future_ref_block_bytes=data.block_header.raw_data.number.toString(16).slice(-4).padStart(4, '0')
+  const future_ref_block_hash =cur_ref_block_hash //不知道未来的hash如何计算，暂时取不合理的值。
+  const future_expiration = cur_expiration + 3 * 1000 * 100
+  const future_timestamp = cur_timestamp + 3 * 1000 * 100
+  const future_blockheader = {
+      ref_block_bytes:future_ref_block_bytes,
+      ref_block_hash:future_ref_block_hash,
+      expiration:future_expiration,
+      timestamp:future_timestamp
+  }
+  console.log(`future_blockheader: ${JSON.stringify(future_blockheader)}`)
+  const future_param = [testAccount, 10, ADDRESS_HEX, {blockHeader:future_blockheader}];
+  const future_transaction = await tronWeb.transactionBuilder.sendTrx(...future_param);
+  const future_result = await broadcaster.broadcaster(null, PRIVATE_KEY, future_transaction)
+  console.log(`future_result: ${JSON.stringify(future_result)}`)
+  assert.equal(future_result.receipt.code,"TAPOS_ERROR")
+
+  console.log(`execute withCustomBlockerHeaderAbnormalCaseTimeLine success.`)
+}
+
+async function withCustomBlockerHeaderAbnormalCaseInvalideType(){
+  let testAccount = `TX74o6dWugAgdaMv8M39QP9YL5QRgfj32t`;
+  //with custom block header: expiration、timestamp wrong type
+  let data = await tronWeb.trx.getCurrentBlock()
+  let curBlockNumber = data.block_header.raw_data.number
+  let cur_ref_block_bytes=curBlockNumber.toString(16).slice(-4).padStart(4, '0')
+  let cur_ref_block_hash=data.blockID.slice(16, 32)
+  let cur_expiration= data.block_header.raw_data.timestamp + 60 * 1000
+  let cur_timestamp= data.block_header.raw_data.timestamp
+  let cur_blockheader = {
+      ref_block_bytes:cur_ref_block_bytes,
+      ref_block_hash:cur_ref_block_hash,
+      expiration:cur_expiration.toString(),
+      timestamp:cur_timestamp.toString()
+  }
+  console.log(`cur_blockheader: ${JSON.stringify(cur_blockheader)}`)
+  let cur_param = [testAccount, 10, ADDRESS_HEX, {blockHeader:cur_blockheader}];
+  await wait(4)
+
+  try {
+      await tronWeb.transactionBuilder.sendTrx(...cur_param)
+  } catch (e) {
+      assert.isTrue(e.message.indexOf('Invalid expiration provided') != -1);
+  }
+
+  //with custom block header: cur_ref_block_bytes、cur_ref_block_hash wrong type
+  data = await tronWeb.trx.getCurrentBlock()
+  console.log("getblock:")
+  console.log(JSON.stringify(data))
+  curBlockNumber = data.block_header.raw_data.number
+  cur_ref_block_bytes=curBlockNumber.toString(16).slice(-4).padStart(4, '0')
+  cur_ref_block_hash=data.blockID.slice(16, 32)
+  cur_expiration= data.block_header.raw_data.timestamp + 60 * 1000
+  cur_timestamp= data.block_header.raw_data.timestamp
+  cur_blockheader = {
+      ref_block_bytes:1234,
+      ref_block_hash:1120354383436161,
+      expiration:cur_expiration,
+      timestamp:cur_timestamp
+  }
+  console.log(`cur_blockheader: ${JSON.stringify(cur_blockheader)}`)
+  cur_param = [testAccount, 10, ADDRESS_HEX, {blockHeader:cur_blockheader}];
+  await wait(4)
+
+  try {
+      await tronWeb.transactionBuilder.sendTrx(...cur_param)
+  } catch (e) {
+      assert.isTrue(e.message.indexOf('Invalid ref_block_bytes provided') != -1);
+  }
+  console.log(`execute withCustomBlockerHeaderAbnormalCaseInvalideType success.`)
+}
+async function withCustomBlockerHeaderAbnormalCaseLackField(){
+  let testAccount = `TX74o6dWugAgdaMv8M39QP9YL5QRgfj32t`;
+  //with custom block header: lack all will auto get from pro
+  let data = await tronWeb.trx.getCurrentBlock()
+  let curBlockNumber = data.block_header.raw_data.number
+  let cur_ref_block_bytes=curBlockNumber.toString(16).slice(-4).padStart(4, '0')
+  let cur_ref_block_hash=data.blockID.slice(16, 32)
+  let cur_expiration= data.block_header.raw_data.timestamp + 60 * 1000
+  let cur_timestamp= data.block_header.raw_data.timestamp
+  let cur_blockheader = {
+  }
+
+  console.log(`cur_blockheader: ${JSON.stringify(cur_blockheader)}`)
+  let cur_param = [testAccount, 10, ADDRESS_HEX, {blockHeader:cur_blockheader}];
+  await wait(4)
+  let tx1 = await tronWeb.transactionBuilder.sendTrx(...cur_param)
+  console.log(`tx: ${JSON.stringify(tx1)}`)
+  let txId = tx1.txID
+  assert.equal(txId.length, 64)
+  let cur_result = await broadcaster.broadcaster(null, PRIVATE_KEY, tx1)
+  console.log(`cur_result: ${JSON.stringify(cur_result)}`)
+  assert.isTrue(cur_result.receipt.result)
+  //with custom block header: lack expiration、timestamp will report error
+  data = await tronWeb.trx.getCurrentBlock()
+  curBlockNumber = data.block_header.raw_data.number
+  cur_ref_block_bytes=curBlockNumber.toString(16).slice(-4).padStart(4, '0')
+  cur_ref_block_hash=data.blockID.slice(16, 32)
+  cur_expiration= data.block_header.raw_data.timestamp + 60 * 1000
+  cur_timestamp= data.block_header.raw_data.timestamp
+  cur_blockheader = {
+      ref_block_bytes:cur_ref_block_bytes,
+      ref_block_hash:cur_ref_block_hash,
+  }
+
+  console.log(`cur_blockheader: ${JSON.stringify(cur_blockheader)}`)
+  cur_param = [testAccount, 10, ADDRESS_HEX, {blockHeader:cur_blockheader}];
+  await wait(4)
+  try {
+      tx1 = await tronWeb.transactionBuilder.sendTrx(...cur_param)
+      assert.equal(tx1, undefined)
+  } catch (e) {
+      console.log(`e: ${e}`)
+      assert.isTrue(e.message.indexOf('Invalid expiration provided') != -1);
+  }
+  //with custom block header: lack ref_block_bytes,ref_block_hash will report error
+  data = await tronWeb.trx.getCurrentBlock()
+  curBlockNumber = data.block_header.raw_data.number
+  //const cur_ref_block_bytes=curBlockNumber.toString(16).slice(-4).padStart(4, '0')
+  //const cur_ref_block_hash=data.blockID.slice(16, 32)
+  cur_expiration= data.block_header.raw_data.timestamp + 60 * 1000
+  cur_timestamp= data.block_header.raw_data.timestamp
+  cur_blockheader = {
+      expiration:cur_expiration,
+      timestamp:cur_timestamp
+  }
+
+  console.log(`cur_blockheader: ${JSON.stringify(cur_blockheader)}`)
+  cur_param = [testAccount, 10, ADDRESS_HEX, {blockHeader:cur_blockheader}];
+  await wait(4)
+  try {
+      tx1 = await tronWeb.transactionBuilder.sendTrx(...cur_param)
+      assert.equal(tx1, undefined)
+  } catch (e) {
+      console.log(`e: ${e}`)
+      assert.isTrue(e.message.indexOf('Invalid ref_block_bytes provided') != -1);
+  }
+  console.log(`execute withCustomBlockerHeaderAbnormalCaseLackField success.`)
+}
+
 
 async function beforeTestIssueToken() {
   const tronWeb = await tronWebBuilder.createInstance();
@@ -8797,8 +9032,8 @@ async function transactionBuilderTestAll() {
   await triggerSmartContract();
   await triggerSmartContractWithArrays();
   await triggerSmartContractWithTrctoken();
-  await triggerSmartContractWithCallData();//TRNWB-61
-  await triggerContractWithMultiDimeinsionAddressParam()
+  await triggerSmartContractWithCallData();//TRNWB-61 
+  await triggerContractWithMultiDimesionAddressParam()
   await createTokenExchange();
   await createTRXExchange();
   await injectExchangeTokens(); //last not passed
@@ -8815,6 +9050,9 @@ async function transactionBuilderTestAll() {
   await encodeABIV2test1_V1_input();
   await encodeABIV2test1_V2_input();
   await triggerSmartContractWithWrongTypeOrValue();
+  await withCustomBlockerHeaderAbnormalCaseTimeLine();
+  await withCustomBlockerHeaderAbnormalCaseInvalideType();
+  await withCustomBlockerHeaderAbnormalCaseLackField();
   console.log("transactionBuilderTestAll end")
 }
 export {

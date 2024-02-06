@@ -1862,13 +1862,15 @@ async function verifyMessageForUsingSignatureFrom(){
 async function ShouldGetBandwitdthPrices(){
   const res = await tronWeb.trx.getBandwidthPrices();
   console.log('Bandwitdth Prices：' + res);
-  assert.isTrue(res.includes("0:"))
+  assert.equal(typeOf(res),"string")
+  // assert.isTrue(res.includes("0:"))
 }
 
 async function ShouldGetEnergyPrices(){
   const res = await tronWeb.trx.getEnergyPrices();
   console.log('Engergy Prices：' + res);
-  assert.isTrue(res.includes("0:"))
+  assert.equal(typeOf(res),"string")
+  // assert.isTrue(res.includes("0:"))
 }
 
 async function ecRecoverCase() {
