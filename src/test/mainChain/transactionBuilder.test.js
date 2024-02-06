@@ -5848,13 +5848,13 @@ async function triggerSmartContractWithWrongTypeOrValue() {
 
   const contractAddress = transaction.contract_address;
             const issuerAddress = ADDRESS_HEX;
-            const functionSelector = 'testPure(uint256,uint256)';
+            let functionSelector = 'testPure(uint256,uint256)';
             let parameter = [
                 {type: 'uint256', value: 1},
                 {type: '', value: 1}
             ]
 
-            const options = { txLocal: true };
+            let options = { txLocal: true };
 
             for (let i = 0; i < 2; i++) {
                 if (i === 1) options.permissionId = 2;
@@ -5938,6 +5938,113 @@ async function triggerSmartContractWithWrongTypeOrValue() {
                 }
                 assert.strictEqual(flag, 1);
             }
+
+            options = {
+                abi: trcTokenTest070.abi,
+                bytecode: trcTokenTest070.bytecode,
+                parameters: [
+                    ADDRESS_HEX, TOKEN_ID, 123
+                ],
+                callValue: 321,   // trx value
+                tokenId: TOKEN_ID,  // trc10
+                tokenValue:1e3,     // trc10 value
+                feeLimit: 9e7,
+            };
+            transaction = await tronWeb.transactionBuilder.createSmartContract(options, ADDRESS_HEX);
+            const result1 = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
+            assert.isTrue(result1.receipt.result);
+            assert.isTrue(await tronWebBuilder.isTransactionConfirmed(transaction.txID, 30));
+            contractAddressWithTrcToken = transaction.contract_address;
+
+            functionSelector = 'TransferTokenTo(address,trcToken,uint256)';
+            parameter = [
+                {type: '', value: ADDRESS_HEX},
+                {type: 'trcToken', value: TOKEN_ID},
+                {type: 'uint256', value: 123}
+            ];
+            options = {
+                callValue: 321,
+                tokenId: TOKEN_ID,
+                tokenValue: 1e3,
+                feeLimit: FEE_LIMIT
+            };
+
+            let flag = 0;
+            try {
+                transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithTrcToken,
+                functionSelector, options, parameter, accounts.b58[6]);
+            } catch (error) {
+                flag = 1;
+                assert.isTrue(error.message.startsWith('Invalid parameter type provided'));
+            }
+            assert.strictEqual(flag, 1);
+
+            parameter = [
+                {type: 'qwer', value: ADDRESS_HEX},
+                {type: 'trcToken', value: TOKEN_ID},
+                {type: 'uint256', value: 123}
+            ];
+
+            flag = 0;
+            try {
+                transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithTrcToken,
+                functionSelector, options, parameter, accounts.b58[6]);
+            } catch (error) {
+                flag = 1;
+                assert.isTrue(error.message.startsWith('invalid type'));
+            }
+            assert.strictEqual(flag, 1);
+
+
+            parameter = [
+                {type: type, value: ADDRESS_HEX},
+                {type: 'trcToken', value: TOKEN_ID},
+                {type: 'uint256', value: 123}
+            ];
+
+            flag = 0;
+            try {
+                transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithTrcToken,
+                functionSelector, options, parameter, accounts.b58[6]);
+            } catch (error) {
+                flag = 1;
+                assert.isTrue(error.message.startsWith('Invalid parameter type provided'));
+            }
+            assert.strictEqual(flag, 1);
+
+            parameter = [
+                {type: 'address', value: 123},
+                {type: 'trcToken', value: TOKEN_ID},
+                {type: 'uint256', value: 123}
+            ];
+
+            flag = 0;
+            try {
+                transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithTrcToken,
+                functionSelector, options, parameter, accounts.b58[6]);
+            } catch (error) {
+                flag = 1;
+                assert.isTrue(error.message.startsWith('invalid address'));
+            }
+            assert.strictEqual(flag, 1);
+
+
+            parameter = [
+                {type: type, value: value},
+                {type: 'trcToken', value: TOKEN_ID},
+                {type: 'uint256', value: 123}
+            ];
+
+            flag = 0;
+            try {
+                transaction = await tronWeb.transactionBuilder.triggerSmartContract(contractAddressWithTrcToken,
+                functionSelector, options, parameter, accounts.b58[6]);
+            } catch (error) {
+                flag = 1;
+                assert.isTrue(error.message.startsWith('Invalid parameter type provided'));
+            }
+            assert.strictEqual(flag, 1);
+
             console.log("triggerSmartContractWithWrongTypeOrValue excute success")
 }
 
