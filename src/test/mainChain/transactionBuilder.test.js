@@ -2412,7 +2412,7 @@ async function freezeBalanceV2_2() {
       timestamp:timestamp_pre
   }
   //transaction2为trowweb指定block header时产生的交易
-  transaction2 = await tronWeb.transactionBuilder.freezeBalanceV2(6e6, 'BANDWIDTH', accounts.hex[1], {blockHeader:blockheader_pre});
+  let transaction2 = await tronWeb.transactionBuilder.freezeBalanceV2(6e6, 'BANDWIDTH', accounts.hex[1], {blockHeader:blockheader_pre});
   console.log(`transaction2: ${JSON.stringify(transaction2, null, 2)}`);
   assert.isTrue(_.isEqual(transaction,transaction2));
 

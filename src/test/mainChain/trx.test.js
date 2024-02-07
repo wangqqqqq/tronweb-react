@@ -19,6 +19,7 @@ const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
 const util = require('util');
+const { typeOf } = require('@tronweb3/google-protobuf');
 let tronWeb;
 let emptyAccounts;
 let isAllowSameTokenNameApproved;
