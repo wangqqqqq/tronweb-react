@@ -3,7 +3,6 @@ const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY } = require('../util/config');
 const tronWebBuilder = require('../util/tronWebBuilder');
 const broadcaster = require('../util/broadcaster');
 const TronWeb = tronWebBuilder.TronWeb;
-const Trx = tronWebBuilder.Trx;
 const wait = require('../util/wait');
 const chai = require('chai');
 const assert = chai.assert;
@@ -24,7 +23,7 @@ async function before(){
   emptyAccount = await TronWeb.createAccount();
   await tronWeb.trx.sendTrx(emptyAccount.address.hex,1000000000,{privateKey: PRIVATE_KEY})
   console.log("emptyAccount:"+emptyAccount.address.base58);
-  await wait(60);
+  await wait(10);
   // All properties on a domain are optional
   domain = {
     name: 'TrcToken Test',
@@ -113,7 +112,7 @@ async function signTypedData() {
   assert.isTrue(result);
 
   tronWeb.trx._signTypedData(domain, types, value,PRIVATE_KEY, (err, signature) => {
-    tronWeb.trx.verifyTypedData(domain, types, value, signature,PRIVATE_KEY, (err, result) => {
+    tronWeb.trx.verifyTypedData(domain, types, value, signature, ADDRESS_BASE58, (err, result) => {
           assert.isTrue(signature.startsWith('0x'));
           assert.isTrue(result);
         }
@@ -140,7 +139,6 @@ async function signTypedData2() {
 }
 
 async function signTypedDataWithPrivateKey() {
-  const signature = Trx._signTypedData(domain, types, value, emptyAccount.privateKey);
   //Convert to TRON address
   const tDomain = {
     ...domain,
@@ -161,31 +159,41 @@ async function signTypedDataWithPrivateKey() {
       'TV75jZpdmP2juMe1dRwGrwpV6AMU6mr1EU',
     ],
   };
-  const tSignature = Trx._signTypedData(
+  const tSignature = tronWeb.trx._signTypedData(
       tDomain,
       types,
       tValue,
       emptyAccount.privateKey
   );
+  
+  tronWeb.trx._signTypedData(domain,types, value, emptyAccount.privateKey,(err, signature) => {
+    console.log(`signature: ${signature}`)
+    tronWeb.trx.verifyTypedData(domain, types, value, signature, emptyAccount.address.base58, (err, result)=>{
+      console.log(`signature: ${signature}`)
+      assert.isTrue(signature.startsWith('0x'));
+      console.log(`result:${result}`);
+      assert.isTrue(result);  
+    });
 
-  const result = Trx.verifyTypedData(domain, types, value, signature, emptyAccount.address.base58);
-
-  assert.isTrue(signature.startsWith('0x'));
-  assert.equal(tSignature, signature);
-  assert.isTrue(result);
+    tronWeb.trx._signTypedData(tDomain,types,tValue, emptyAccount.privateKey, (err,tsignature)=>{
+      console.log(`tsignature: ${tsignature}`)
+      assert.equal(signature,tsignature)
+  
+    });  
+  })
   console.log("signTypedDataWithPrivateKey run seccess")
 }
 
 async function signatureNotMatch() {
-  try {
-    const signature = Trx._signTypedData(domain, types, value, emptyAccount.privateKey);
-    Trx.verifyTypedData(domain, types, value, signature, emptyAccount.address.base58);
-  } catch (error) {
-    assert.equal(error, 'Signature does not match')
-    console.log(error);
-  }
+  tronWeb.trx._signTypedData(domain, types, value, PRIVATE_KEY, (err,signature)=>{
+    tronWeb.trx.verifyTypedData(domain, types, value, signature, emptyAccount.address.base58,(err,result)=>{
+      console.log(err)
+      assert.equal(err, 'Signature does not match'); 
+    });
+  })
   console.log("signatureNotMatch run success");
 }
+
 
 async function consistentWithContractTest1() {
   const option = {
@@ -952,7 +960,7 @@ async function consistentWithContractTest5() {
   };
   //should be the correct hash
   assert.equal(
-      utils._TypedDataEncoder.hash(domain5, types5, value5),
+      tronWeb.utils._TypedDataEncoder.hash(domain5, types5, value5),
       '0xaae24ca6a59355c6acd89093fda364f247433f338cde1f51cc35b714cfd6c880'
   );
 
