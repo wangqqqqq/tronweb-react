@@ -6514,6 +6514,41 @@ async function triggerContractWithMultiDimesionAddressParam(){
 
     }, 
     ADDRESS_HEX);
+
+            let multiSignTransaction = await tronWeb.transactionBuilder.createSmartContract(
+                                                       {
+                                                           abi: TestMultiDimensionAddress.abi,
+                                                           bytecode: TestMultiDimensionAddress.bytecode,
+                                                           name:TestMultiDimensionAddress.name,
+                                                           parameters: [
+                                                               [[["TYyptUzArG7hUprUCUk2kzBrY4faKD4ioz","TUEqRk58EGN6PBRJ4vDGZ7xjAeHXz4ELan"],["TS2Gh8ebPZy7EyQoJEnL13fCxN71rawEBK","TQWnq5DpQ87LmE2BBAcia1fJ1Z2hP1d3cg"]],[["TSTmoR33wZ71NmE7dMkgk1pdYBsiWKhCjM","TJhGp8LrCtKQfDy6gChjkdVe8PRzfG4NYQ"],["TLVVGtdXFyLKMUe7Xs43dB1YJyeikqZRTk","TSD189tmGZbic6mCpgLHZhNs8PoFrqXkbK"]]]
+                                                           ],
+                                                           permissionId : 2
+                                                       },
+                                                       ADDRESS_HEX);
+            let multiSignedTransaction = multiSignTransaction;
+            const multiSignAccounts = { b58: [], hex: [], pks: []};
+            multiSignAccounts.pks.push(PRIVATE_KEY);
+            multiSignAccounts.b58.push(ADDRESS_BASE58);
+            multiSignAccounts.pks.push(accounts.pks[18]);
+            multiSignAccounts.b58.push(accounts.b58[18]);
+            multiSignAccounts.pks.push(accounts.pks[19]);
+            multiSignAccounts.b58.push(accounts.b58[19]);
+            for (let j = 0; j < 3; j++) {
+                multiSignedTransaction = await tronWeb.trx.multiSign(multiSignedTransaction, multiSignAccounts.pks[j], 2);
+            }
+            let multiSignAddresses = await tronWeb.trx.ecRecover(multiSignedTransaction);
+            assert.equal(3, multiSignAddresses.length);
+            for (let k = 0; k < 3; k++) {
+                assert.equal(multiSignAccounts.b58[k].toLowerCase(), multiSignAddresses[k].toLowerCase());
+            }
+
+            let signedTransaction = deepClone(transaction);
+            signedTransaction = await tronWeb.trx.sign(signedTransaction, PRIVATE_KEY);
+            //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+            let signAddresses = await tronWeb.trx.ecRecover(signedTransaction);
+            assert.equal(signAddresses.toLowerCase(), ADDRESS_BASE58.toLowerCase());
+
   const result = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction);
   console.log(`result: ${result}`)
   console.log(`result: ${JSON.stringify(result,null,2)}`)
@@ -6595,6 +6630,35 @@ async function triggerContractWithMultiDimesionAddressParam(){
                                                                               parameter3,
                                                                               ADDRESS_BASE58
                                                                           );
+            let multiSignTransaction3 = await tronWeb.transactionBuilder.triggerSmartContract(
+                                                                                        contractAddress,
+                                                                                        functionSelector3,
+                                                                                        {permissionId : 2},
+                                                                                        parameter3,
+                                                                                        ADDRESS_BASE58
+                                                                                    );
+            let multiSignedTransaction3 = multiSignTransaction3.transaction;
+            const multiSignAccounts3 = { b58: [], hex: [], pks: []};
+            multiSignAccounts3.pks.push(PRIVATE_KEY);
+            multiSignAccounts3.b58.push(ADDRESS_BASE58);
+            multiSignAccounts3.pks.push(accounts.pks[18]);
+            multiSignAccounts3.b58.push(accounts.b58[18]);
+            multiSignAccounts3.pks.push(accounts.pks[19]);
+            multiSignAccounts3.b58.push(accounts.b58[19]);
+            for (let j = 0; j < 3; j++) {
+                multiSignedTransaction3 = await tronWeb.trx.multiSign(multiSignedTransaction3, multiSignAccounts3.pks[j], 2);
+            }
+            let multiSignAddresses3 = await tronWeb.trx.ecRecover(multiSignedTransaction3);
+            assert.equal(3, multiSignAddresses3.length);
+            for (let k = 0; k < 3; k++) {
+                assert.equal(multiSignAccounts3.b58[k].toLowerCase(), multiSignAddresses3[k].toLowerCase());
+            }
+
+            let signedTransaction3 = deepClone(transaction3.transaction);
+            signedTransaction3 = await tronWeb.trx.sign(signedTransaction3, PRIVATE_KEY);
+            //tronweb-v5.3.2 新增trx.ecRecover，恢复交易签名者地址
+            let signAddresses3 = await tronWeb.trx.ecRecover(signedTransaction3);
+            assert.equal(signAddresses3.toLowerCase(), ADDRESS_BASE58.toLowerCase());
 
   const result3 = await broadcaster.broadcaster(null, PRIVATE_KEY, transaction3.transaction);
   console.log(`485, ${JSON.stringify(result3, null, 2)}`)
@@ -9139,7 +9203,7 @@ async function transactionBuilderTestAll() {
   await triggerSmartContract();
   await triggerSmartContractWithArrays();
   await triggerSmartContractWithTrctoken();
-  await triggerSmartContractWithCallData();//TRNWB-61 
+  await triggerSmartContractWithCallData();//TRNWB-61
   await triggerContractWithMultiDimesionAddressParam()
   await createTokenExchange();
   await createTRXExchange();
