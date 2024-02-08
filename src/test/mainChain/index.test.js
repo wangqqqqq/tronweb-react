@@ -917,18 +917,17 @@ async function abiV2Test2(){
     console.log("data:"+data)
     //assert.equal(data.toString(),res.toString())
   });
-  console.log("res:"+res)
   assert.equal(res[1],'41fdbbdc2e4b98deffeaa4d1299ee5301e24e8e246')
-  assert.equal(res[2],false)
+  assert.equal(res[2],true)
   const array = res[3]
   // below value will be changed with time flys. They should be modify to current "tronscan call" result.
   assert.equal(parseInt(array[0],10),199999996000013666045)
   assert.equal(parseInt(array[1],10),4000000000000000000)
   assert.equal(parseInt(array[2],10),3940370243356483537)
   assert.isTrue(parseInt(array[3],10) > 0)
-  assert.equal(parseInt(array[4],10),0)
-  assert.equal(parseInt(array[5],10),0)
-  assert.equal(parseInt(array[6],10),0)
+  assert.equal(parseInt(array[4],10),2666666533334682104)
+  assert.equal(parseInt(array[5],10),79999996000029744295)
+  assert.equal(parseInt(array[6],10),79999996000040463128)
   assert.isTrue(parseInt(array[7],10) > 0)
 }
 
