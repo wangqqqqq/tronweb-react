@@ -1575,10 +1575,20 @@ async function getUnconfirmedBrokerage(){
  * /Users/wqq/Src/java-tron/framework/src/test/java/stest/tron/wallet/dailybuild/trctoken/ContractTrcToken001.java  makeTransactionHex 
  * 为了防止交易过期，要将testBefore中的创建用户注释掉。只保留tronewb instance的初始化。
  */
+/** 
+  @Test(enabled = true, description = "Get account by http")
+  public void makeTransactionHex() {
+    String transactionHex = PublicMethed
+            .sendcoinGetTransactionHex(dev001Address, 1000L, fromAddress, testKey002,
+                    blockingStubFull);
+    logger.info("transactionHex:",transactionHex);
+  }
+*/
+
 async function broadcastHex(){
   console.log("broadcastHex start")
   //const transactionHex = "0a84010a02d3cd2208ea9a7c42a222810e4088a697f8d2305a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b121541959972f4d54d0c030247cafdf6ec7ab4e66fceda18e80770afdd93f8d23012416fa0f530f1d1822727de97baa204cf88f830b42b2ed5edd2e2be4bd4b47747627a760fca43b3b6b5bdf1b5044966ece9615422863ec2fb4063b5d2db3c1c592201"
-  const transactionHex = "0a84010a0254432208f39d932a278ba45b40b0c1c497b9315a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b1215414891b65d0333bac7d2320efeda87168930004fc018e807709780c197b9311241458cf3fe26078b2832e7f85330bcd14148ab78cbc94ce97007aef78cc24b0e1103cc59de59f631a2bb4ad93cc5c5ee486c782cdff59025afcfd3fb5df054b8cf00"
+  const transactionHex = "0a84010a02a9212208265385d5d4bf2ab4409882c6cedc315a66080112620a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412310a15415624c12e308b03a1a6b21d9b86e3942fac1ab92b1215415ab21c1eeb7804ba92f62fb246d96bf28310597818e80770e7b1c2cedc311241f92d18a790b08493ed05d9972d67364461dcfafff13623b6d4db1364ffea02cd786e6cccb746b641a8a8f136b4f228f3df1a5e31555b07535c8f9c49a1f257b000"
   let result = await tronWeb.trx.broadcastHex(transactionHex);
   console.log("result1: "+util.inspect(result,true,null,true))
   assert.isTrue(result.result);
@@ -1940,7 +1950,7 @@ async function trxTestAll(){
   await getUnconfirmedReward();
   await getBrokerage();
   await getUnconfirmedBrokerage();
-  /*await broadcastHex();                        //todo6.0.0 need use java tron to make transaction. */
+  // await broadcastHex();                        //nile下使用 use java tron to make transaction. 
   await getDelegatedResourceV2();
   await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？
   await getCanDelegatedMaxSize();
