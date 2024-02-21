@@ -1789,6 +1789,19 @@ async function createProposal() {
     null,
     `Witness[${emptyAccount1.address.hex.toLowerCase()}] not exists`
   )
+
+  let parametersNew = [ {"key": 1, "value": 2},{"key": 0, "value": 100000}]
+  const input = [parametersNew, ADDRESS_BASE58];
+//  await tronWeb.trx.sendTrx(witnessAccount,10000000000,{privateKey: PRIVATE_KEY})
+  const transaction = await tronWeb.transactionBuilder.createProposal(...input)
+  const result1 = await broadcaster.broadcaster(
+      null,
+      PRIVATE_KEY,
+      transaction
+  );
+  console.log('1802:' + JSON.stringify(result1, null, 2))
+  assert.equal(result1.receipt.code, 'SIGERROR');
+
   console.log("createProposal excute success")
 }
 
