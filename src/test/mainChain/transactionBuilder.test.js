@@ -9120,6 +9120,7 @@ async function beforeTestIssueToken() {
     precision: 6,//发行token的精度
     permission_id: 1//可选用于多重签名
   }
+
   console.log("wqqdebug1");
   const transaction = await tronWeb.transactionBuilder.createToken(trc_options, tokenAccount.b58[0]);
   console.log("transaction: ",transaction);
