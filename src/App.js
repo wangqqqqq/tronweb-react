@@ -48,21 +48,21 @@ class App extends React.Component {
      *  Use react default domain name in the browser
      */
     // await abiTest.abiTestAll();
-    // await accountsTest.accountsTestAll(); //todo: fromHex undifined
+    // await accountsTest.accountsTestAll(); 
     // await bytesTest.bytesTestAll();
     // await codeTest.codeTestAll();
     // await contractTypes.contractTypesTestAll();
-    // await eip712Test.eip712TestAll(); //todo: _signTypedData, vr.signSync is not a function
-    // await fallbackTest.fallbackTestAll();
+    // await eip712Test.eip712TestAll();
+    // await fallbackTest.fallbackTestAll();  //todo
     // await isConstantCall.isConstantCallTestAll(); 
     // await methodTest.methodTestAll();
     // await multiSignTestMain.multiSignTestAll();
     // await pluginTest.pluginTestAll();
     // await providersTest.providersTestAll();
-     await transactionBuilderTest.transactionBuilderTestAll();
+    // await transactionBuilderTest.transactionBuilderTestAll();
     // await trxTestMain.trxTestAll(); 
     // await typedData.typedDataAll();
-    // await transactionTest.transactionTestAll(); 
+    await transactionTest.transactionTestAll(); 
     // await signVisibleTest.signVisibleTestAll();
 
     //sideChain cases
@@ -76,8 +76,8 @@ class App extends React.Component {
     /** need nile environment
      *  Use react default domain name in the browser
      */
-    // await eventTest.eventTestAll();//yes
-    // await indexTest.indexTestAll();//yes
+    // await eventTest.eventTestAll();
+    // await indexTest.indexTestAll();
 
     /** need fullHost: TEST_TRON_GRID_API environment
      *  The environment is not available, this use case ignores

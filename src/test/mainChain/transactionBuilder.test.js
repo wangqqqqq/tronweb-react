@@ -9221,9 +9221,9 @@ async function transactionBuilderTestAll() {
   await triggerContractWithMultiDimesionAddressParam()
   await createTokenExchange();
   await createTRXExchange();
-  await injectExchangeTokens(); //last not passed
+  await injectExchangeTokens(); 
   await withdrawExchangeTokens();
-  await tradeExchangeTokens(); //last not passed
+  await tradeExchangeTokens();
   await updateSetting();
   await updateEnergyLimit();
   await accountPermissionUpdate();
