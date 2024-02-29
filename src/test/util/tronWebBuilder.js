@@ -39,6 +39,7 @@ const createInstance = (extraOptions = {}) => {
        //  fullHost: TEST_TRON_GRID_API,
         privateKey: PRIVATE_KEY,
     }, extraOptions)
+    console.log(`${'*'.repeat(30)}\nTronWeb.version: ${TronWeb.version}\n${'*'.repeat(30)}`);
     return new TronWeb(options);
 }
 
