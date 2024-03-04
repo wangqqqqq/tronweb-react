@@ -44,8 +44,19 @@ async function SignatureAndVerification(){
     eip712json.forEach(async (test) => {
         let {domain, primaryType, data, encoded,types,digest } = test;
         const signature = await tronWeb.trx._signTypedData(domain, types, data, PRIVATE_KEY);
-        const result = await tronWeb.trx.verifyTypedData(domain, types, data, signature,ADDRESS_BASE58);
+        let result = await tronWeb.trx.verifyTypedData(domain, types, data, signature,ADDRESS_BASE58);
         assert.isTrue(signature.startsWith('0x'));
+        assert.isTrue(result);
+
+
+        // test verifyTypedData use Signature.from
+        let newSignedMsg;
+        if (signature.substring(signature.length-2,signature.length) == "1c")
+            newSignedMsg = signature.substring(0, signature.length-2) + "01"
+        else if(signature.substring(signature.length-2,signature.length) == "1b")
+            newSignedMsg = signature.substring(0, signature.length-2) + "00"
+        console.log(`newSignedMsg: ${newSignedMsg}`)
+        result = await tronWeb.trx.verifyTypedData(test.domain, test.types, test.data, newSignedMsg,ADDRESS_BASE58);
         assert.isTrue(result);
     });
 }

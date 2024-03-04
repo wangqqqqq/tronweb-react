@@ -1842,6 +1842,23 @@ async function getCanWithdrawUnfreezeAmount(){
   );
 }
 
+async function verifyMessageForUsingSignatureFrom(){
+  const hexMsg = '363558f842d9f88f6957f03c305d5ea49ee82fa43540bd29adc78d04057850ca';
+  const signedMsg = await tronWeb.trx.sign(hexMsg, PRIVATE_KEY, null, false);
+  console.log(`signedMsg: ${signedMsg}`)
+  let result = await tronWeb.trx.verifyMessage(hexMsg, signedMsg, ADDRESS_BASE58, null);
+  assert.isTrue(result);
+  //1c对应01， 1b对应00.
+  let newSignedMsg;
+  if (signedMsg.substring(signedMsg.length-2,signedMsg.length) == "1c")
+      newSignedMsg = signedMsg.substring(0, signedMsg.length-2) + "01"
+  else if(signedMsg.substring(signedMsg.length-2,signedMsg.length) == "1b")
+      newSignedMsg = signedMsg.substring(0, signedMsg.length-2) + "00"
+  console.log(`newSignedMsg: ${newSignedMsg}`)
+  result = await tronWeb.trx.verifyMessage(hexMsg, newSignedMsg, ADDRESS_BASE58, null);
+  assert.isTrue(result);
+}
+
 async function getBandwidthPrices() {
       const res = await tronWeb.trx.getBandwidthPrices();
       console.log(res);
@@ -1891,11 +1908,12 @@ async function trxTestAll(){
   await getBrokerage();
   await getUnconfirmedBrokerage();
   /*await broadcastHex();                        //todo6.0.0 need use java tron to make transaction. */
-  await getDelegatedResourceV2();  
-  await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？  
+  await getDelegatedResourceV2();
+  await getDelegatedResourceAccountIndexV2();  //如何确定，默认账户肯定代理过两个人呢？
   await getCanDelegatedMaxSize();
   await getAvailableUnfreezeCount();
   await getCanWithdrawUnfreezeAmount();
+  await verifyMessageForUsingSignatureFrom();
   await getBandwidthPrices();
   await getEnergyPrices();
   console.log("trxTestAll end")
