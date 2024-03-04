@@ -1842,7 +1842,7 @@ async function getCanWithdrawUnfreezeAmount(){
 }
 
 async function verifyMessageForUsingSignatureFrom(){
-  const hexMsg = '0a02616222082b6a2d73221629b740d8d7c2c6d5315a65080112610a2d747970';
+  const hexMsg = '363558f842d9f88f6957f03c305d5ea49ee82fa43540bd29adc78d04057850ca';
   const signedMsg = await tronWeb.trx.sign(hexMsg, PRIVATE_KEY, null, false);
   console.log(`signedMsg: ${signedMsg}`)
   let result = await tronWeb.trx.verifyMessage(hexMsg, signedMsg, ADDRESS_BASE58, null);
