@@ -2,7 +2,11 @@ const chalk = require('chalk')
 // const TronWeb = require('../../tronweb');
 
 //tronweb作为包安装在了本目录nodeModules
-const { TronWeb, Plugin, providers, utils, Trx, Event, TransactionBuilder } = require('tronweb');
+
+//commonjs
+//const { TronWeb, Plugin, providers, utils, Trx, Event, TransactionBuilder } = require('tronweb');
+//dist
+const { TronWeb, Plugin, providers, utils, Trx, Event, TransactionBuilder } = require('../../../node_modules/tronweb/dist/TronWeb.node.js');
 
 const jlog = require('./jlog')
 const util = require('util');
