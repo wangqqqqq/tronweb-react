@@ -2,7 +2,7 @@ import React from 'react';
 import Config from '../util/config.js'
 const {ADDRESS_BASE58,ADDRESS_HEX,PRIVATE_KEY,FULL_NODE_API,SOLIDITY_NODE_API,EVENT_API,SIDE_CHAIN,FEE_LIMIT,SUN_NETWORK} = Config;
 import Contract from '../util/contracts.js'
-const {testDeployRevert, testTriggerError,trc20Contract,abiV2Test2t } = Contract;
+const {testDeployRevert, testTriggerError,trc20Contract,abiV2Test2 } = Contract;
 import tronWebBuilder from '../util/tronWebBuilder.js';
 const TronWeb = tronWebBuilder.TronWeb;
 const HttpProvider = tronWebBuilder.providers.HttpProvider;
@@ -903,11 +903,11 @@ async function fromPrivateKey(){
   assert.equal(tronWeb.address.fromPrivateKey("0dbdfa83d48bc9dfa823479234ccf9db2b34c9f89724ad8979243e987e9de243",true),'TPiNqcyhxY2xVMfMRUQ3d5qyaq8EdFuQkh');
 }
 
-async function abiV2Test2(){
+async function abiV2Test2Test(){
   const tronWeb = tronWebBuilder.createInstance();
 
   // nile SaiValuesAggregator
-  const contractInstance2 = await tronWeb.contract(abiV2Test2t.abi,"41E38397ADACF9C723C06CE1F5E2E1E84CA487D07D");
+  const contractInstance2 = await tronWeb.contract(abiV2Test2.abi,"41E38397ADACF9C723C06CE1F5E2E1E84CA487D07D");
   const res = await contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016c').call();
   console.log("res:"+res)
   contractInstance2.aggregateCDPValues('0x000000000000000000000000000000000000000000000000000000000000016c').call((err, data)=>{
@@ -954,7 +954,7 @@ async function indexTestAll(){
   await isConnected();
   await utils();
   await fromPrivateKey();
-  await abiV2Test2();
+  await abiV2Test2Test();
   console.log("indexTestAll end")
 }
 
