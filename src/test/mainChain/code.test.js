@@ -43,7 +43,10 @@ async function stringToBytes(){
 
   assert.throws(() => {
     tronWeb.utils.code.stringToBytes([210, 154, 224, 161, 128, 208, 191, 207, 137])
-  }, 'str.charCodeAt is not a function');
+    //测dist的时候，用'e.charCodeAt is not a function'
+    //测commonjs的时候，用'str.charCodeAt is not a function'
+  }, 'e.charCodeAt is not a function');
+
 
   /*assert.throws(() => {
     tronWeb.utils.code.stringToBytes(356253)
