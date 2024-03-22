@@ -2722,7 +2722,8 @@ async function txCheckWithArgs_DelegateResourceContract(){
             owner_address: tronWeb.address.toHex(param[3]),
             receiver_address: tronWeb.address.toHex(param[1]),
             lock: param[4],
-            Permission_id: param[5]?.permissionId,
+            lock_period:param[5],
+            Permission_id: param[6]?.permissionId,
         };
     };
     params.push(...[
