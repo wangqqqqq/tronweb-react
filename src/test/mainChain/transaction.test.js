@@ -4335,6 +4335,13 @@ async function txCheckWithArgs_AccountPermissionUpdateContract(){
     console.log("txCheckWithArgs_AccountPermissionUpdateContract end");
 }
 
+/*txCheckWithArgs的参数应该包含的内容
+* feelimit可以在options或者args里面
+* 用户备注data必须在options里面，
+* permissionId只在args里面认。
+* */
+
+//feelimit即可以在options又可以在args里面
 async function commonOptions_feeLimit(){
     console.log("commonOptions_feeLimit start")
     const data = {
@@ -4371,13 +4378,42 @@ async function commonOptions_feeLimit(){
             assert.equal(authResult18, false);
         }
     }
+    //test fee_limit in txCheckWithArgs's args parameter.
+    for (let i = 0; i < 2; i++) {
+        if (i === 1) data.permissionId = 2;
+        const transaction = await tronWeb.transactionBuilder.createSmartContract(data)
+        const args = {
+            owner_address: tronWeb.defaultAddress.hex,
+            call_value: 0,
+            consume_user_resource_percent: 100,
+            origin_energy_limit: 10_000_000,
+            abi: JSON.stringify(data.abi),
+            bytecode: data.bytecode,
+            parameter: '',
+            name: '',
+            Permission_id: data.permissionId,
+            fee_limit: data.feeLimit
+        };
+        const options = {    
+        };
+        const authResult =
+            utils.transaction.txCheckWithArgs(transaction, args, options);
+        assert.equal(authResult, true);
+        await txCheckWithArgs_commonAssertPbWithArgs(transaction, args, options);
+
+        if (i === 1) {
+            const dataCop18 = JSON.parse(JSON.stringify(data))
+            dataCop18.Permission_id = 1;
+            const authResult18 = utils.transaction.txCheckWithArgs(transaction, dataCop18, data[3] || {});
+            assert.equal(authResult18, false);
+        }
+    }
     console.log("commonOptions_feeLimit end")
 }
 
+//测试用户备注数据data，应该在options参数中才起作用。
 async function commonOptions_data(){
-    const params = [
-        [accounts.b58[1], 10]
-    ];
+    const param = [accounts.b58[1], 10];
     const generateData = (param) => {
         return {
             to_address: TronWeb.address.toHex(param[0]),
@@ -4386,34 +4422,74 @@ async function commonOptions_data(){
             Permission_id: param[2]?.permissionId,
         };
     };
-    for (let param of params) {
-        const transaction = await tronWeb.transactionBuilder.sendTrx(
-            ...param
-        );
-        const data = generateData(param);
-        const options = {
-            data: tronWeb.toHex('111'),
-        };
-        const transaction2 = await tronWeb.transactionBuilder.addUpdateData(
-            transaction,
-            options.data,
-            'hex',
-        );
-        const authResult =
-            utils.transaction.txCheckWithArgs(transaction2, data, options);
-        assert.equal(authResult, true);
-        await txCheckWithArgs_commonAssertPbWithArgs(transaction2, data, options);
 
-        if (param[2]) {
-            const dataCop18 = JSON.parse(JSON.stringify(data))
-            dataCop18.Permission_id = 1;
-            const authResult18 = utils.transaction.txCheckWithArgs(transaction, dataCop18, param[3] || {});
-            assert.equal(authResult18, false);
-        }
-    }
+    const transaction = await tronWeb.transactionBuilder.sendTrx(
+        ...param
+    );
+    const data = generateData(param);
+    const options = {
+        data: tronWeb.toHex('111'),
+    };
+    const transaction2 = await tronWeb.transactionBuilder.addUpdateData(
+        transaction,
+        options.data,
+        'hex',
+    );
+    const authResult =
+        utils.transaction.txCheckWithArgs(transaction2, data, options);
+    assert.equal(authResult, true);
+    await txCheckWithArgs_commonAssertPbWithArgs(transaction2, data, options);
+
+    //如果options没有用户备注数据data，那么则为false
+    const authResult1 =
+    utils.transaction.txCheckWithArgs(transaction2, data, {});
+    assert.equal(authResult1, false);
+
+    //修改与transanction不一样的data，也为false。
+    const authResult2 =
+    utils.transaction.txCheckWithArgs(transaction2, data, {
+        data: tronWeb.toHex('112'),
+    });
+    assert.equal(authResult2, false);  
+    
     console.log("commonOptions_data end")
 }
+//测试permissionId应该存在于txCheckWithArgs的第二个参数中，在options中不起作用。
+async function commonOptions_permissionId(){
+    const param = [accounts.b58[1], 10, ADDRESS_BASE58, {permissionId: 2}];
+    const generateData = (param) => {
+        return {
+            to_address: TronWeb.address.toHex(param[0]),
+            owner_address: tronWeb.defaultAddress.hex,
+            amount: param[1],
+            };
+    };
+    
+    //如果txCheckWithArgs的第二个参数不包括PermissionId，而options包括，则验证为false
+    const data = generateData(param);
+    const options={"Permission_id": 2}
+    const transaction = await tronWeb.transactionBuilder.sendTrx(...param);
+    
+    const authResult =
+        utils.transaction.txCheckWithArgs(transaction, data, options);
+    assert.equal(authResult, false);
+    
+    //如果txCheckWithArgs的第二个参数包括PermissionId，则验证为true
+    data.Permission_id=2;
+    const authResult1 =
+        utils.transaction.txCheckWithArgs(transaction, data, {});
+    assert.equal(authResult1, true);
 
+    //如果将PermissionId改成1，则验证false
+    const dataCop18 = JSON.parse(JSON.stringify(data))
+    dataCop18.Permission_id = 1;
+    const authResult18 = utils.transaction.txCheckWithArgs(transaction, dataCop18, {});
+    assert.equal(authResult18, false);
+
+    console.log("commonOptions_permissionId end")
+}
+
+//测试过期时间expiration只要在transanction中就可以验证为true.
 async function commonOptions_expiration(){
     const params = [
         [accounts.b58[1], 10]
@@ -4442,6 +4518,11 @@ async function commonOptions_expiration(){
             utils.transaction.txCheckWithArgs(transaction2, data, options);
         assert.equal(authResult, true);
         await txCheckWithArgs_commonAssertPbWithArgs(transaction2, data, options);
+
+        // whether expiration in options or not, authResult always equals true.
+        const authResult1 =
+        utils.transaction.txCheckWithArgs(transaction2, data, {});
+        assert.equal(authResult1, true);
 
         if (param[2]) {
             const dataCop18 = JSON.parse(JSON.stringify(data))
@@ -4528,6 +4609,7 @@ async function transactionTestAll(){
     await txCheckWithArgs_AccountPermissionUpdateContract();
     await commonOptions_feeLimit();
     await commonOptions_data();
+    await commonOptions_permissionId();
     await commonOptions_expiration();
     console.log("transactionTestAll end")
 }
