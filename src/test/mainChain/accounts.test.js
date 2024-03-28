@@ -212,9 +212,10 @@ async function generateRandomWhenPath_error1(){
     const options = { path: "m/44'/60'/0'/0/0" };
 
     try {
-        await tronWeb.utils.accounts.generateRandom(options)
+        await tronWeb.utils.accounts.generateRandom("",options.path)
     } catch (err) {
         let errMsg = err.message
+        console.log(`generateRandomWhenPath_error1: ${errMsg}`)
         assert.notEqual(errMsg.indexOf('Invalid tron path provided'), -1)
     }
 }
@@ -223,10 +224,11 @@ async function generateRandomWhenPath_error2(){
     const options = { path: 12 };
 
     try {
-        await tronWeb.createRandom(options)
+        await tronWeb.createRandom("",options.path)
     } catch (err) {
         let errMsg = err.message
-        assert.notEqual(errMsg.indexOf('Invalid tron path provided'), -1)
+        console.log(`generateRandomWhenPath_error2: ${errMsg}`)
+        assert.notEqual(errMsg.indexOf('path.split is not a function'), -1)
     }
 }
 
@@ -234,12 +236,12 @@ async function generateRandomWhenWordlist_zh_cn(){
     console.log("generateRandomWhenWordlist_zh_cn start")
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'zh_cn';
+    const wordlist = wordlists.zh_cn;
     const path = "m/44'/195'/0'/0/13";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("",path,wordlist);
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
+    console.log(`${newAccount.mnemonic.phrase}`)
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase, wordlist));
     let address = tronWeb.address.fromPrivateKey(newAccount.privateKey.replace(/^0x/, ''));
     assert.equal(address, newAccount.address);
@@ -257,10 +259,9 @@ async function generateRandomWhenWordlist_zh_tw(){
     console.log("generateRandomWhenWordlist_zh_tw start")
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'zh_tw';
+    const wordlist = wordlists.zh_tw;
     const path = "m/44'/195'/3'/0/99";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",path,wordlist);
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase, wordlist));
@@ -279,10 +280,9 @@ async function generateRandomWhenWordlist_zh_tw(){
 async function generateRandomWhenWordlist_ko(){
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'ko';
+    const wordlist = wordlists.ko;
     const path = "m/44'/195'/2'/0/123";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("",path,wordlist);
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase, wordlist));
@@ -299,10 +299,9 @@ async function generateRandomWhenWordlist_ko(){
 async function generateRandomWhenWordlist_ja(){
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'ja';
+    const wordlist = wordlists.ja;
     const path = "m/44'/195'/1'/1/2";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",path,wordlist);
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase, wordlist));
@@ -320,10 +319,9 @@ async function generateRandomWhenWordlist_ja(){
 async function generateRandomWhenWordlist_it(){
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'it';
+    const wordlist = wordlists.it;
     const path = "m/44'/195'/1'/2/3";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("",path,wordlist);
     assert.equal(newAccount.privateKey.substring(2).length, 64);
     assert.equal(newAccount.publicKey.substring(2).length, 130);
     assert.isTrue(tronWeb.utils.ethersUtils.isValidMnemonic(newAccount.mnemonic.phrase, wordlist));
@@ -345,11 +343,11 @@ async function generateRandomWhenWordlist_nonexistent(){
     const options = { path: path, locale: wordlist};
 
     try {
-        await tronWeb.createRandom(options)
+        await tronWeb.createRandom("",options.path, options.locale)
     } catch (err) {
         let errMsg = err.message
         console.log(errMsg);
-        assert.notEqual(errMsg.indexOf('unknown locale (argument="wordlist", value="itsf"'), -1)
+        assert.notEqual(errMsg.indexOf('wordlist.getWord is not a function'), -1)
     }
 }
 
@@ -360,10 +358,11 @@ async function generateRandomWhenWordlist_emptyChar(){
     const options = { path: path, locale: ''};
 
     try {
-        await tronWeb.utils.accounts.generateRandom(options)
+        await tronWeb.utils.accounts.generateRandom("", options.path,options.locale)
     } catch (err) {
         let errMsg = err.message
-        assert.notEqual(errMsg.indexOf('unknown locale (argument="wordlist", value=""'), -1)
+        console.log(errMsg);
+        assert.notEqual(errMsg.indexOf('wordlist.getWord is not a function'), -1)
     }
 }
 
@@ -372,7 +371,7 @@ async function generateAccountWithMnemonic_withCorrectPath(){
 
     const path = "m/44'/195'/0'/0/68";
     const options = { path: path };
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",options.path);
 
     const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path);
 
@@ -390,7 +389,7 @@ async function generateAccountWithMnemonic_withTruncatedPath(){
 
     const path = "m/44'/195'";
     const options = { path: path };
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("", options.path);
 
     const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path);
 
@@ -408,7 +407,7 @@ async function generateAccountWithMnemonic_withPathIsNotSame(){
 
     const path = "m/44'/195'/0'";
     const options = { path: path };
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",options.path);
 
     const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path);
 
@@ -427,7 +426,7 @@ async function generateAccountWithMnemonic_withPathIsNull(){
 
     const path = "m/44'/195'/0'/0/0";
     const options = { path: path };
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("",options.path);
 
     const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path);
 
@@ -446,7 +445,7 @@ async function generateAccountWithMnemonic_withErrorPath(){
     const tronWeb = tronWebBuilder.createInstance();
 
     const options = { path: "m/44'/195'/0'/0/0"};
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",options.path);
 
     try {
         await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, "m/44'/196'/1'/2/3")
@@ -461,10 +460,9 @@ async function generateAccountWithMnemonic_withErrorPath(){
 async function generateAccountWithMnemonicWordlist_zh_cn(){
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'zh_cn';
+    const wordlist = wordlists.zh_cn;
     const path = "m/44'/195'/0'/0/13";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("",path,wordlist);
 
     const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
@@ -482,10 +480,9 @@ async function generateAccountWithMnemonicWordlist_zh_cn(){
 async function generateAccountWithMnemonicWordlist_zh_tw(){
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'zh_tw';
+    const wordlist = wordlists.zh_tw;
     const path = "m/44'/195'/3'/0/99";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",path,wordlist);
 
     const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
@@ -503,10 +500,9 @@ async function generateAccountWithMnemonicWordlist_zh_tw(){
 async function generateAccountWithMnemonicWordlist_ko(){
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'ko';
+    const wordlist = wordlists.ko;
     const path = "m/44'/195'/2'/0/123";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("",path,wordlist);
 
     const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
@@ -521,10 +517,9 @@ async function generateAccountWithMnemonicWordlist_ko(){
 async function generateAccountWithMnemonicWordlist_ja(){
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'ja';
+    const wordlist = wordlists.ja;
     const path = "m/44'/195'/1'/1/2";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",path,wordlist);
 
     const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
@@ -540,10 +535,9 @@ async function generateAccountWithMnemonicWordlist_ja(){
 async function generateAccountWithMnemonicWordlist_it(){
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'it';
+    const wordlist = wordlists.it;
     const path = "m/44'/195'/1'/2/3";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("",path,wordlist);
 
     const ethAccount = await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, wordlist);
 
@@ -558,10 +552,9 @@ async function generateAccountWithMnemonicWordlist_it(){
 async function generateAccountWithMnemonicWordlist_unmatch(){
     const tronWeb = tronWebBuilder.createInstance();
 
-    const wordlist = 'it';
+    const wordlist = wordlists.it;
     const path = "m/44'/195'/1'/2/3";
-    const options = { path: path, locale: wordlist};
-    const newAccount = await tronWeb.createRandom(options);
+    const newAccount = await tronWeb.createRandom("",path,wordlist);
 
     try {
         await tronWeb.fromMnemonic(newAccount.mnemonic.phrase, path, "en")
@@ -576,7 +569,7 @@ async function generateAccountWithMnemonicWordlist_nonexistent(){
 
     const path = "m/44'/195'/1'/2/3";
     const options = { path: path};
-    const newAccount = await tronWeb.utils.accounts.generateRandom(options);
+    const newAccount = await tronWeb.utils.accounts.generateRandom("",options.path);
 
     try {
         await tronWeb.utils.accounts.generateAccountWithMnemonic(newAccount.mnemonic.phrase, path, "jwerfa")
@@ -611,27 +604,29 @@ async function accountsTestAll(){
     await generateRandomWhenPath_accountIs3AndIndexIs99();
     await generateRandomWhenPath_error1();
     await generateRandomWhenPath_error2();
-    /* Only the test environment supports
+    // Only the test environment supports
     await generateRandomWhenWordlist_zh_cn();
     await generateRandomWhenWordlist_zh_tw();
     await generateRandomWhenWordlist_ko();
     await generateRandomWhenWordlist_ja();
-    await generateRandomWhenWordlist_it();*/
+    await generateRandomWhenWordlist_it();
+
     await generateRandomWhenWordlist_nonexistent();
     await generateRandomWhenWordlist_emptyChar();
-
     await generateAccountWithMnemonic_withCorrectPath();
     await generateAccountWithMnemonic_withTruncatedPath();
     await generateAccountWithMnemonic_withPathIsNotSame();
     await generateAccountWithMnemonic_withPathIsNull();
     await generateAccountWithMnemonic_withErrorPath();
-    /* Only the test environment supports
+
+    // Only the test environment supports
     await generateAccountWithMnemonicWordlist_zh_cn();
     await generateAccountWithMnemonicWordlist_zh_tw();
     await generateAccountWithMnemonicWordlist_ko();
     await generateAccountWithMnemonicWordlist_ja();
     await generateAccountWithMnemonicWordlist_it();
-    await generateAccountWithMnemonicWordlist_unmatch();*/
+    await generateAccountWithMnemonicWordlist_unmatch();
+
     await generateAccountWithMnemonicWordlist_nonexistent();
     await generateAccountWithMnemonicWordlist_isNull();
     console.log("accountsTestAll end")
